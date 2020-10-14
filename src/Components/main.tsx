@@ -1,7 +1,11 @@
-import { relative } from "path";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { countMinesAround, getMinesIndex } from "../utils/minesweeper";
+import {
+  revealChain,
+  countMinesAround,
+  getBoxesAround,
+  getMinesIndex,
+} from "../utils/minesweeper";
 
 export type TBox = {
   [key: number]: {
@@ -27,6 +31,11 @@ type TStart = {
   id: number;
 };
 
+type TOver = {
+  bool: boolean;
+  isVictory: boolean;
+};
+
 const Container = styled.div`
   display: grid;
   gap: 1px;
@@ -36,13 +45,23 @@ const MineBox = styled.div`
   width: 25px;
   height: 25px;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background-color: lightgray;
 `;
 
-const MineBoxShell = styled.div`
+interface IMineBoxShellProps {
+  isRevealed: boolean;
+  isMine: boolean;
+  over: TOver;
+  onClick: (e: any) => void;
+  onContextMenu: (e: any) => any;
+  onDoubleClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  onMouseDown: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  onMouseUp: (e: any) => void;
+  onMouseEnter: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  onMouseLeave: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+}
+
+const MineBoxShell = styled.div<IMineBoxShellProps>`
   position: absolute;
   width: 25px;
   height: 25px;
@@ -52,10 +71,32 @@ const MineBoxShell = styled.div`
   border-left: 3px solid whitesmoke;
   border-bottom: 2px solid dimgray;
   z-index: 10;
-  opacity: 0.5;
-`;
+  opacity: ${(props) => {
+    if (props.over.bool && !props.over.isVictory && props.isMine) {
+      console.log("Boom!!!");
+      return 0;
+    }
+    if (props.isRevealed) {
+      return 0;
+    }
+    if (!props.isRevealed) {
+      return 0.6;
+    }
+  }};
+` as React.FC<IMineBoxShellProps>;
 
-const BoxContent = styled.div``;
+interface IBoxContent {
+  isMine: boolean;
+}
+
+const BoxContent = styled.div<IBoxContent>`
+  width: 100%;
+  height: 100%;
+  background-color: ${(props) => (props.isMine ? "red" : "lightgray")};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+` as React.FC<IBoxContent>;
 
 // 9x9 16x16 30X16
 // 10   40    99
@@ -64,7 +105,13 @@ const midd = { totalMines: 40, size: { x: 16, y: 16 }, level: "moderate" };
 const hard = { totalMines: 99, size: { x: 30, y: 16 }, level: "hard" };
 const mineBoxSize = 25;
 
-const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+const handleMouseEnter = (
+  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  over: TOver
+) => {
+  if (over.bool) {
+    return;
+  }
   e.preventDefault();
   if (e.buttons === 1) {
     // 이전 박스를 클릭한 상태
@@ -79,7 +126,13 @@ const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     return;
   }
 };
-const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+const handleMouseLeave = (
+  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  over: TOver
+) => {
+  if (over.bool) {
+    return;
+  }
   e.preventDefault();
   if (e.buttons === 1) {
     console.log("you are draging");
@@ -94,7 +147,13 @@ const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
   }
 };
 
-const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+const handleMouseDown = (
+  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  over: TOver
+) => {
+  if (over.bool) {
+    return;
+  }
   e.preventDefault();
   console.log("mouse down");
   // 열린 상태라면 아무런 효과가 없음.
@@ -105,29 +164,77 @@ const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
   e.currentTarget.style.borderLeft = "2px solid dimgray";
 };
 
-const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+const handleDoubleClick = (
+  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  over: TOver
+) => {
+  if (over.bool) {
+    return;
+  }
   e.preventDefault();
   console.log("double click");
   // 이미 열린 박스이고 숫자라면
   // 1. 깃발을 제외한 주변의 박스를 연다.
 };
 
+const handleClick = (
+  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  boxes: TBox,
+  setBoxes: React.Dispatch<React.SetStateAction<TBox | null>>,
+  over: TOver,
+  setOver: React.Dispatch<React.SetStateAction<TOver>>,
+  mode: TMode
+) => {
+  if (over.bool) {
+    return;
+  }
+  e.preventDefault();
+  console.log("click: ");
+  const id = e.currentTarget.parentElement?.id ?? "";
+  const newBoxes: TBox = { ...boxes };
+  // 1. MineBox가 열림.
+  const box = boxes[parseInt(id)];
+  newBoxes[parseInt(id)].isRevealed = true;
+  // 2. 지뢰인 경우
+  if (box.isMine) {
+    console.log("You failed!");
+    setOver({ bool: true, isVictory: false });
+    return;
+  }
+
+  // 3. 0 인 경우
+  console.log(box.value);
+  if (box.value === 0) {
+    revealChain(mode, parseInt(id), newBoxes);
+  }
+  setBoxes(newBoxes);
+};
+
 const handleMouseUp = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   start: TStart,
-  setStart: React.Dispatch<React.SetStateAction<TStart>>
+  setStart: React.Dispatch<React.SetStateAction<TStart>>,
+  boxes: TBox,
+  setBoxes: React.Dispatch<React.SetStateAction<TBox | null>>,
+  over: TOver,
+  setOver: React.Dispatch<React.SetStateAction<TOver>>,
+  mode: TMode
 ) => {
+  if (over.bool) {
+    return;
+  }
   e.preventDefault();
+  e.currentTarget.style.borderTop = "3px solid whitesmoke";
+  e.currentTarget.style.borderRight = "2px solid dimgray";
+  e.currentTarget.style.borderBottom = "2px solid dimgray";
+  e.currentTarget.style.borderLeft = "3px solid whitesmoke";
   if (e.button === 0) {
     console.log("mouse up: ", e.button);
+    const id = e.currentTarget.parentElement?.id ?? "";
     // start!
     if (!start.bool) {
-      const id = e.currentTarget.parentElement?.id ?? "";
       setStart({ bool: true, id: parseInt(id) });
     }
-    // 1. MineBox가 열림.
-    e.currentTarget.style.opacity = "0";
-    // 2.
   } else if (e.button === 2) {
     console.log("right mouse up");
     // 초기화된 박스에만 효과를 미친다.
@@ -142,8 +249,9 @@ const handleMouseUp = (
 const Main = () => {
   const [mode, setMode] = useState<TMode>(midd);
   const [boxes, setBoxes] = useState<TBox | null>(null);
+  const [isReady, setIsReady] = useState(false);
   const [start, setStart] = useState<TStart>({ bool: false, id: 0 });
-  const [over, setOver] = useState({ bool: false, isVictory: false });
+  const [over, setOver] = useState<TOver>({ bool: false, isVictory: false });
 
   useEffect(() => {
     console.log("mode useEffect!");
@@ -178,9 +286,9 @@ const Main = () => {
           : false;
       });
       setBoxes(newBoxes);
+      setIsReady(true);
     }
   }, [start]);
-  console.log("boxes: ", boxes);
   return (
     <>
       <Container
@@ -191,19 +299,38 @@ const Main = () => {
         }}
       >
         {boxes &&
-          Object.entries(boxes).map(([_, { value }], i) => {
+          Object.entries(boxes).map(([_, { isRevealed, isMine, value }], i) => {
             return (
               <MineBox key={i} id={`${i + 1}`}>
                 <MineBoxShell
+                  isRevealed={isRevealed}
+                  over={over}
+                  isMine={isMine}
+                  onClick={(e) =>
+                    handleClick(e, boxes, setBoxes, over, setOver, mode)
+                  }
                   onContextMenu={(e) => e.preventDefault()}
-                  onDoubleClick={handleDoubleClick}
-                  onMouseDown={handleMouseDown}
-                  onMouseUp={(e) => handleMouseUp(e, start, setStart)}
-                  onMouseEnter={handleMouseEnter}
-                  onMouseLeave={handleMouseLeave}
+                  onDoubleClick={(e) => handleDoubleClick(e, over)}
+                  onMouseDown={(e) => handleMouseDown(e, over)}
+                  onMouseUp={(e) =>
+                    handleMouseUp(
+                      e,
+                      start,
+                      setStart,
+                      boxes,
+                      setBoxes,
+                      over,
+                      setOver,
+                      mode
+                    )
+                  }
+                  onMouseEnter={(e) => handleMouseEnter(e, over)}
+                  onMouseLeave={(e) => handleMouseLeave(e, over)}
                 ></MineBoxShell>
-                {start.bool && (
-                  <BoxContent>{value === -1 ? "💣" : value}</BoxContent>
+                {isReady && (
+                  <BoxContent isMine={isMine}>
+                    {value === -1 ? "💣" : value === 0 ? "" : value}
+                  </BoxContent>
                 )}
               </MineBox>
             );
