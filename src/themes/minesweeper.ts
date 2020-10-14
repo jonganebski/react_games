@@ -1,1 +1,3 @@
-export const minesweeperTheme = {};
+const minesweeperTheme = {};
+
+export default minesweeperTheme;
