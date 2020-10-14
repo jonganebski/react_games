@@ -3,8 +3,10 @@ import styled from "styled-components";
 import {
   revealChain,
   countMinesAround,
-  getBoxesAround,
   getMinesIndex,
+  revealAround,
+  didIStepped,
+  didIWon,
 } from "../utils/minesweeper";
 
 export type TBox = {
@@ -31,7 +33,7 @@ type TStart = {
   id: number;
 };
 
-type TOver = {
+export type TOver = {
   bool: boolean;
   isVictory: boolean;
 };
@@ -53,16 +55,17 @@ interface IMineBoxShellProps {
   isMine: boolean;
   over: TOver;
   onClick: (e: any) => void;
-  onContextMenu: (e: any) => any;
+  onContextMenu: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   onDoubleClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   onMouseDown: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-  onMouseUp: (e: any) => void;
+  onMouseUp: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   onMouseEnter: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   onMouseLeave: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
 const MineBoxShell = styled.div<IMineBoxShellProps>`
   position: absolute;
+  z-index: 10;
   width: 25px;
   height: 25px;
   background-color: lightgray;
@@ -70,7 +73,7 @@ const MineBoxShell = styled.div<IMineBoxShellProps>`
   border-right: 2px solid dimgray;
   border-left: 3px solid whitesmoke;
   border-bottom: 2px solid dimgray;
-  z-index: 10;
+  cursor: default;
   opacity: ${(props) => {
     if (props.over.bool && !props.over.isVictory && props.isMine) {
       console.log("Boom!!!");
@@ -96,6 +99,7 @@ const BoxContent = styled.div<IBoxContent>`
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: default;
 ` as React.FC<IBoxContent>;
 
 // 9x9 16x16 30X16
@@ -154,6 +158,9 @@ const handleMouseDown = (
   if (over.bool) {
     return;
   }
+  if (e.button === 2) {
+    return;
+  }
   e.preventDefault();
   console.log("mouse down");
   // 열린 상태라면 아무런 효과가 없음.
@@ -166,6 +173,9 @@ const handleMouseDown = (
 
 const handleDoubleClick = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  boxes: TBox,
+  setBoxes: React.Dispatch<React.SetStateAction<TBox | null>>,
+  mode: TMode,
   over: TOver
 ) => {
   if (over.bool) {
@@ -175,6 +185,14 @@ const handleDoubleClick = (
   console.log("double click");
   // 이미 열린 박스이고 숫자라면
   // 1. 깃발을 제외한 주변의 박스를 연다.
+  const id = e.currentTarget.parentElement?.id ?? "";
+  const newBoxes: TBox = { ...boxes };
+  const box = newBoxes[parseInt(id)];
+  if (!box.isRevealed || box.isFlaged || box.isQuestion) {
+    return;
+  }
+  revealAround(mode, parseInt(id), newBoxes);
+  setBoxes(newBoxes);
 };
 
 const handleClick = (
@@ -192,8 +210,11 @@ const handleClick = (
   console.log("click: ");
   const id = e.currentTarget.parentElement?.id ?? "";
   const newBoxes: TBox = { ...boxes };
-  // 1. MineBox가 열림.
   const box = boxes[parseInt(id)];
+  if (box.isFlaged || box.isQuestion) {
+    return;
+  }
+  // 1. MineBox가 열림.
   newBoxes[parseInt(id)].isRevealed = true;
   // 2. 지뢰인 경우
   if (box.isMine) {
@@ -201,11 +222,38 @@ const handleClick = (
     setOver({ bool: true, isVictory: false });
     return;
   }
-
   // 3. 0 인 경우
   console.log(box.value);
   if (box.value === 0) {
     revealChain(mode, parseInt(id), newBoxes);
+  }
+  setBoxes(newBoxes);
+};
+
+const handleContextMenu = (
+  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  boxes: TBox,
+  setBoxes: React.Dispatch<React.SetStateAction<TBox | null>>,
+  over: TOver
+) => {
+  console.log("clicked context menu");
+  if (over.bool) {
+    return;
+  }
+  e.preventDefault();
+  const newBoxes = { ...boxes };
+  const id = e.currentTarget.parentElement?.id ?? "";
+  const box = newBoxes[parseInt(id)];
+  if (box.isRevealed) {
+    return;
+  }
+  if (!box.isFlaged && !box.isQuestion) {
+    box.isFlaged = true;
+  } else if (box.isFlaged && !box.isQuestion) {
+    box.isFlaged = false;
+    box.isQuestion = true;
+  } else if (!box.isFlaged && box.isQuestion) {
+    box.isQuestion = false;
   }
   setBoxes(newBoxes);
 };
@@ -289,6 +337,20 @@ const Main = () => {
       setIsReady(true);
     }
   }, [start]);
+
+  useEffect(() => {
+    didIStepped(boxes, setOver);
+    didIWon(boxes, setOver);
+  }, [boxes]);
+
+  useEffect(() => {
+    if (over.bool && over.isVictory) {
+      alert("You won!");
+    }
+    if (over.bool && !over.isVictory) {
+      alert("You lost!");
+    }
+  }, [over]);
   return (
     <>
       <Container
@@ -299,42 +361,50 @@ const Main = () => {
         }}
       >
         {boxes &&
-          Object.entries(boxes).map(([_, { isRevealed, isMine, value }], i) => {
-            return (
-              <MineBox key={i} id={`${i + 1}`}>
-                <MineBoxShell
-                  isRevealed={isRevealed}
-                  over={over}
-                  isMine={isMine}
-                  onClick={(e) =>
-                    handleClick(e, boxes, setBoxes, over, setOver, mode)
-                  }
-                  onContextMenu={(e) => e.preventDefault()}
-                  onDoubleClick={(e) => handleDoubleClick(e, over)}
-                  onMouseDown={(e) => handleMouseDown(e, over)}
-                  onMouseUp={(e) =>
-                    handleMouseUp(
-                      e,
-                      start,
-                      setStart,
-                      boxes,
-                      setBoxes,
-                      over,
-                      setOver,
-                      mode
-                    )
-                  }
-                  onMouseEnter={(e) => handleMouseEnter(e, over)}
-                  onMouseLeave={(e) => handleMouseLeave(e, over)}
-                ></MineBoxShell>
-                {isReady && (
-                  <BoxContent isMine={isMine}>
-                    {value === -1 ? "💣" : value === 0 ? "" : value}
-                  </BoxContent>
-                )}
-              </MineBox>
-            );
-          })}
+          Object.entries(boxes).map(
+            ([_, { isRevealed, isMine, isFlaged, isQuestion, value }], i) => {
+              return (
+                <MineBox key={i} id={`${i + 1}`}>
+                  <MineBoxShell
+                    isRevealed={isRevealed}
+                    over={over}
+                    isMine={isMine}
+                    onClick={(e) =>
+                      handleClick(e, boxes, setBoxes, over, setOver, mode)
+                    }
+                    onContextMenu={(e) =>
+                      handleContextMenu(e, boxes, setBoxes, over)
+                    }
+                    onDoubleClick={(e) =>
+                      handleDoubleClick(e, boxes, setBoxes, mode, over)
+                    }
+                    onMouseDown={(e) => handleMouseDown(e, over)}
+                    onMouseUp={(e) =>
+                      handleMouseUp(
+                        e,
+                        start,
+                        setStart,
+                        boxes,
+                        setBoxes,
+                        over,
+                        setOver,
+                        mode
+                      )
+                    }
+                    onMouseEnter={(e) => handleMouseEnter(e, over)}
+                    onMouseLeave={(e) => handleMouseLeave(e, over)}
+                  >
+                    {isFlaged ? "🚩" : isQuestion ? "❓" : ""}
+                  </MineBoxShell>
+                  {isReady && (
+                    <BoxContent isMine={isMine}>
+                      {value === -1 ? "💣" : value === 0 ? "" : value}
+                    </BoxContent>
+                  )}
+                </MineBox>
+              );
+            }
+          )}
       </Container>
       <select
         defaultValue={midd.level}

@@ -1,4 +1,4 @@
-import { TBox, TMode } from "../Components/main";
+import { TBox, TMode, TOver } from "../Components/main";
 
 export const getMinesIndex = (mode: TMode, startId: number) => {
   const minesIndex = new Set();
@@ -15,7 +15,7 @@ export const getMinesIndex = (mode: TMode, startId: number) => {
   return minesIndex;
 };
 
-export const getBoxesAround = (mode: TMode, id: number) => {
+const getBoxesAround = (mode: TMode, id: number) => {
   let boxesAround = [];
   const lastId = mode.size.x * mode.size.y;
   const xLength = mode.size.x;
@@ -103,13 +103,58 @@ export const revealChain = (mode: TMode, initialId: number, boxes: TBox) => {
         if (boxes[id].value === 0 && !boxes[id].isRevealed) {
           foundEmptyBoxes.push(id);
         }
-        boxes[id].isRevealed = true;
+        if (!boxes[id].isFlaged && !boxes[id].isQuestion) {
+          boxes[id].isRevealed = true;
+        }
       }
     }
     unhandledEmptyBoxes = foundEmptyBoxes;
     foundEmptyBoxes = [];
     if (unhandledEmptyBoxes.length === 0) {
       break;
+    }
+  }
+};
+
+export const revealAround = (mode: TMode, id: number, boxes: TBox) => {
+  const boxesAround = getBoxesAround(mode, id);
+  boxesAround.forEach((id) => {
+    if (!boxes[id].isFlaged && !boxes[id].isQuestion) {
+      boxes[id].isRevealed = true;
+    }
+    if (boxes[id].value === 0) {
+      revealChain(mode, id, boxes);
+    }
+  });
+};
+
+export const didIStepped = (
+  boxes: TBox | null,
+  setOver: React.Dispatch<React.SetStateAction<TOver>>
+) => {
+  if (boxes) {
+    const iStepped = Object.entries(boxes).some(
+      ([_, { isMine, isRevealed }]) => isMine && isRevealed
+    );
+    if (iStepped) {
+      setOver({ bool: true, isVictory: false });
+    }
+  }
+};
+
+export const didIWon = (
+  boxes: TBox | null,
+  setOver: React.Dispatch<React.SetStateAction<TOver>>
+) => {
+  if (boxes) {
+    const isJobDone = Object.entries(boxes).every(([_, box]) =>
+      box.isMine ? box.isFlaged : box.isRevealed
+    );
+    if (isJobDone) {
+      setOver({ bool: true, isVictory: true });
+      return;
+    } else {
+      return;
     }
   }
 };
