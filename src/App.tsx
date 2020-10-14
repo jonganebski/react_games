@@ -1,11 +1,19 @@
 import React from "react";
 import Main from "./Components/main";
-import { Reset } from "styled-reset";
+import { reset } from "styled-reset";
+import { createGlobalStyle } from "styled-components";
+
+const GlobalStyle = createGlobalStyle`
+  ${reset}
+  *{
+    box-sizing: border-box;
+  }
+`;
 
 function App() {
   return (
     <>
-      <Reset />
+      <GlobalStyle />
       <Main />
     </>
   );
