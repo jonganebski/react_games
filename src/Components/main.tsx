@@ -1,9 +1,11 @@
+import { relative } from "path";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { countMinesAround, getMinesIndex } from "../utils/minesweeper";
 
 export type TBox = {
   [key: number]: {
+    value: number;
     isRevealed: boolean;
     isMine: boolean;
     isFlaged: boolean;
@@ -20,13 +22,28 @@ export type TMode = {
   level: string;
 };
 
+type TStart = {
+  bool: boolean;
+  id: number;
+};
+
 const Container = styled.div`
   display: grid;
-  background-color: dimgray;
   gap: 1px;
 `;
 
+const MineBox = styled.div`
+  width: 25px;
+  height: 25px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: lightgray;
+`;
+
 const MineBoxShell = styled.div`
+  position: absolute;
   width: 25px;
   height: 25px;
   background-color: lightgray;
@@ -34,14 +51,11 @@ const MineBoxShell = styled.div`
   border-right: 2px solid dimgray;
   border-left: 3px solid whitesmoke;
   border-bottom: 2px solid dimgray;
+  z-index: 10;
   opacity: 0.5;
 `;
 
-const MineBox = styled.div`
-  width: 25px;
-  height: 25px;
-  background-color: lightgray;
-`;
+const BoxContent = styled.div``;
 
 // 9x9 16x16 30X16
 // 10   40    99
@@ -91,15 +105,6 @@ const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
   e.currentTarget.style.borderLeft = "2px solid dimgray";
 };
 
-const handleContextMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-  e.preventDefault();
-  console.log("right click");
-  // 초기화된 박스에만 효과를 미친다.
-  // 1. 깃발 표시
-  // 2. 깃발이라면 물음표 표시
-  // 3. 물음표라면 원상복귀
-};
-
 const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
   e.preventDefault();
   console.log("double click");
@@ -107,72 +112,102 @@ const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
   // 1. 깃발을 제외한 주변의 박스를 연다.
 };
 
-const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+const handleMouseUp = (
+  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  start: TStart,
+  setStart: React.Dispatch<React.SetStateAction<TStart>>
+) => {
   e.preventDefault();
-
-  console.log("click");
-  // 1. MineBox가 열림.
-  e.currentTarget.style.opacity = "0";
-  // 2.
+  if (e.button === 0) {
+    console.log("mouse up: ", e.button);
+    // start!
+    if (!start.bool) {
+      const id = e.currentTarget.parentElement?.id ?? "";
+      setStart({ bool: true, id: parseInt(id) });
+    }
+    // 1. MineBox가 열림.
+    e.currentTarget.style.opacity = "0";
+    // 2.
+  } else if (e.button === 2) {
+    console.log("right mouse up");
+    // 초기화된 박스에만 효과를 미친다.
+    // 1. 깃발 표시
+    // 2. 깃발이라면 물음표 표시
+    // 3. 물음표라면 원상복귀
+  } else {
+    return;
+  }
 };
 
 const Main = () => {
   const [mode, setMode] = useState<TMode>(midd);
-  const [box, setBox] = useState<TBox | null>(null);
-  const [start, setStart] = useState(false);
+  const [boxes, setBoxes] = useState<TBox | null>(null);
+  const [start, setStart] = useState<TStart>({ bool: false, id: 0 });
+  const [over, setOver] = useState({ bool: false, isVictory: false });
 
   useEffect(() => {
-    const minesIndex = getMinesIndex(mode);
-    console.log(minesIndex);
+    console.log("mode useEffect!");
+    setStart({ bool: false, id: 0 });
+    setOver({ bool: false, isVictory: false });
     const stateArr = Array.from(Array(mode.size.x * mode.size.y).keys());
     const stateObj: TBox = {};
     stateArr.forEach(
       (num) =>
         (stateObj[num + 1] = {
-          isMine: minesIndex.has(num + 1) ? true : false,
+          value: -1,
+          isMine: false,
           isFlaged: false,
           isQuestion: false,
           isRevealed: false,
         })
     );
-    console.log(stateObj);
-    setBox(stateObj);
+    setBoxes(stateObj);
   }, [mode]);
 
+  useEffect(() => {
+    if (start.bool && boxes) {
+      const newBoxes = { ...boxes };
+      const minesIndex = getMinesIndex(mode, start.id);
+      Object.entries(boxes).forEach(([key, value]) => {
+        const count = countMinesAround(mode, minesIndex, parseInt(key));
+        newBoxes[parseInt(key)].value = minesIndex.has(parseInt(key))
+          ? -1
+          : count;
+        newBoxes[parseInt(key)].isMine = minesIndex.has(parseInt(key))
+          ? true
+          : false;
+      });
+      setBoxes(newBoxes);
+    }
+  }, [start]);
+  console.log("boxes: ", boxes);
   return (
     <>
       <Container
         style={{
           width: "min-content",
+          backgroundColor: "dimgray",
           gridTemplateColumns: `repeat(${mode.size.x}, ${mineBoxSize}px)`,
         }}
       >
-        {box &&
-          Object.entries(box).map(([_, { isMine }], i) => (
-            <MineBox
-              key={i}
-              id={`${i + 1}`}
-              style={{
-                zIndex: 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                position: "relative",
-              }}
-            >
-              {isMine ? "*" : countMinesAround(mode, box, i + 1)}
-              <MineBoxShell
-                onContextMenu={handleContextMenu}
-                onDoubleClick={handleDoubleClick}
-                onMouseDown={handleMouseDown}
-                onMouseUp={handleClick}
-                onClick={handleClick}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-                style={{ zIndex: 10, position: "absolute" }}
-              ></MineBoxShell>
-            </MineBox>
-          ))}
+        {boxes &&
+          Object.entries(boxes).map(([_, { value }], i) => {
+            return (
+              <MineBox key={i} id={`${i + 1}`}>
+                <MineBoxShell
+                  onContextMenu={(e) => e.preventDefault()}
+                  onDoubleClick={handleDoubleClick}
+                  onMouseDown={handleMouseDown}
+                  onMouseUp={(e) => handleMouseUp(e, start, setStart)}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                ></MineBoxShell>
+                {start.bool && (
+                  <BoxContent>{value === -1 ? "💣" : value}</BoxContent>
+                )}
+              </MineBox>
+            );
+          })}
       </Container>
       <select
         defaultValue={midd.level}
