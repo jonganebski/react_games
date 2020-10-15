@@ -1,4 +1,10 @@
-import { TBox, TMode, TOver } from "../../@types/minesweeper";
+import {
+  TBox,
+  TBoxValues,
+  TMode,
+  TOver,
+  TStart,
+} from "../../@types/minesweeper";
 
 export const getMinesIndex = (mode: TMode, startId: number) => {
   const minesIndex = new Set();
@@ -15,7 +21,7 @@ export const getMinesIndex = (mode: TMode, startId: number) => {
   return minesIndex;
 };
 
-const getBoxesAround = (mode: TMode, id: number) => {
+export const getBoxesAround = (mode: TMode, id: number) => {
   let boxesAround = [];
   const lastId = mode.size.x * mode.size.y;
   const xLength = mode.size.x;
@@ -117,15 +123,27 @@ export const revealChain = (mode: TMode, initialId: number, boxes: TBox) => {
 };
 
 export const revealAround = (mode: TMode, id: number, boxes: TBox) => {
+  const box = boxes[id];
+  let flagsCountAround = 0;
+  const minesCountAround = box.value;
   const boxesAround = getBoxesAround(mode, id);
   boxesAround.forEach((id) => {
-    if (!boxes[id].isFlaged && !boxes[id].isQuestion) {
-      boxes[id].isRevealed = true;
-    }
-    if (boxes[id].value === 0) {
-      revealChain(mode, id, boxes);
+    const box = boxes[id];
+    if (box.isFlaged) {
+      ++flagsCountAround;
     }
   });
+  if (flagsCountAround === minesCountAround) {
+    boxesAround.forEach((id) => {
+      const box = boxes[id];
+      if (!box.isFlaged && !box.isQuestion) {
+        box.isRevealed = true;
+      }
+      if (box.value === 0) {
+        revealChain(mode, id, boxes);
+      }
+    });
+  }
 };
 
 export const didIStepped = (
@@ -156,5 +174,37 @@ export const didIWon = (
     } else {
       return;
     }
+  }
+};
+
+export const paintPressed = (
+  e: React.MouseEvent<HTMLDivElement, MouseEvent>
+) => {
+  e.currentTarget.style.borderTop = "2px solid dimgray";
+  e.currentTarget.style.borderRight = "3px solid whitesmoke";
+  e.currentTarget.style.borderBottom = "3px solid whitesmoke";
+  e.currentTarget.style.borderLeft = "2px solid dimgray";
+};
+
+export const paintUnpressed = (
+  e: React.MouseEvent<HTMLDivElement, MouseEvent>
+) => {
+  e.currentTarget.style.borderTop = "3px solid whitesmoke";
+  e.currentTarget.style.borderRight = "2px solid dimgray";
+  e.currentTarget.style.borderBottom = "2px solid dimgray";
+  e.currentTarget.style.borderLeft = "3px solid whitesmoke";
+};
+
+export const startGame = (
+  id: number,
+  mode: TMode,
+  box: TBoxValues,
+  boxes: TBox,
+  setStart: React.Dispatch<React.SetStateAction<TStart>>
+) => {
+  setStart({ bool: true, id });
+  box.isRevealed = true;
+  if (box.value === 0) {
+    revealChain(mode, id, boxes);
   }
 };

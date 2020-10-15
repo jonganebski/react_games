@@ -1,11 +1,13 @@
+export type TBoxValues = {
+  value: number;
+  isRevealed: boolean;
+  isMine: boolean;
+  isFlaged: boolean;
+  isQuestion: boolean;
+};
+
 export type TBox = {
-  [key: number]: {
-    value: number;
-    isRevealed: boolean;
-    isMine: boolean;
-    isFlaged: boolean;
-    isQuestion: boolean;
-  };
+  [key: number]: TBoxValues;
 };
 
 export type TMode = {

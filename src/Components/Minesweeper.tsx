@@ -94,7 +94,6 @@ const Minesweeper = () => {
   const [over, setOver] = useState<TOver>({ bool: false, isVictory: false });
 
   useEffect(() => {
-    console.log("mode useEffect!");
     setStart({ bool: false, id: 0 });
     setOver({ bool: false, isVictory: false });
     const stateArr = Array.from(Array(mode.size.x * mode.size.y).keys());
@@ -135,16 +134,15 @@ const Minesweeper = () => {
     didIWon(boxes, setOver);
   }, [boxes]);
 
-  useEffect(() => {
-    if (over.bool && over.isVictory) {
-      alert("You won!");
-    }
-    if (over.bool && !over.isVictory) {
-      alert("You lost!");
-    }
-  }, [over]);
   return (
     <>
+      <span>
+        {!over.bool
+          ? ""
+          : over.bool && over.isVictory
+          ? "You won!"
+          : "You lost..."}
+      </span>
       <Container
         style={{
           width: "min-content",
@@ -162,29 +160,29 @@ const Minesweeper = () => {
                     over={over}
                     isMine={isMine}
                     onClick={(e) =>
-                      handleClick(e, boxes, setBoxes, over, setOver, mode)
+                      handleClick(e, mode, boxes, over, setBoxes, setOver)
                     }
                     onContextMenu={(e) =>
-                      handleContextMenu(e, boxes, setBoxes, over)
+                      handleContextMenu(e, boxes, over, setBoxes)
                     }
                     onDoubleClick={(e) =>
-                      handleDoubleClick(e, boxes, setBoxes, mode, over)
+                      handleDoubleClick(e, mode, boxes, over, setBoxes)
                     }
-                    onMouseDown={(e) => handleMouseDown(e, over)}
+                    onMouseDown={(e) => handleMouseDown(e, mode, over)}
                     onMouseUp={(e) =>
                       handleMouseUp(
                         e,
-                        start,
-                        setStart,
+                        mode,
                         boxes,
-                        setBoxes,
+                        start,
                         over,
-                        setOver,
-                        mode
+                        setBoxes,
+                        setStart,
+                        setOver
                       )
                     }
-                    onMouseEnter={(e) => handleMouseEnter(e, over)}
-                    onMouseLeave={(e) => handleMouseLeave(e, over)}
+                    onMouseEnter={(e) => handleMouseEnter(e, mode, over)}
+                    onMouseLeave={(e) => handleMouseLeave(e, mode, over)}
                   >
                     {isFlaged ? "🚩" : isQuestion ? "❓" : ""}
                   </MineBoxShell>
