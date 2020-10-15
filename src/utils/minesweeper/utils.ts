@@ -147,6 +147,7 @@ export const revealAround = (mode: TMode, id: number, boxes: TBox) => {
 
 export const didIStepped = (
   boxes: TBox | null,
+  indicatorRef: React.MutableRefObject<HTMLDivElement | null>,
   setOver: React.Dispatch<React.SetStateAction<TOver>>
 ) => {
   if (boxes) {
@@ -155,12 +156,16 @@ export const didIStepped = (
     );
     if (iStepped) {
       setOver({ bool: true, isVictory: false });
+      if (indicatorRef?.current) {
+        indicatorRef.current.style.backgroundColor = "red";
+      }
     }
   }
 };
 
 export const didIWon = (
   boxes: TBox | null,
+  indicatorRef: React.MutableRefObject<HTMLDivElement | null>,
   setOver: React.Dispatch<React.SetStateAction<TOver>>
 ) => {
   if (boxes) {
@@ -169,6 +174,9 @@ export const didIWon = (
     );
     if (isJobDone) {
       setOver({ bool: true, isVictory: true });
+      if (indicatorRef?.current) {
+        indicatorRef.current.style.backgroundColor = "green";
+      }
       return;
     } else {
       return;

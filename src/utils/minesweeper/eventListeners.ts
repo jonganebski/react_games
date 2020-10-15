@@ -115,7 +115,8 @@ export const handleMouseDown = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   mode: TMode,
   over: TOver,
-  boxes: TBox
+  boxes: TBox,
+  indicatorRef: React.MutableRefObject<HTMLDivElement | null>
 ) => {
   e.preventDefault();
   // VALIDATION
@@ -124,10 +125,15 @@ export const handleMouseDown = (
   }
   // VARIABLES
   const id = e.currentTarget.parentElement?.id ?? "";
+  // CHANGE INDICATOR
+  if (indicatorRef.current) {
+    indicatorRef.current.style.backgroundColor = "steelblue";
+  }
   // LEFT MOUSE DOWN
   if (e.button === 0) {
     leftDown = true;
     checkOrResetDown(e, parseInt(id), mode, boxes);
+    paintPressed(e.currentTarget);
     return;
   }
   // RIGHT MOUSE DOWN
@@ -244,6 +250,7 @@ export const handleMouseUp = (
   mode: TMode,
   boxes: TBox,
   over: TOver,
+  indicatorRef: React.MutableRefObject<HTMLDivElement | null>,
   setBoxes: React.Dispatch<React.SetStateAction<TBox | null>>
 ) => {
   e.preventDefault();
@@ -254,6 +261,10 @@ export const handleMouseUp = (
   // VARIABLES
   const newBoxes = { ...boxes };
   const id = e.currentTarget.parentElement?.id ?? "";
+  // CHANGE INDICATOR
+  if (indicatorRef.current) {
+    indicatorRef.current.style.backgroundColor = "peru";
+  }
   // MOUSE UP LEFT
   if (e.button === 0) {
     leftUp = true;
