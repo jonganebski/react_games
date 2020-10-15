@@ -3,8 +3,8 @@ import styled from "styled-components";
 import { TBox, TMode, TOver, TStart } from "../@types/minesweeper";
 import { easy, hard, midd, mineBoxSize } from "../constants/minesweeper";
 import {
+  handleAuxClick,
   handleClick,
-  handleContextMenu,
   handleDoubleClick,
   handleMouseDown,
   handleMouseEnter,
@@ -16,6 +16,7 @@ import {
   didIStepped,
   didIWon,
   getMinesIndex,
+  revealAround,
 } from "../utils/minesweeper/utils";
 
 // ------------- INTERFACE -------------
@@ -34,6 +35,7 @@ interface IMineBoxShellProps {
   onMouseUp: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   onMouseEnter: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   onMouseLeave: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  onAuxClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
 // ------------- STYLED COMPONENTS -------------
@@ -69,7 +71,7 @@ const MineBoxShell = styled.div<IMineBoxShellProps>`
       return 0;
     }
     if (!props.isRevealed) {
-      return 0.6;
+      return 1;
     }
   }};
 ` as React.FC<IMineBoxShellProps>;
@@ -115,7 +117,7 @@ const Minesweeper = () => {
     if (start.bool && boxes) {
       const newBoxes = { ...boxes };
       const minesIndex = getMinesIndex(mode, start.id);
-      Object.entries(boxes).forEach(([key, value]) => {
+      Object.entries(boxes).forEach(([key, _]) => {
         const count = countMinesAround(mode, minesIndex, parseInt(key));
         newBoxes[parseInt(key)].value = minesIndex.has(parseInt(key))
           ? -1
@@ -128,6 +130,12 @@ const Minesweeper = () => {
       setIsReady(true);
     }
   }, [start]);
+
+  useEffect(() => {
+    if (start.id !== 0 && boxes) {
+      revealAround(mode, start.id, boxes);
+    }
+  }, [start.id, boxes, mode]);
 
   useEffect(() => {
     didIStepped(boxes, setOver);
@@ -144,6 +152,7 @@ const Minesweeper = () => {
           : "You lost..."}
       </span>
       <Container
+        onContextMenu={(e) => e.preventDefault()}
         style={{
           width: "min-content",
           backgroundColor: "dimgray",
@@ -160,29 +169,27 @@ const Minesweeper = () => {
                     over={over}
                     isMine={isMine}
                     onClick={(e) =>
-                      handleClick(e, mode, boxes, over, setBoxes, setOver)
-                    }
-                    onContextMenu={(e) =>
-                      handleContextMenu(e, boxes, over, setBoxes)
-                    }
-                    onDoubleClick={(e) =>
-                      handleDoubleClick(e, mode, boxes, over, setBoxes)
-                    }
-                    onMouseDown={(e) => handleMouseDown(e, mode, over)}
-                    onMouseUp={(e) =>
-                      handleMouseUp(
+                      handleClick(
                         e,
                         mode,
                         boxes,
                         start,
                         over,
                         setBoxes,
-                        setStart,
-                        setOver
+                        setStart
                       )
                     }
-                    onMouseEnter={(e) => handleMouseEnter(e, mode, over)}
-                    onMouseLeave={(e) => handleMouseLeave(e, mode, over)}
+                    onAuxClick={(e) => handleAuxClick(e, boxes, over, setBoxes)}
+                    onContextMenu={(e) => e.preventDefault()}
+                    onDoubleClick={(e) =>
+                      handleDoubleClick(e, mode, boxes, over, setBoxes)
+                    }
+                    onMouseDown={(e) => handleMouseDown(e, mode, over, boxes)}
+                    onMouseUp={(e) =>
+                      handleMouseUp(e, mode, boxes, over, setBoxes)
+                    }
+                    onMouseEnter={(e) => handleMouseEnter(e, mode, over, boxes)}
+                    onMouseLeave={(e) => handleMouseLeave(e, mode, over, boxes)}
                   >
                     {isFlaged ? "🚩" : isQuestion ? "❓" : ""}
                   </MineBoxShell>

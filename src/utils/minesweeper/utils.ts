@@ -9,7 +9,6 @@ import {
 export const getMinesIndex = (mode: TMode, startId: number) => {
   const minesIndex = new Set();
   for (let i = 0; i < 1000; i++) {
-    console.log("loop");
     const index = Math.ceil(Math.random() * mode.size.x * mode.size.y);
     if (index !== startId) {
       minesIndex.add(index);
@@ -177,22 +176,40 @@ export const didIWon = (
   }
 };
 
-export const paintPressed = (
-  e: React.MouseEvent<HTMLDivElement, MouseEvent>
-) => {
-  e.currentTarget.style.borderTop = "2px solid dimgray";
-  e.currentTarget.style.borderRight = "3px solid whitesmoke";
-  e.currentTarget.style.borderBottom = "3px solid whitesmoke";
-  e.currentTarget.style.borderLeft = "2px solid dimgray";
+export const paintPressed = (target: EventTarget & HTMLDivElement) => {
+  target.style.borderTop = "2px solid dimgray";
+  target.style.borderRight = "3px solid whitesmoke";
+  target.style.borderBottom = "3px solid whitesmoke";
+  target.style.borderLeft = "2px solid dimgray";
 };
 
-export const paintUnpressed = (
-  e: React.MouseEvent<HTMLDivElement, MouseEvent>
-) => {
-  e.currentTarget.style.borderTop = "3px solid whitesmoke";
-  e.currentTarget.style.borderRight = "2px solid dimgray";
-  e.currentTarget.style.borderBottom = "2px solid dimgray";
-  e.currentTarget.style.borderLeft = "3px solid whitesmoke";
+export const paintUnpressed = (target: EventTarget & HTMLDivElement) => {
+  target.style.borderTop = "3px solid whitesmoke";
+  target.style.borderRight = "2px solid dimgray";
+  target.style.borderBottom = "2px solid dimgray";
+  target.style.borderLeft = "3px solid whitesmoke";
+};
+
+export const paintPressedAround = (mode: TMode, id: number, boxes: TBox) => {
+  const boxesAround = getBoxesAround(mode, id);
+  boxesAround.forEach((id) => {
+    const boxElement = document.getElementById(id.toString())?.firstChild;
+    const box = boxes[id];
+    if (boxElement && !box.isFlaged && !box.isQuestion) {
+      paintPressed(boxElement as HTMLDivElement);
+    }
+  });
+};
+
+export const paintUnpressedAround = (mode: TMode, id: number, boxes: TBox) => {
+  const boxesAround = getBoxesAround(mode, id);
+  boxesAround.forEach((id) => {
+    const boxElement = document.getElementById(id.toString())?.firstChild;
+    const box = boxes[id];
+    if (boxElement && !box.isFlaged && !box.isQuestion) {
+      paintUnpressed(boxElement as HTMLDivElement);
+    }
+  });
 };
 
 export const startGame = (
@@ -204,7 +221,4 @@ export const startGame = (
 ) => {
   setStart({ bool: true, id });
   box.isRevealed = true;
-  if (box.value === 0) {
-    revealChain(mode, id, boxes);
-  }
 };

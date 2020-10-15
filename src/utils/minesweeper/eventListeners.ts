@@ -1,34 +1,85 @@
 import { TBox, TMode, TOver, TStart } from "../../@types/minesweeper";
 import {
-  getBoxesAround,
   paintPressed,
+  paintPressedAround,
   paintUnpressed,
+  paintUnpressedAround,
   revealAround,
   revealChain,
   startGame,
 } from "./utils";
 
-let isDragging = false;
+let leftDown = false;
+let rightDown = false;
+let leftUp = false;
+let rightUp = false;
+
+// ------------- BOTH DOWN OR RESET -------------
+
+const checkOrResetDown = (
+  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  id: number,
+  mode: TMode,
+  boxes: TBox
+) => {
+  if (leftDown && rightDown) {
+    // BOTH DOWN
+    paintPressed(e.currentTarget);
+    paintPressedAround(mode, id, boxes);
+  } else {
+    // IF NOT BOTH DOWN, RESET
+    setTimeout(() => {
+      leftDown = false;
+      rightDown = false;
+    }, 200);
+  }
+};
+
+// ------------- BOTH UP OR RESET -------------
+
+const checkOrResetUp = (
+  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  id: number,
+  newBoxes: TBox,
+  mode: TMode
+) => {
+  if (leftUp && rightUp) {
+    // BOTH UP
+    paintUnpressed(e.currentTarget);
+    paintUnpressedAround(mode, id, newBoxes);
+    revealAround(mode, id, newBoxes);
+  } else {
+    // IF NOT BOTH UP, RESET
+    setTimeout(() => {
+      leftUp = false;
+      rightUp = false;
+    }, 300);
+  }
+};
 
 // ------------- ON MOUSE ENTER -------------
 
 export const handleMouseEnter = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   mode: TMode,
-  over: TOver
+  over: TOver,
+  boxes: TBox
 ) => {
   e.preventDefault();
   // VALIDATION
   if (over.bool) {
     return;
   }
+  // VARIABLES
+  const id = e.currentTarget.parentElement?.id ?? "";
   // ENTER WITH LEFT CLICKED
   if (e.buttons === 1) {
-    isDragging = true;
-    paintPressed(e);
+    paintPressed(e.currentTarget);
   }
   // ENTER WITH BOTH CLICKED
   if (e.buttons === 3) {
+    paintPressed(e.currentTarget);
+    paintPressedAround(mode, parseInt(id), boxes);
   }
 };
 
@@ -37,19 +88,24 @@ export const handleMouseEnter = (
 export const handleMouseLeave = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   mode: TMode,
-  over: TOver
+  over: TOver,
+  boxes: TBox
 ) => {
   e.preventDefault();
   // VALIDATION
   if (over.bool) {
     return;
   }
+  // VARIABLES
+  const id = e.currentTarget.parentElement?.id ?? "";
   // LEAVE WITH LEFT CLICKED
   if (e.buttons === 1) {
-    paintUnpressed(e);
+    paintUnpressed(e.currentTarget);
   }
   // LEAVE WITH BOTH CLICKED
   if (e.buttons === 3) {
+    paintUnpressed(e.currentTarget);
+    paintUnpressedAround(mode, parseInt(id), boxes);
   }
 };
 
@@ -58,19 +114,27 @@ export const handleMouseLeave = (
 export const handleMouseDown = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   mode: TMode,
-  over: TOver
+  over: TOver,
+  boxes: TBox
 ) => {
   e.preventDefault();
   // VALIDATION
   if (over.bool) {
     return;
   }
+  // VARIABLES
+  const id = e.currentTarget.parentElement?.id ?? "";
   // LEFT MOUSE DOWN
-  if (e.buttons === 1) {
-    paintPressed(e);
+  if (e.button === 0) {
+    leftDown = true;
+    checkOrResetDown(e, parseInt(id), mode, boxes);
+    return;
   }
-  // BOTH MOUSE DOWN
-  if (e.buttons === 3) {
+  // RIGHT MOUSE DOWN
+  if (e.button === 2) {
+    rightDown = true;
+    checkOrResetDown(e, parseInt(id), mode, boxes);
+    return;
   }
 };
 
@@ -98,6 +162,7 @@ export const handleDoubleClick = (
   }
   // REVEAL AROUND
   revealAround(mode, parseInt(id), newBoxes);
+  // UPDATE
   setBoxes(newBoxes);
 };
 
@@ -107,16 +172,16 @@ export const handleClick = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   mode: TMode,
   boxes: TBox,
+  start: TStart,
   over: TOver,
   setBoxes: React.Dispatch<React.SetStateAction<TBox | null>>,
-  setOver: React.Dispatch<React.SetStateAction<TOver>>
+  setStart: React.Dispatch<React.SetStateAction<TStart>>
 ) => {
   e.preventDefault();
   // VALIDATION
-  if (over.bool) {
+  if (over.bool || e.buttons === 2) {
     return;
   }
-  console.log("click: ");
   // VARIABLES
   const newBoxes: TBox = { ...boxes };
   const id = e.currentTarget.parentElement?.id ?? "";
@@ -125,17 +190,22 @@ export const handleClick = (
   if (box.isFlaged || box.isQuestion) {
     return;
   }
+  // START GAME
+  if (!start.bool) {
+    startGame(parseInt(id), mode, box, newBoxes, setStart);
+  }
   // REVEAL & REVEAL CHAINING
   box.isRevealed = true;
   if (box.value === 0) {
-    revealChain(mode, parseInt(id), newBoxes);
+    revealChain(mode, parseInt(id), boxes);
   }
+  // UPDATE
   setBoxes(newBoxes);
 };
 
-// ------------- ON CONTEXT MENU -------------
+// ------------- ON AUX CLICK -------------
 
-export const handleContextMenu = (
+export const handleAuxClick = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   boxes: TBox,
   over: TOver,
@@ -143,7 +213,7 @@ export const handleContextMenu = (
 ) => {
   e.preventDefault();
   // VALIDATION
-  if (over.bool) {
+  if (over.bool || e.buttons === 1) {
     return;
   }
   // VARIABLES
@@ -163,6 +233,7 @@ export const handleContextMenu = (
   } else if (!box.isFlaged && box.isQuestion) {
     box.isQuestion = false;
   }
+  // UPDATE
   setBoxes(newBoxes);
 };
 
@@ -172,15 +243,10 @@ export const handleMouseUp = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   mode: TMode,
   boxes: TBox,
-  start: TStart,
   over: TOver,
-  setBoxes: React.Dispatch<React.SetStateAction<TBox | null>>,
-  setStart: React.Dispatch<React.SetStateAction<TStart>>,
-  setOver: React.Dispatch<React.SetStateAction<TOver>>
+  setBoxes: React.Dispatch<React.SetStateAction<TBox | null>>
 ) => {
   e.preventDefault();
-  console.log("mouseup button", e.button);
-  console.log("mouseup buttons", e.buttons);
   // VALIDATION
   if (over.bool) {
     return;
@@ -188,18 +254,20 @@ export const handleMouseUp = (
   // VARIABLES
   const newBoxes = { ...boxes };
   const id = e.currentTarget.parentElement?.id ?? "";
-  const box = newBoxes[parseInt(id)];
   // MOUSE UP LEFT
   if (e.button === 0) {
-    paintUnpressed(e);
-    if (!start.bool) {
-      startGame(parseInt(id), mode, box, newBoxes, setStart);
-    }
+    leftUp = true;
+    checkOrResetUp(e, parseInt(id), newBoxes, mode);
+    paintUnpressed(e.currentTarget);
+    paintUnpressedAround(mode, parseInt(id), newBoxes);
   }
-  // MOUSE UP BOTH
-  if (e.buttons === 3) {
-    revealAround(mode, parseInt(id), boxes);
+  // MOUSE UP RIGHT
+  if (e.button === 2) {
+    rightUp = true;
+    checkOrResetUp(e, parseInt(id), newBoxes, mode);
+    paintUnpressed(e.currentTarget);
+    paintUnpressedAround(mode, parseInt(id), newBoxes);
   }
-  isDragging = false;
+  // UPDATE
   setBoxes(newBoxes);
 };
