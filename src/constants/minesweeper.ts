@@ -5,4 +5,4 @@ export const midd = {
   level: "moderate",
 };
 export const hard = { totalMines: 99, size: { x: 30, y: 16 }, level: "hard" };
-export const mineBoxSize = 25;
+export const mineBoxSize = 30;

@@ -24,10 +24,14 @@ import Timer from "./Timer";
 
 interface IBoxContent {
   isMine: boolean;
+  isRevealed: boolean;
+  isFlaged: boolean;
+  over: TOver;
 }
 interface IMineBoxShellProps {
   isRevealed: boolean;
   isMine: boolean;
+  isFlaged: boolean;
   over: TOver;
   onClick: (e: any) => void;
   onContextMenu: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
@@ -46,8 +50,8 @@ const Container = styled.div`
 `;
 
 const MineBox = styled.div`
-  width: 25px;
-  height: 25px;
+  width: ${mineBoxSize}px;
+  height: ${mineBoxSize}px;
   position: relative;
   background-color: lightgray;
 `;
@@ -55,8 +59,11 @@ const MineBox = styled.div`
 const MineBoxShell = styled.div<IMineBoxShellProps>`
   position: absolute;
   z-index: 10;
-  width: 25px;
-  height: 25px;
+  width: ${mineBoxSize}px;
+  height: ${mineBoxSize}px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: lightgray;
   border-top: 3px solid whitesmoke;
   border-right: 2px solid dimgray;
@@ -64,7 +71,12 @@ const MineBoxShell = styled.div<IMineBoxShellProps>`
   border-bottom: 2px solid dimgray;
   cursor: default;
   opacity: ${(props) => {
-    if (props.over.bool && !props.over.isVictory && props.isMine) {
+    if (
+      props.over.bool &&
+      !props.over.isVictory &&
+      props.isMine &&
+      !props.isFlaged
+    ) {
       console.log("Boom!!!");
       return 0;
     }
@@ -80,7 +92,15 @@ const MineBoxShell = styled.div<IMineBoxShellProps>`
 const BoxContent = styled.div<IBoxContent>`
   width: 100%;
   height: 100%;
-  background-color: ${(props) => (props.isMine ? "red" : "lightgray")};
+  background-color: ${(props) =>
+    props.isMine && props.isRevealed
+      ? "red"
+      : props.isMine &&
+        props.over.bool &&
+        !props.over.isVictory &&
+        !props.isFlaged
+      ? "red"
+      : "lightgray"};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -105,15 +125,20 @@ const Minesweeper = () => {
   const [flagCount, setFlagCount] = useState(0);
   const indicatorRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
+  const initialized = !start.bool && !over.bool && !isReady;
+  const initialize = () => {
     setStart({ bool: false, id: 0 });
     setOver({ bool: false, isVictory: false });
+    setIsReady(false);
+  };
+
+  useEffect(() => {
+    initialize();
   }, [mode]);
 
   // Create object with out value and mine. This is just for layout.
   useEffect(() => {
-    if (!start.bool && !over.bool) {
-      setIsReady(false);
+    if (initialized) {
       if (indicatorRef.current) {
         indicatorRef.current.style.backgroundColor = "peru";
       }
@@ -131,7 +156,7 @@ const Minesweeper = () => {
       );
       setBoxes(stateObj);
     }
-  }, [mode, start, over]);
+  }, [mode, start, over, initialized]);
 
   // The mines will be deployed after user's initial click. It prevents initial click is dead end.
   useEffect(() => {
@@ -180,15 +205,7 @@ const Minesweeper = () => {
           ? "You won!"
           : "You lost..."}
       </span>
-      <button
-        onClick={() => {
-          setIsReady(false);
-          setStart({ bool: false, id: 0 });
-          setOver({ bool: false, isVictory: false });
-        }}
-      >
-        new game
-      </button>
+      <button onClick={initialize}>new game</button>
       <span>{mode.totalMines - flagCount}</span>
       <div
         ref={indicatorRef}
@@ -211,6 +228,7 @@ const Minesweeper = () => {
                     isRevealed={isRevealed}
                     over={over}
                     isMine={isMine}
+                    isFlaged={isFlaged}
                     onClick={(e) =>
                       handleClick(
                         e,
@@ -246,8 +264,19 @@ const Minesweeper = () => {
                     {isFlaged ? "🚩" : isQuestion ? "❓" : ""}
                   </MineBoxShell>
                   {isReady && (
-                    <BoxContent isMine={isMine}>
-                      {value === -1 ? "💣" : value === 0 ? "" : value}
+                    <BoxContent
+                      isMine={isMine}
+                      isRevealed={isRevealed}
+                      isFlaged={isFlaged}
+                      over={over}
+                    >
+                      {value === -1 && isRevealed
+                        ? "💣"
+                        : value === -1 && over.bool
+                        ? "💣"
+                        : value !== 0 && isRevealed
+                        ? value
+                        : ""}
                     </BoxContent>
                   )}
                 </MineBox>
@@ -271,7 +300,7 @@ const Minesweeper = () => {
         <option value={midd.level}>Moderate</option>
         <option value={hard.level}>Hard</option>
       </select>
-      <Timer start={start} over={over} isReady={isReady} />
+      <Timer start={start} over={over} />
     </>
   );
 };

@@ -5,10 +5,9 @@ import { timeToString } from "../utils/globalUtils";
 interface ITimerProps {
   start: TStart;
   over: TOver;
-  isReady: boolean;
 }
 
-const Timer: React.FC<ITimerProps> = ({ start, over, isReady }) => {
+const Timer: React.FC<ITimerProps> = ({ start, over }) => {
   const [time, setTime] = useState(0);
   const [startedAt, setStartedAt] = useState(0);
   useEffect(() => {
