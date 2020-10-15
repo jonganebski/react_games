@@ -1,4 +1,4 @@
-import { TBox, TMode, TOver } from "../Components/main";
+import { TBox, TMode, TOver } from "../../@types/minesweeper";
 
 export const getMinesIndex = (mode: TMode, startId: number) => {
   const minesIndex = new Set();

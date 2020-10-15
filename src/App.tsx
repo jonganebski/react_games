@@ -1,5 +1,5 @@
 import React from "react";
-import Main from "./Components/main";
+import Minesweeper from "./Components/Minesweeper";
 import { reset } from "styled-reset";
 import { createGlobalStyle } from "styled-components";
 
@@ -14,7 +14,7 @@ function App() {
   return (
     <>
       <GlobalStyle />
-      <Main />
+      <Minesweeper />
     </>
   );
 }
