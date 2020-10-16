@@ -1,46 +1,44 @@
 import React, { useEffect, useState } from "react";
-import { TOver, TStart } from "../@types/minesweeper";
+import styled from "styled-components";
 import { timeToString } from "../utils/globalUtils";
 
 interface ITimerProps {
-  start: TStart;
-  over: TOver;
+  status: number;
+  time: number;
+  setTime: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const Timer: React.FC<ITimerProps> = ({ start, over }) => {
-  const [time, setTime] = useState(0);
-  const [startedAt, setStartedAt] = useState(0);
-  useEffect(() => {
-    if (start.bool) {
-      setStartedAt(Date.now());
-    } else {
-      setTimeout(() => {
-        setTime(0);
-      }, 100);
-    }
-  }, [start.bool]);
+const Box = styled.div`
+  padding: 3px 5px 3px 5px;
+  background-color: black;
+  color: red;
+  font-family: "Press Start 2P", cursive;
+`;
+
+const Timer: React.FC<ITimerProps> = ({ time, status, setTime }) => {
+  // const [time, setTime] = useState(0);
+  const [id, setId] = useState(0);
 
   useEffect(() => {
-    if (start.bool && startedAt && !over.bool) {
-      setTimeout(() => {
-        const elapsedTime = Date.now() - startedAt;
-        setTime(elapsedTime);
+    if (status === 0) {
+      setTime(0);
+    }
+    if (status === 1) {
+      const startedAt = Date.now();
+      const id = setInterval(() => {
+        setTime(Date.now() - startedAt);
       }, 10);
+      setId(id);
     }
-  }, [time, start.bool, over.bool, startedAt]);
+  }, [setTime, status]);
 
-  useEffect(() => {
-    if (over.bool) {
-      setTimeout(() => {
-        const time = document.getElementById("time")?.innerText;
-        console.log(time);
-      }, 100);
-    }
-  }, [over.bool]);
+  if (status !== 1) {
+    clearInterval(id);
+  }
 
   return (
     <>
-      <div id="time">{timeToString(time)}</div>
+      <Box>{timeToString(time)}</Box>
     </>
   );
 };

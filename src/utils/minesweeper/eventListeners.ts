@@ -1,5 +1,7 @@
-import { TBox, TMode, TOver, TStart } from "../../@types/minesweeper";
+import { TBox, TMode } from "../../@types/minesweeper";
 import {
+  countMinesAround,
+  getMinesIndex,
   paintPressed,
   paintPressedAround,
   paintUnpressed,
@@ -22,16 +24,16 @@ const checkOrResetDown = (
   mode: TMode,
   boxes: TBox
 ) => {
+  paintPressed(e.currentTarget);
   if (leftDown && rightDown) {
     // BOTH DOWN
-    paintPressed(e.currentTarget);
     paintPressedAround(mode, id, boxes);
   } else {
     // IF NOT BOTH DOWN, RESET
     setTimeout(() => {
       leftDown = false;
       rightDown = false;
-    }, 200);
+    }, 20);
   }
 };
 
@@ -43,17 +45,17 @@ const checkOrResetUp = (
   newBoxes: TBox,
   mode: TMode
 ) => {
+  paintUnpressed(e.currentTarget);
+  paintUnpressedAround(mode, id, newBoxes);
   if (leftUp && rightUp) {
     // BOTH UP
-    paintUnpressed(e.currentTarget);
-    paintUnpressedAround(mode, id, newBoxes);
     revealAround(mode, id, newBoxes);
   } else {
     // IF NOT BOTH UP, RESET
     setTimeout(() => {
       leftUp = false;
       rightUp = false;
-    }, 300);
+    }, 20);
   }
 };
 
@@ -62,12 +64,12 @@ const checkOrResetUp = (
 export const handleMouseEnter = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   mode: TMode,
-  over: TOver,
+  status: number,
   boxes: TBox
 ) => {
   e.preventDefault();
   // VALIDATION
-  if (over.bool) {
+  if (status > 1) {
     return;
   }
   // VARIABLES
@@ -88,12 +90,12 @@ export const handleMouseEnter = (
 export const handleMouseLeave = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   mode: TMode,
-  over: TOver,
+  status: number,
   boxes: TBox
 ) => {
   e.preventDefault();
   // VALIDATION
-  if (over.bool) {
+  if (status > 1) {
     return;
   }
   // VARIABLES
@@ -114,26 +116,25 @@ export const handleMouseLeave = (
 export const handleMouseDown = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   mode: TMode,
-  over: TOver,
+  status: number,
   boxes: TBox,
-  indicatorRef: React.MutableRefObject<HTMLDivElement | null>
+  indicatorRef: React.MutableRefObject<HTMLButtonElement | null>
 ) => {
   e.preventDefault();
   // VALIDATION
-  if (over.bool) {
+  if (status > 1) {
     return;
   }
   // VARIABLES
   const id = e.currentTarget.parentElement?.id ?? "";
   // CHANGE INDICATOR
   if (indicatorRef.current) {
-    indicatorRef.current.style.backgroundColor = "steelblue";
+    indicatorRef.current.innerHTML = `<span role="img" aria-label="imoji">😮</span>`;
   }
   // LEFT MOUSE DOWN
   if (e.button === 0) {
     leftDown = true;
     checkOrResetDown(e, parseInt(id), mode, boxes);
-    paintPressed(e.currentTarget);
     return;
   }
   // RIGHT MOUSE DOWN
@@ -150,12 +151,12 @@ export const handleDoubleClick = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   mode: TMode,
   boxes: TBox,
-  over: TOver,
+  status: number,
   setBoxes: React.Dispatch<React.SetStateAction<TBox | null>>
 ) => {
   e.preventDefault();
   // VALIDATION
-  if (over.bool) {
+  if (status > 1) {
     return;
   }
   // VARIABLES
@@ -178,14 +179,14 @@ export const handleClick = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   mode: TMode,
   boxes: TBox,
-  start: TStart,
-  over: TOver,
+  status: number,
   setBoxes: React.Dispatch<React.SetStateAction<TBox | null>>,
-  setStart: React.Dispatch<React.SetStateAction<TStart>>
+  setStatus: React.Dispatch<React.SetStateAction<number>>,
+  setIsReady: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   e.preventDefault();
   // VALIDATION
-  if (over.bool || e.buttons === 2) {
+  if (status > 1 || e.buttons === 2) {
     return;
   }
   // VARIABLES
@@ -197,8 +198,20 @@ export const handleClick = (
     return;
   }
   // START GAME
-  if (!start.bool) {
-    startGame(parseInt(id), mode, box, newBoxes, setStart);
+  if (status === 0) {
+    const minesIndex = getMinesIndex(mode, parseInt(id));
+    Object.keys(boxes).forEach((key) => {
+      const count = countMinesAround(mode, minesIndex, parseInt(key));
+      newBoxes[parseInt(key)].value = minesIndex.has(parseInt(key))
+        ? -1
+        : count;
+      newBoxes[parseInt(key)].isMine = minesIndex.has(parseInt(key))
+        ? true
+        : false;
+    });
+    setBoxes(newBoxes);
+    setIsReady(true);
+    startGame(box, setStatus);
   }
   // REVEAL & REVEAL CHAINING
   box.isRevealed = true;
@@ -214,12 +227,12 @@ export const handleClick = (
 export const handleAuxClick = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   boxes: TBox,
-  over: TOver,
+  status: number,
   setBoxes: React.Dispatch<React.SetStateAction<TBox | null>>
 ) => {
   e.preventDefault();
   // VALIDATION
-  if (over.bool || e.buttons === 1) {
+  if (status > 1 || e.buttons === 1) {
     return;
   }
   // VARIABLES
@@ -249,13 +262,13 @@ export const handleMouseUp = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   mode: TMode,
   boxes: TBox,
-  over: TOver,
-  indicatorRef: React.MutableRefObject<HTMLDivElement | null>,
+  status: number,
+  indicatorRef: React.MutableRefObject<HTMLButtonElement | null>,
   setBoxes: React.Dispatch<React.SetStateAction<TBox | null>>
 ) => {
   e.preventDefault();
   // VALIDATION
-  if (over.bool) {
+  if (status > 1) {
     return;
   }
   // VARIABLES
@@ -263,21 +276,17 @@ export const handleMouseUp = (
   const id = e.currentTarget.parentElement?.id ?? "";
   // CHANGE INDICATOR
   if (indicatorRef.current) {
-    indicatorRef.current.style.backgroundColor = "peru";
+    indicatorRef.current.innerHTML = `<span role="img" aria-label="imoji">🙂</span>`;
   }
   // MOUSE UP LEFT
   if (e.button === 0) {
     leftUp = true;
     checkOrResetUp(e, parseInt(id), newBoxes, mode);
-    paintUnpressed(e.currentTarget);
-    paintUnpressedAround(mode, parseInt(id), newBoxes);
   }
   // MOUSE UP RIGHT
   if (e.button === 2) {
     rightUp = true;
     checkOrResetUp(e, parseInt(id), newBoxes, mode);
-    paintUnpressed(e.currentTarget);
-    paintUnpressedAround(mode, parseInt(id), newBoxes);
   }
   // UPDATE
   setBoxes(newBoxes);

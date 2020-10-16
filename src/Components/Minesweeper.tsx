@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
-import styled from "styled-components";
-import { TBox, TMode, TOver, TStart } from "../@types/minesweeper";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import styled, { keyframes } from "styled-components";
+import { TBox, TLeaderboards, TMode } from "../@types/minesweeper";
 import { easy, hard, midd, mineBoxSize } from "../constants/minesweeper";
 import {
   handleAuxClick,
@@ -12,27 +12,29 @@ import {
   handleMouseUp,
 } from "../utils/minesweeper/eventListeners";
 import {
-  countMinesAround,
-  didIStepped,
-  didIWon,
-  getMinesIndex,
-  revealAround,
-} from "../utils/minesweeper/utils";
+  getContentColor,
+  getShellOpacity,
+} from "../utils/minesweeper/styleHandlers";
+import { didIStepped, didIWon } from "../utils/minesweeper/utils";
 import Timer from "./Timer";
+import Leaderboard from "./Leaderboard";
+import Popup from "./Popup";
 
 // ------------- INTERFACE -------------
 
-interface IBoxContent {
+export interface IBoxContent {
+  value: number;
   isMine: boolean;
   isRevealed: boolean;
   isFlaged: boolean;
-  over: TOver;
+  status: number;
 }
-interface IMineBoxShellProps {
+export interface IMineBoxShellProps {
   isRevealed: boolean;
   isMine: boolean;
   isFlaged: boolean;
-  over: TOver;
+  isQuestion: boolean;
+  status: number;
   onClick: (e: any) => void;
   onContextMenu: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   onDoubleClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
@@ -40,23 +42,74 @@ interface IMineBoxShellProps {
   onMouseUp: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   onMouseEnter: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   onMouseLeave: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-  onAuxClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
 // ------------- STYLED COMPONENTS -------------
-const Container = styled.div`
-  display: grid;
-  gap: 1px;
+
+const Header = styled.header`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 20px 5px 20px;
+  margin-bottom: 10px;
+  background-color: silver;
+  border-top: 2px solid whitesmoke;
+  border-right: 2px solid dimgray;
+  border-left: 2px solid whitesmoke;
+  border-bottom: 2px solid dimgray;
 `;
 
-const MineBox = styled.div`
+const MinesCount = styled.div`
+  padding: 3px 5px 3px 5px;
+  background-color: black;
+  color: red;
+  font-family: "Press Start 2P", cursive;
+`;
+
+const rotate = keyframes`
+from {transform: rotate(0deg)}
+to {transform: rotate(360deg)}
+`;
+
+const Button = styled.button`
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 30px;
+  font-size: 15px;
+  background-color: silver;
+  border-top: 2px solid whitesmoke;
+  border-right: 2px solid dimgray;
+  border-left: 2px solid whitesmoke;
+  border-bottom: 2px solid dimgray;
+  cursor: pointer;
+  &:active {
+    border-top: 2px solid dimgray;
+    border-right: 2px solid whitesmoke;
+    border-left: 2px solid dimgray;
+    border-bottom: 2px solid whitesmoke;
+  }
+  &:hover span {
+    animation: ${rotate} 0.5s linear infinite;
+  }
+`;
+
+const Grid = styled.article`
+  display: grid;
+  gap: 1px;
+  border: 1px solid dimgray;
+`;
+
+const MineBox = styled.section`
   width: ${mineBoxSize}px;
   height: ${mineBoxSize}px;
   position: relative;
   background-color: lightgray;
 `;
 
-const MineBoxShell = styled.div<IMineBoxShellProps>`
+const MineBoxShell = styled.button<IMineBoxShellProps>`
   position: absolute;
   z-index: 10;
   width: ${mineBoxSize}px;
@@ -64,46 +117,33 @@ const MineBoxShell = styled.div<IMineBoxShellProps>`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: lightgray;
-  border-top: 3px solid whitesmoke;
+  background-color: ${(props) =>
+    props.isFlaged ? "greenyellow" : props.isQuestion ? "gold" : "silver"};
+  box-shadow: ${(props) =>
+    props.isFlaged
+      ? "inset 0 0 8px 1px forestgreen"
+      : props.isQuestion
+      ? "inset 0 0 8px 1px orangered"
+      : "none"};
+  border-top: 2px solid whitesmoke;
   border-right: 2px solid dimgray;
-  border-left: 3px solid whitesmoke;
+  border-left: 2px solid whitesmoke;
   border-bottom: 2px solid dimgray;
   cursor: default;
-  opacity: ${(props) => {
-    if (
-      props.over.bool &&
-      !props.over.isVictory &&
-      props.isMine &&
-      !props.isFlaged
-    ) {
-      console.log("Boom!!!");
-      return 0;
-    }
-    if (props.isRevealed) {
-      return 0;
-    }
-    if (!props.isRevealed) {
-      return 0.7;
-    }
-  }};
+  opacity: ${getShellOpacity};
 ` as React.FC<IMineBoxShellProps>;
 
 const BoxContent = styled.div<IBoxContent>`
   width: 100%;
   height: 100%;
-  background-color: ${(props) =>
-    props.isMine && props.isRevealed
-      ? "red"
-      : props.isMine &&
-        props.over.bool &&
-        !props.over.isVictory &&
-        !props.isFlaged
-      ? "red"
-      : "lightgray"};
+  background-color: whitesmoke;
+  color: ${getContentColor};
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: default;
+  box-shadow: ${(props) => (props.isMine ? "inset 0 0 8px 1px red" : "none")};
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
   -khtml-user-select: none; /* Konqueror HTML */
@@ -111,8 +151,9 @@ const BoxContent = styled.div<IBoxContent>`
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
-  cursor: default;
 ` as React.FC<IBoxContent>;
+
+// ------------- SUB FUNCTIONS -------------
 
 // -------------  MAIN COMPONENT -------------
 
@@ -120,27 +161,22 @@ const Minesweeper = () => {
   const [mode, setMode] = useState<TMode>(midd);
   const [boxes, setBoxes] = useState<TBox | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const [start, setStart] = useState<TStart>({ bool: false, id: 0 });
-  const [over, setOver] = useState<TOver>({ bool: false, isVictory: false });
   const [flagCount, setFlagCount] = useState(0);
-  const indicatorRef = useRef<HTMLDivElement | null>(null);
-
-  const initialized = !start.bool && !over.bool && !isReady;
-  const initialize = () => {
-    setStart({ bool: false, id: 0 });
-    setOver({ bool: false, isVictory: false });
-    setIsReady(false);
-  };
+  const indicatorRef = useRef<HTMLButtonElement | null>(null);
+  const [time, setTime] = useState(0);
+  const [status, setStatus] = useState(0);
+  // status 0: initial, 1: start, 2: failed, 3: victory
+  const [leaderboard, setLeaderboard] = useState<TLeaderboards | null>(null);
 
   useEffect(() => {
-    initialize();
+    setStatus(0);
   }, [mode]);
 
   // Create object with out value and mine. This is just for layout.
   useEffect(() => {
-    if (initialized) {
+    if (status === 0) {
       if (indicatorRef.current) {
-        indicatorRef.current.style.backgroundColor = "peru";
+        indicatorRef.current.innerHTML = `<span role="img" aria-label="imoji">🙂</span>`;
       }
       const stateArr = Array.from(Array(mode.size.x * mode.size.y).keys());
       const stateObj: TBox = {};
@@ -156,34 +192,22 @@ const Minesweeper = () => {
       );
       setBoxes(stateObj);
     }
-  }, [mode, start, over, initialized]);
-
-  // The mines will be deployed after user's initial click. It prevents initial click is dead end.
-  useEffect(() => {
-    if (start.bool && boxes) {
-      const newBoxes = { ...boxes };
-      const minesIndex = getMinesIndex(mode, start.id);
-      Object.entries(boxes).forEach(([key, _]) => {
-        const count = countMinesAround(mode, minesIndex, parseInt(key));
-        newBoxes[parseInt(key)].value = minesIndex.has(parseInt(key))
-          ? -1
-          : count;
-        newBoxes[parseInt(key)].isMine = minesIndex.has(parseInt(key))
-          ? true
-          : false;
-      });
-      setBoxes(newBoxes);
-      setIsReady(true);
+    if (status === 3 && leaderboard) {
+      if (mode.level === easy.level) {
+        leaderboard.easy.length < 10 && console.log("Record popup");
+        leaderboard.easy.some((set) => parseInt(set.time) > time) &&
+          console.log("Record popup");
+      } else if (mode.level === midd.level) {
+        leaderboard.midd.length < 10 && console.log("Record popup");
+        leaderboard.midd.some((set) => parseInt(set.time) > time) &&
+          console.log("Record popup");
+      } else {
+        leaderboard.hard.length < 10 && console.log("Record popup");
+        leaderboard.hard.some((set) => parseInt(set.time) > time) &&
+          console.log("Record popup");
+      }
     }
-  }, [start]);
-
-  // If initial click's value is 0, it will automatically take auto reveal chaining.
-  // I couldn'y handle this in eventlistener. Because onMouseUp is busy taking care of both click action.
-  useEffect(() => {
-    if (start.id !== 0 && boxes) {
-      revealAround(mode, start.id, boxes);
-    }
-  }, [start.id]);
+  }, [mode, status]);
 
   // It keeps tracking how game's over.
   useEffect(() => {
@@ -191,27 +215,21 @@ const Minesweeper = () => {
       const flagCount = Object.values(boxes).filter((value) => value.isFlaged)
         .length;
       setFlagCount(flagCount);
-      didIStepped(boxes, indicatorRef, setOver);
-      didIWon(boxes, indicatorRef, setOver);
+      didIStepped(boxes, indicatorRef, setStatus);
+      didIWon(boxes, indicatorRef, setStatus);
     }
   }, [boxes]);
 
   return (
-    <>
-      <span>
-        {!over.bool
-          ? ""
-          : over.bool && over.isVictory
-          ? "You won!"
-          : "You lost..."}
-      </span>
-      <button onClick={initialize}>new game</button>
-      <span>{mode.totalMines - flagCount}</span>
-      <div
-        ref={indicatorRef}
-        style={{ width: 20, height: 10, backgroundColor: "peru" }}
-      ></div>
-      <Container
+    <div style={{ width: "min-content" }}>
+      <Header>
+        <MinesCount>
+          {(mode.totalMines - flagCount).toString().padStart(3, "0")}
+        </MinesCount>
+        <Button ref={indicatorRef} onClick={() => setStatus(0)}></Button>
+        <Timer time={time} status={status} setTime={setTime} />
+      </Header>
+      <Grid
         onContextMenu={(e) => e.preventDefault()}
         style={{
           width: "min-content",
@@ -220,59 +238,66 @@ const Minesweeper = () => {
         }}
       >
         {boxes &&
-          Object.entries(boxes).map(
-            ([_, { isRevealed, isMine, isFlaged, isQuestion, value }], i) => {
+          Object.values(boxes).map(
+            ({ isRevealed, isMine, isFlaged, isQuestion, value }, i) => {
               return (
                 <MineBox key={i} id={`${i + 1}`}>
                   <MineBoxShell
                     isRevealed={isRevealed}
-                    over={over}
+                    status={status}
                     isMine={isMine}
                     isFlaged={isFlaged}
+                    isQuestion={isQuestion}
                     onClick={(e) =>
                       handleClick(
                         e,
                         mode,
                         boxes,
-                        start,
-                        over,
+                        status,
                         setBoxes,
-                        setStart
+                        setStatus,
+                        setIsReady
                       )
                     }
-                    onAuxClick={(e) => handleAuxClick(e, boxes, over, setBoxes)}
-                    onContextMenu={(e) => e.preventDefault()}
+                    onContextMenu={(e) =>
+                      handleAuxClick(e, boxes, status, setBoxes)
+                    }
                     onDoubleClick={(e) =>
-                      handleDoubleClick(e, mode, boxes, over, setBoxes)
+                      handleDoubleClick(e, mode, boxes, status, setBoxes)
                     }
                     onMouseDown={(e) =>
-                      handleMouseDown(e, mode, over, boxes, indicatorRef)
+                      handleMouseDown(e, mode, status, boxes, indicatorRef)
                     }
                     onMouseUp={(e) =>
                       handleMouseUp(
                         e,
                         mode,
                         boxes,
-                        over,
+                        status,
                         indicatorRef,
                         setBoxes
                       )
                     }
-                    onMouseEnter={(e) => handleMouseEnter(e, mode, over, boxes)}
-                    onMouseLeave={(e) => handleMouseLeave(e, mode, over, boxes)}
+                    onMouseEnter={(e) =>
+                      handleMouseEnter(e, mode, status, boxes)
+                    }
+                    onMouseLeave={(e) =>
+                      handleMouseLeave(e, mode, status, boxes)
+                    }
                   >
                     {isFlaged ? "🚩" : isQuestion ? "❓" : ""}
                   </MineBoxShell>
                   {isReady && (
                     <BoxContent
+                      value={value}
                       isMine={isMine}
                       isRevealed={isRevealed}
                       isFlaged={isFlaged}
-                      over={over}
+                      status={status}
                     >
                       {value === -1 && isRevealed
                         ? "💣"
-                        : value === -1 && over.bool
+                        : value === -1 && status > 1
                         ? "💣"
                         : value !== 0 && isRevealed
                         ? value
@@ -283,7 +308,7 @@ const Minesweeper = () => {
               );
             }
           )}
-      </Container>
+      </Grid>
       <select
         defaultValue={midd.level}
         onChange={(e) => {
@@ -300,8 +325,18 @@ const Minesweeper = () => {
         <option value={midd.level}>Moderate</option>
         <option value={hard.level}>Hard</option>
       </select>
-      <Timer start={start} over={over} />
-    </>
+      <Leaderboard
+        mode={mode}
+        leaderboard={leaderboard}
+        setLeaderboard={setLeaderboard}
+      />
+      <Popup
+        time={time}
+        mode={mode}
+        leaderboard={leaderboard}
+        setLeaderboard={setLeaderboard}
+      />
+    </div>
   );
 };
 

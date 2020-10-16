@@ -1,10 +1,4 @@
-import {
-  TBox,
-  TBoxValues,
-  TMode,
-  TOver,
-  TStart,
-} from "../../@types/minesweeper";
+import { TBox, TBoxValues, TMode } from "../../@types/minesweeper";
 
 export const getMinesIndex = (mode: TMode, startId: number) => {
   const minesIndex = new Set();
@@ -147,17 +141,20 @@ export const revealAround = (mode: TMode, id: number, boxes: TBox) => {
 
 export const didIStepped = (
   boxes: TBox | null,
-  indicatorRef: React.MutableRefObject<HTMLDivElement | null>,
-  setOver: React.Dispatch<React.SetStateAction<TOver>>
+  indicatorRef: React.MutableRefObject<HTMLButtonElement | null>,
+  setStatus: React.Dispatch<React.SetStateAction<number>>
 ) => {
   if (boxes) {
-    const iStepped = Object.entries(boxes).some(
-      ([_, { isMine, isRevealed }]) => isMine && isRevealed
+    const iStepped = Object.values(boxes).some(
+      ({ isMine, isRevealed }) => isMine && isRevealed
     );
     if (iStepped) {
-      setOver({ bool: true, isVictory: false });
+      setStatus(2);
+      Object.values(boxes).forEach(
+        (box) => box.isMine && (box.isRevealed = true)
+      );
       if (indicatorRef?.current) {
-        indicatorRef.current.style.backgroundColor = "red";
+        indicatorRef.current.innerHTML = `<span role="img" aria-label="imoji">💀</span>`;
       }
     }
   }
@@ -165,17 +162,18 @@ export const didIStepped = (
 
 export const didIWon = (
   boxes: TBox | null,
-  indicatorRef: React.MutableRefObject<HTMLDivElement | null>,
-  setOver: React.Dispatch<React.SetStateAction<TOver>>
+  indicatorRef: React.MutableRefObject<HTMLButtonElement | null>,
+  setStatus: React.Dispatch<React.SetStateAction<number>>
 ) => {
   if (boxes) {
-    const isJobDone = Object.entries(boxes).every(([_, box]) =>
+    const isJobDone = Object.values(boxes).every((box) =>
       box.isMine ? box.isFlaged : box.isRevealed
     );
     if (isJobDone) {
-      setOver({ bool: true, isVictory: true });
+      setStatus(3);
       if (indicatorRef?.current) {
-        indicatorRef.current.style.backgroundColor = "green";
+        // indicatorRef.current.style.backgroundColor = "green";
+        indicatorRef.current.innerHTML = `<span role="img" aria-label="imoji">😎</span>`;
       }
       return;
     } else {
@@ -186,16 +184,16 @@ export const didIWon = (
 
 export const paintPressed = (target: EventTarget & HTMLDivElement) => {
   target.style.borderTop = "2px solid dimgray";
-  target.style.borderRight = "3px solid whitesmoke";
-  target.style.borderBottom = "3px solid whitesmoke";
+  target.style.borderRight = "2px solid whitesmoke";
+  target.style.borderBottom = "2px solid whitesmoke";
   target.style.borderLeft = "2px solid dimgray";
 };
 
 export const paintUnpressed = (target: EventTarget & HTMLDivElement) => {
-  target.style.borderTop = "3px solid whitesmoke";
+  target.style.borderTop = "2px solid whitesmoke";
   target.style.borderRight = "2px solid dimgray";
   target.style.borderBottom = "2px solid dimgray";
-  target.style.borderLeft = "3px solid whitesmoke";
+  target.style.borderLeft = "2px solid whitesmoke";
 };
 
 export const paintPressedAround = (mode: TMode, id: number, boxes: TBox) => {
@@ -221,12 +219,23 @@ export const paintUnpressedAround = (mode: TMode, id: number, boxes: TBox) => {
 };
 
 export const startGame = (
-  id: number,
-  mode: TMode,
   box: TBoxValues,
-  boxes: TBox,
-  setStart: React.Dispatch<React.SetStateAction<TStart>>
+  setStatus: React.Dispatch<React.SetStateAction<number>>
 ) => {
-  setStart({ bool: true, id });
+  setStatus(1);
   box.isRevealed = true;
+};
+
+export const processData = (arr: string[]) => {
+  const result: { name: string; time: string }[] = [];
+  const set = { name: "", time: "" };
+  arr.forEach((el, i) => {
+    if (i === 0 || i % 2 === 0) {
+      set.name = el;
+    } else {
+      set.time = el;
+      result.push({ ...set });
+    }
+  });
+  return result;
 };

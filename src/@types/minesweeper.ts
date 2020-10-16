@@ -19,12 +19,10 @@ export type TMode = {
   level: string;
 };
 
-export type TStart = {
-  bool: boolean;
-  id: number;
-};
+export type TModeLeaderboard = { name: string; time: string };
 
-export type TOver = {
-  bool: boolean;
-  isVictory: boolean;
+export type TLeaderboards = {
+  easy: TModeLeaderboard[];
+  midd: TModeLeaderboard[];
+  hard: TModeLeaderboard[];
 };
