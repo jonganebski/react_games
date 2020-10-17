@@ -2,6 +2,7 @@ import Redis from "ioredis";
 import express from "express";
 import cors from "cors";
 import { easy, midd, hard } from "../../src/constants/minesweeper";
+import path from "path";
 
 const EASY = "minesweeper-easy";
 const MIDD = "minesweeper-midd";
@@ -10,7 +11,11 @@ const HARD = "minesweeper-hard";
 const app = express();
 const redis = new Redis();
 
-app.use(cors({ origin: "http://localhost:3000" }));
+const buildPath = path.join(__dirname, "..", "..", "build");
+
+process.env.NODE_ENV === "dev" &&
+  app.use(cors({ origin: "http://localhost:3000" }));
+app.use(express.static(buildPath));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -29,6 +34,9 @@ app.post("/api/minesweeper/post", (req, res) => {
     case hard.level: {
       KEY = HARD;
       break;
+    }
+    default: {
+      res.status(400);
     }
   }
   redis.zadd(KEY, time, username);

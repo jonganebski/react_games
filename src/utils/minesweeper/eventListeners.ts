@@ -199,6 +199,7 @@ export const handleClick = (
   }
   // START GAME
   if (status === 0) {
+    setIsReady(false);
     const minesIndex = getMinesIndex(mode, parseInt(id));
     Object.keys(boxes).forEach((key) => {
       const count = countMinesAround(mode, minesIndex, parseInt(key));

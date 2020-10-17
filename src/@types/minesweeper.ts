@@ -22,7 +22,7 @@ export type TMode = {
 export type TModeLeaderboard = { name: string; time: string };
 
 export type TLeaderboards = {
-  easy: TModeLeaderboard[];
-  midd: TModeLeaderboard[];
-  hard: TModeLeaderboard[];
+  [key: string]: TModeLeaderboard[];
+  // midd: TModeLeaderboard[];
+  // hard: TModeLeaderboard[];
 };

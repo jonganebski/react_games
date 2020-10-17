@@ -25,7 +25,8 @@ const Leaderboard: React.FC<ILeaderboardProps> = ({
         setLeaderboard({ easy, midd, hard });
       }
     );
-  }, []);
+  }, [setLeaderboard]);
+
   let currentBoard;
   if (leaderboard) {
     if (mode.level === easy.level) {

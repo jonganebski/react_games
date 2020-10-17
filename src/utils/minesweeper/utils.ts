@@ -1,4 +1,10 @@
-import { TBox, TBoxValues, TMode } from "../../@types/minesweeper";
+import {
+  TBox,
+  TBoxValues,
+  TLeaderboards,
+  TMode,
+} from "../../@types/minesweeper";
+import { easy, midd } from "../../constants/minesweeper";
 
 export const getMinesIndex = (mode: TMode, startId: number) => {
   const minesIndex = new Set();
@@ -139,46 +145,55 @@ export const revealAround = (mode: TMode, id: number, boxes: TBox) => {
   }
 };
 
-export const didIStepped = (
-  boxes: TBox | null,
-  indicatorRef: React.MutableRefObject<HTMLButtonElement | null>,
-  setStatus: React.Dispatch<React.SetStateAction<number>>
+export const didIStepped = (boxes: TBox) => {
+  const iStepped = Object.values(boxes).some(
+    ({ isMine, isRevealed }) => isMine && isRevealed
+  );
+  return iStepped;
+};
+
+export const handleGameover = (
+  boxes: TBox,
+  indicatorRef: React.MutableRefObject<HTMLButtonElement | null>
 ) => {
-  if (boxes) {
-    const iStepped = Object.values(boxes).some(
-      ({ isMine, isRevealed }) => isMine && isRevealed
-    );
-    if (iStepped) {
-      setStatus(2);
-      Object.values(boxes).forEach(
-        (box) => box.isMine && (box.isRevealed = true)
-      );
-      if (indicatorRef?.current) {
-        indicatorRef.current.innerHTML = `<span role="img" aria-label="imoji">💀</span>`;
-      }
-    }
+  Object.values(boxes).forEach(
+    (box) => box.isMine && !box.isFlaged && (box.isRevealed = true)
+  );
+  if (indicatorRef?.current) {
+    indicatorRef.current.innerHTML = `<span role="img" aria-label="imoji">💀</span>`;
   }
 };
 
-export const didIWon = (
-  boxes: TBox | null,
-  indicatorRef: React.MutableRefObject<HTMLButtonElement | null>,
-  setStatus: React.Dispatch<React.SetStateAction<number>>
+export const getIsNewRecord = (
+  level: string,
+  record: number,
+  leaderboard: TLeaderboards
 ) => {
-  if (boxes) {
-    const isJobDone = Object.values(boxes).every((box) =>
-      box.isMine ? box.isFlaged : box.isRevealed
-    );
-    if (isJobDone) {
-      setStatus(3);
-      if (indicatorRef?.current) {
-        // indicatorRef.current.style.backgroundColor = "green";
-        indicatorRef.current.innerHTML = `<span role="img" aria-label="imoji">😎</span>`;
-      }
-      return;
-    } else {
-      return;
-    }
+  console.log(level);
+  console.log(leaderboard);
+  const isEmptySlot = leaderboard[level].length < 10;
+  const isFaster = leaderboard[level].some(
+    (set) => parseInt(set.time) > record
+  );
+  if (isEmptySlot || isFaster) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+export const didIWon = (boxes: TBox) => {
+  const isJobDone = Object.values(boxes).every((box) =>
+    box.isMine ? box.isFlaged : box.isRevealed
+  );
+  return isJobDone;
+};
+
+export const handleVictory = (
+  indicatorRef: React.MutableRefObject<HTMLButtonElement | null>
+) => {
+  if (indicatorRef?.current) {
+    indicatorRef.current.innerHTML = `<span role="img" aria-label="imoji">😎</span>`;
   }
 };
 

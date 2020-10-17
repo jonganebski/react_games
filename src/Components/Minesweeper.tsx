@@ -15,7 +15,13 @@ import {
   getContentColor,
   getShellOpacity,
 } from "../utils/minesweeper/styleHandlers";
-import { didIStepped, didIWon } from "../utils/minesweeper/utils";
+import {
+  didIStepped,
+  didIWon,
+  getIsNewRecord,
+  handleGameover,
+  handleVictory,
+} from "../utils/minesweeper/utils";
 import Timer from "./Timer";
 import Leaderboard from "./Leaderboard";
 import Popup from "./Popup";
@@ -164,15 +170,22 @@ const Minesweeper = () => {
   const [flagCount, setFlagCount] = useState(0);
   const indicatorRef = useRef<HTMLButtonElement | null>(null);
   const [time, setTime] = useState(0);
+  const [record, setRecord] = useState<number | null>(null);
+  // const [isNewRecord, setIsNewRecord] = useState(false);
+  const [isNewRecord, setIsNewRecord] = useState(true);
   const [status, setStatus] = useState(0);
-  // status 0: initial, 1: start, 2: failed, 3: victory
+  // status 0: initial, 1: start, 2: gameover, 3: victory
   const [leaderboard, setLeaderboard] = useState<TLeaderboards | null>(null);
 
   useEffect(() => {
     setStatus(0);
   }, [mode]);
 
-  // Create object with out value and mine. This is just for layout.
+  useEffect(() => {
+    // setIsNewRecord(false);
+    setIsNewRecord(true);
+  }, [status]);
+
   useEffect(() => {
     if (status === 0) {
       if (indicatorRef.current) {
@@ -192,33 +205,38 @@ const Minesweeper = () => {
       );
       setBoxes(stateObj);
     }
-    if (status === 3 && leaderboard) {
-      if (mode.level === easy.level) {
-        leaderboard.easy.length < 10 && console.log("Record popup");
-        leaderboard.easy.some((set) => parseInt(set.time) > time) &&
-          console.log("Record popup");
-      } else if (mode.level === midd.level) {
-        leaderboard.midd.length < 10 && console.log("Record popup");
-        leaderboard.midd.some((set) => parseInt(set.time) > time) &&
-          console.log("Record popup");
-      } else {
-        leaderboard.hard.length < 10 && console.log("Record popup");
-        leaderboard.hard.some((set) => parseInt(set.time) > time) &&
-          console.log("Record popup");
-      }
-    }
-  }, [mode, status]);
+  }, [mode.size.x, mode.size.y, status]);
 
-  // It keeps tracking how game's over.
   useEffect(() => {
     if (boxes) {
       const flagCount = Object.values(boxes).filter((value) => value.isFlaged)
         .length;
       setFlagCount(flagCount);
-      didIStepped(boxes, indicatorRef, setStatus);
-      didIWon(boxes, indicatorRef, setStatus);
     }
   }, [boxes]);
+
+  useEffect(() => {
+    if (boxes) {
+      const iStepped = didIStepped(boxes);
+      const iWon = didIWon(boxes);
+      if (iStepped) {
+        setStatus(2);
+        handleGameover(boxes, indicatorRef);
+      }
+      if (iWon) {
+        setStatus(3);
+        handleVictory(indicatorRef);
+      }
+    }
+  }, [boxes]);
+
+  useEffect(() => {
+    if (record && leaderboard) {
+      console.log(record);
+      const isNewRecord = getIsNewRecord(mode.level, record, leaderboard);
+      setIsNewRecord(isNewRecord);
+    }
+  }, [leaderboard, mode.level, record]);
 
   return (
     <div style={{ width: "min-content" }}>
@@ -227,7 +245,12 @@ const Minesweeper = () => {
           {(mode.totalMines - flagCount).toString().padStart(3, "0")}
         </MinesCount>
         <Button ref={indicatorRef} onClick={() => setStatus(0)}></Button>
-        <Timer time={time} status={status} setTime={setTime} />
+        <Timer
+          time={time}
+          status={status}
+          setTime={setTime}
+          setRecord={setRecord}
+        />
       </Header>
       <Grid
         onContextMenu={(e) => e.preventDefault()}
@@ -330,12 +353,15 @@ const Minesweeper = () => {
         leaderboard={leaderboard}
         setLeaderboard={setLeaderboard}
       />
-      <Popup
-        time={time}
-        mode={mode}
-        leaderboard={leaderboard}
-        setLeaderboard={setLeaderboard}
-      />
+      {isNewRecord && record && (
+        <Popup
+          time={time}
+          record={record}
+          mode={mode}
+          leaderboard={leaderboard}
+          setLeaderboard={setLeaderboard}
+        />
+      )}
     </div>
   );
 };
