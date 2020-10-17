@@ -25,6 +25,7 @@ import {
 import Timer from "./Timer";
 import Leaderboard from "./Leaderboard";
 import Popup from "./Popup";
+import MinesweeperBtn from "./Minesweeper/Button";
 
 // ------------- INTERFACE -------------
 
@@ -52,6 +53,31 @@ export interface IMineBoxShellProps {
 
 // ------------- STYLED COMPONENTS -------------
 
+const Wrapper = styled.div`
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+`;
+
+const Container = styled.section`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ContainerL = styled(Container)`
+  background-image: linear-gradient(#000000, #434343);
+`;
+
+const ContainerR = styled(Container)`
+  background: url("repeated-square.png");
+`;
+
+const MinesweeperContainer = styled.main`
+  width: min-content;
+`;
+
 const Header = styled.header`
   display: flex;
   align-items: center;
@@ -63,6 +89,8 @@ const Header = styled.header`
   border-right: 2px solid dimgray;
   border-left: 2px solid whitesmoke;
   border-bottom: 2px solid dimgray;
+  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034),
+    0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06);
 `;
 
 const MinesCount = styled.div`
@@ -106,6 +134,9 @@ const Grid = styled.article`
   display: grid;
   gap: 1px;
   border: 1px solid dimgray;
+  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034),
+    0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06),
+    0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086);
 `;
 
 const MineBox = styled.section`
@@ -239,130 +270,139 @@ const Minesweeper = () => {
   }, [leaderboard, mode.level, record]);
 
   return (
-    <div style={{ width: "min-content" }}>
-      <Header>
-        <MinesCount>
-          {(mode.totalMines - flagCount).toString().padStart(3, "0")}
-        </MinesCount>
-        <Button ref={indicatorRef} onClick={() => setStatus(0)}></Button>
-        <Timer
-          time={time}
-          status={status}
-          setTime={setTime}
-          setRecord={setRecord}
-        />
-      </Header>
-      <Grid
-        onContextMenu={(e) => e.preventDefault()}
-        style={{
-          width: "min-content",
-          backgroundColor: "dimgray",
-          gridTemplateColumns: `repeat(${mode.size.x}, ${mineBoxSize}px)`,
-        }}
-      >
-        {boxes &&
-          Object.values(boxes).map(
-            ({ isRevealed, isMine, isFlaged, isQuestion, value }, i) => {
-              return (
-                <MineBox key={i} id={`${i + 1}`}>
-                  <MineBoxShell
-                    isRevealed={isRevealed}
-                    status={status}
-                    isMine={isMine}
-                    isFlaged={isFlaged}
-                    isQuestion={isQuestion}
-                    onClick={(e) =>
-                      handleClick(
-                        e,
-                        mode,
-                        boxes,
-                        status,
-                        setBoxes,
-                        setStatus,
-                        setIsReady
-                      )
-                    }
-                    onContextMenu={(e) =>
-                      handleAuxClick(e, boxes, status, setBoxes)
-                    }
-                    onDoubleClick={(e) =>
-                      handleDoubleClick(e, mode, boxes, status, setBoxes)
-                    }
-                    onMouseDown={(e) =>
-                      handleMouseDown(e, mode, status, boxes, indicatorRef)
-                    }
-                    onMouseUp={(e) =>
-                      handleMouseUp(
-                        e,
-                        mode,
-                        boxes,
-                        status,
-                        indicatorRef,
-                        setBoxes
-                      )
-                    }
-                    onMouseEnter={(e) =>
-                      handleMouseEnter(e, mode, status, boxes)
-                    }
-                    onMouseLeave={(e) =>
-                      handleMouseLeave(e, mode, status, boxes)
-                    }
-                  >
-                    {isFlaged ? "🚩" : isQuestion ? "❓" : ""}
-                  </MineBoxShell>
-                  {isReady && (
-                    <BoxContent
-                      value={value}
-                      isMine={isMine}
-                      isRevealed={isRevealed}
-                      isFlaged={isFlaged}
-                      status={status}
-                    >
-                      {value === -1 && isRevealed
-                        ? "💣"
-                        : value === -1 && status > 1
-                        ? "💣"
-                        : value !== 0 && isRevealed
-                        ? value
-                        : ""}
-                    </BoxContent>
-                  )}
-                </MineBox>
-              );
-            }
-          )}
-      </Grid>
-      <select
-        defaultValue={midd.level}
-        onChange={(e) => {
-          if (e.currentTarget.value === easy.level) {
-            setMode(easy);
-          } else if (e.currentTarget.value === midd.level) {
-            setMode(midd);
-          } else {
-            setMode(hard);
-          }
-        }}
-      >
-        <option value={easy.level}>Easy</option>
-        <option value={midd.level}>Moderate</option>
-        <option value={hard.level}>Hard</option>
-      </select>
-      <Leaderboard
-        mode={mode}
-        leaderboard={leaderboard}
-        setLeaderboard={setLeaderboard}
-      />
-      {isNewRecord && record && (
-        <Popup
-          time={time}
-          record={record}
+    <Wrapper>
+      <ContainerL>
+        <MinesweeperContainer>
+          <Header>
+            <MinesCount>
+              {(mode.totalMines - flagCount).toString().padStart(3, "0")}
+            </MinesCount>
+            <Button ref={indicatorRef} onClick={() => setStatus(0)}></Button>
+            <Timer
+              time={time}
+              status={status}
+              setTime={setTime}
+              setRecord={setRecord}
+            />
+          </Header>
+          <Grid
+            onContextMenu={(e) => e.preventDefault()}
+            style={{
+              width: "min-content",
+              backgroundColor: "dimgray",
+              gridTemplateColumns: `repeat(${mode.size.x}, ${mineBoxSize}px)`,
+            }}
+          >
+            {boxes &&
+              Object.values(boxes).map(
+                ({ isRevealed, isMine, isFlaged, isQuestion, value }, i) => {
+                  return (
+                    <MineBox key={i} id={`${i + 1}`}>
+                      <MineBoxShell
+                        isRevealed={isRevealed}
+                        status={status}
+                        isMine={isMine}
+                        isFlaged={isFlaged}
+                        isQuestion={isQuestion}
+                        onClick={(e) =>
+                          handleClick(
+                            e,
+                            mode,
+                            boxes,
+                            status,
+                            setBoxes,
+                            setStatus,
+                            setIsReady
+                          )
+                        }
+                        onContextMenu={(e) =>
+                          handleAuxClick(e, boxes, status, setBoxes)
+                        }
+                        onDoubleClick={(e) =>
+                          handleDoubleClick(e, mode, boxes, status, setBoxes)
+                        }
+                        onMouseDown={(e) =>
+                          handleMouseDown(e, mode, status, boxes, indicatorRef)
+                        }
+                        onMouseUp={(e) =>
+                          handleMouseUp(
+                            e,
+                            mode,
+                            boxes,
+                            status,
+                            indicatorRef,
+                            setBoxes
+                          )
+                        }
+                        onMouseEnter={(e) =>
+                          handleMouseEnter(e, mode, status, boxes)
+                        }
+                        onMouseLeave={(e) =>
+                          handleMouseLeave(e, mode, status, boxes)
+                        }
+                      >
+                        {isFlaged ? "🚩" : isQuestion ? "❓" : ""}
+                      </MineBoxShell>
+                      {isReady && (
+                        <BoxContent
+                          value={value}
+                          isMine={isMine}
+                          isRevealed={isRevealed}
+                          isFlaged={isFlaged}
+                          status={status}
+                        >
+                          {value === -1 && isRevealed
+                            ? "💣"
+                            : value === -1 && status > 1
+                            ? "💣"
+                            : value !== 0 && isRevealed
+                            ? value
+                            : ""}
+                        </BoxContent>
+                      )}
+                    </MineBox>
+                  );
+                }
+              )}
+          </Grid>
+        </MinesweeperContainer>
+      </ContainerL>
+      <ContainerR>
+        <div style={{ display: "flex", marginBottom: "20px" }}>
+          <MinesweeperBtn
+            active={mode.level === "easy"}
+            text={"EASY"}
+            onClick={() => setMode(easy)}
+          ></MinesweeperBtn>
+          <MinesweeperBtn
+            active={mode.level === "midd"}
+            text={"MODERATE"}
+            margin={"0px 10px 0px 10px"}
+            onClick={() => setMode(midd)}
+          ></MinesweeperBtn>
+          <MinesweeperBtn
+            active={mode.level === "hard"}
+            text={"HARD"}
+            onClick={() => setMode(hard)}
+          ></MinesweeperBtn>
+        </div>
+        <Leaderboard
           mode={mode}
           leaderboard={leaderboard}
           setLeaderboard={setLeaderboard}
         />
-      )}
-    </div>
+        {isNewRecord && record !== null && (
+          <Popup
+            time={time}
+            record={record}
+            mode={mode}
+            leaderboard={leaderboard}
+            setLeaderboard={setLeaderboard}
+            setIsNewRecord={setIsNewRecord}
+          />
+        )}
+      </ContainerR>
+    </Wrapper>
   );
 };
 

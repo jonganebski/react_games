@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import MinesweeperBtn from "./Minesweeper/Button";
+import { Link } from "react-router-dom";
 
 const Front = styled.section`
   position: absolute;
@@ -113,7 +114,9 @@ const Home = () => {
         </Front>
         <Back>
           <Heading>MINESWEEPER</Heading>
-          <MinesweeperBtn text={"PLAY"} />
+          <Link to="/minesweeper">
+            <MinesweeperBtn text={"PLAY"} />
+          </Link>
         </Back>
       </MyCard>
     </div>
