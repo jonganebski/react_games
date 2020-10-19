@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import MinesweeperBtn from "./Minesweeper/Button";
+import SudokuBtn from "./Sudoku/Button";
 import { Link } from "react-router-dom";
 
 const Front = styled.section`
@@ -15,7 +16,7 @@ const Front = styled.section`
     0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086);
 `;
 
-const Box = styled.div`
+const MinesweeperBox = styled.div`
   width: 20px;
   height: 20px;
   display: flex;
@@ -41,11 +42,30 @@ const Box = styled.div`
   }}
 `;
 
-const FrontContent = styled.div`
+interface ISudokuBoxProps {
+  text: string;
+}
+const SudokuBox = styled.div<ISudokuBoxProps>`
+  width: 80px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid lightgray;
+  font-size: 40px;
+  font-weight: 600;
+  background-color: ${({ text }) => (text !== "" ? "whitesmoke" : "none")};
+`;
+
+interface IFrontContentProps {
+  gridMin: string;
+}
+const FrontContent = styled.div<IFrontContentProps>`
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));
+  grid-template-columns: ${({ gridMin }) =>
+    `repeat(auto-fill, minmax(${gridMin}, 1fr))`};
 `;
 
 const Back = styled.section`
@@ -95,19 +115,18 @@ const Home = () => {
       style={{
         height: "500px",
         display: "flex",
-        flexDirection: "column",
         alignItems: "center",
         justifyContent: "space-around",
       }}
     >
       <MyCard>
         <Front>
-          <FrontContent>
+          <FrontContent gridMin={"20px"}>
             {Array.from(Array(180).keys()).map((key) => {
               return (
-                <Box key={key} className={`mine-${key}`}>
+                <MinesweeperBox key={key} className={`mine-${key}`}>
                   {key === 31 && <span>3</span>}
-                </Box>
+                </MinesweeperBox>
               );
             })}
           </FrontContent>
@@ -116,6 +135,30 @@ const Home = () => {
           <Heading>MINESWEEPER</Heading>
           <Link to="/minesweeper">
             <MinesweeperBtn text={"PLAY"} />
+          </Link>
+        </Back>
+      </MyCard>
+      <MyCard>
+        <Front>
+          <FrontContent gridMin={"80px"}>
+            {Array.from(Array(9).keys()).map((key) => {
+              const fillValues = ["1", "2", "", "", "", "9", "", "7", "8"];
+              return (
+                <SudokuBox
+                  key={key}
+                  className={`sudoku-${key}`}
+                  text={fillValues[key]}
+                >
+                  {fillValues[key]}
+                </SudokuBox>
+              );
+            })}
+          </FrontContent>
+        </Front>
+        <Back>
+          <Heading>SUDOKU</Heading>
+          <Link to="/sudoku">
+            <SudokuBtn text={"PLAY"} />
           </Link>
         </Back>
       </MyCard>

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { possibleNums } from "../../constants/sudoku";
 import { validator } from "../../utils/sudoku/utils";
 // import { generateSudoku } from "../../utils/sudoku/utils";
 
@@ -72,6 +73,13 @@ const Input = styled.input`
 `;
 
 const Sudoku = () => {
+  const [template, setTemplate] = useState(example);
+
+  useEffect(() => {
+    const isFilled = !template.some((row) => row.some((num) => num === 0));
+    console.log(isFilled);
+  }, [template]);
+
   return (
     <Wrapper>
       <SudokuTemplate>
@@ -85,13 +93,19 @@ const Sudoku = () => {
               {num === 0 && (
                 <Input
                   type="text"
-                  maxLength={5}
+                  maxLength={1}
                   onChange={(e) => {
-                    const value = Number(e.currentTarget.value);
-                    if (isNaN(value)) {
+                    const { value } = e.currentTarget;
+                    if (!possibleNums.includes(value)) {
                       e.currentTarget.value = "";
+                      return;
                     }
-                    const isValid = validator(rowIdx, numIdx, value, arr);
+                    const isValid = validator(
+                      rowIdx,
+                      numIdx,
+                      parseInt(value),
+                      template
+                    );
                     if (isValid || e.currentTarget.value === "") {
                       console.log("OK");
                       e.currentTarget.style.color = "#3182ce";
@@ -99,12 +113,22 @@ const Sudoku = () => {
                       console.log("NO");
                       e.currentTarget.style.color = "red";
                     }
+                    const newTemplate = JSON.parse(JSON.stringify(template));
+                    newTemplate[rowIdx].splice(
+                      numIdx,
+                      1,
+                      value === "" ? 0 : parseInt(value)
+                    );
+                    setTemplate(newTemplate);
                   }}
                 ></Input>
               )}
             </Box>
           ))
         )}
+      </SudokuTemplate>
+      <SudokuTemplate>
+        {template.map((row) => row.map((num, i) => <Box key={i}>{num}</Box>))}
       </SudokuTemplate>
     </Wrapper>
   );
