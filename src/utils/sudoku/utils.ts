@@ -59,8 +59,16 @@ export const validator = (
   rowIdx: number,
   numIdx: number,
   n: number,
-  arr2D: number[][]
+  arr: number[][]
 ) => {
+  const arr2D = JSON.parse(JSON.stringify(arr)).map(
+    (row: number[], I: number) => {
+      if (I === rowIdx) {
+        row.splice(numIdx, 1, 0);
+      }
+      return row;
+    }
+  );
   const row = arr2D[rowIdx];
   const column = getColumn(numIdx, arr2D);
   const subBox = getSubBox(rowIdx, numIdx, arr2D);
