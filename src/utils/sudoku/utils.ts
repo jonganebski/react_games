@@ -81,12 +81,15 @@ export const validator = (
 };
 
 let limit = 0;
-const solve = (arr2D: number[][]) => {
+
+export const solve = (arr2D: number[][]) => {
   limit++;
-  if (limit === 10000) {
+  // console.log(limit);
+  if (limit === 20000) {
     return true;
   }
   const { rowIdx, numIdx } = findEmpty(arr2D);
+  console.log(rowIdx, numIdx);
   if (numIdx !== null) {
     for (let n = 1; n < 10; n++) {
       const isValid = validator(rowIdx, numIdx, n, arr2D);
@@ -105,28 +108,38 @@ const solve = (arr2D: number[][]) => {
   }
 };
 
-export const generateSudoku = () => {
-  const arr2D: number[][] = [];
-  for (let i = 0; i < 9; i++) {
-    const emptyRow = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-    arr2D.push(emptyRow);
-  }
+export const generateSudoku = async () => {
+  const coolTemplate: number[][] = [
+    [7, 8, 5, 4, 3, 9, 1, 2, 6],
+    [6, 1, 2, 8, 7, 5, 3, 4, 9],
+    [4, 9, 3, 6, 2, 1, 5, 7, 8],
+    [8, 5, 7, 9, 4, 3, 2, 6, 1],
+    [2, 6, 1, 7, 5, 8, 9, 3, 4],
+    [9, 3, 4, 1, 6, 2, 7, 8, 5],
+    [5, 7, 8, 3, 9, 4, 6, 1, 2],
+    [1, 2, 6, 5, 8, 7, 4, 9, 3],
+    [3, 4, 9, 2, 1, 6, 8, 5, 7],
+  ];
 
-  let n = 0;
-  for (let i = 0; i < 500; i++) {
-    const randRowIdx = Math.floor(Math.random() * 9);
-    const randNumIdx = Math.floor(Math.random() * 9);
-    const randNum = Math.ceil(Math.random() * 9);
-    const randBox = arr2D[randRowIdx][randNumIdx];
-    const isValid = validator(randRowIdx, randNumIdx, randNum, arr2D);
-    if (randBox === 0 && isValid) {
-      arr2D[randRowIdx].splice(randNumIdx, 1, randNum);
-      n++;
-    }
-    if (n === 20) {
-      break;
-    }
+  const hotTemplate = JSON.parse(JSON.stringify(coolTemplate)) as number[][];
+
+  for (let i = 0; i < 10; i++) {
+    const switchNum1 = Math.ceil(Math.random() * 9);
+    const switchNum2 = Math.ceil(Math.random() * 9);
+
+    hotTemplate.forEach((row, rowIdx) =>
+      row.forEach((num, numIdx) => {
+        if (num === switchNum1) {
+          hotTemplate[rowIdx].splice(numIdx, 1, switchNum2);
+        }
+        if (num === switchNum2) {
+          hotTemplate[rowIdx].splice(numIdx, 1, switchNum1);
+        }
+      })
+    );
   }
-  const template = JSON.parse(JSON.stringify(arr2D)) as number[][];
-  return [template, arr2D];
+  const isValid = hotTemplate.every((row, rowIdx) =>
+    row.every((num, numIdx) => validator(rowIdx, numIdx, num, hotTemplate))
+  );
+  console.log(isValid, hotTemplate);
 };
