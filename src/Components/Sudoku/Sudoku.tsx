@@ -2,19 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { possibleNums } from "../../constants/sudoku";
 import { generateSudoku, validator } from "../../utils/sudoku/utils";
-// import { generateSudoku } from "../../utils/sudoku/utils";
-
-// const coolTemplate: number[][] = [
-//   [7, 8, 0, 4, 0, 0, 1, 2, 0],
-//   [6, 0, 0, 0, 7, 5, 0, 0, 9],
-//   [0, 0, 0, 6, 0, 1, 0, 7, 8],
-//   [0, 0, 7, 0, 4, 0, 2, 6, 0],
-//   [0, 0, 1, 0, 5, 0, 9, 3, 0],
-//   [9, 0, 4, 0, 6, 0, 0, 0, 5],
-//   [0, 7, 0, 3, 0, 0, 0, 1, 2],
-//   [1, 2, 0, 0, 0, 7, 4, 0, 0],
-//   [0, 4, 9, 2, 0, 6, 0, 0, 7],
-// ];
 
 const Wrapper = styled.main`
   display: flex;
@@ -33,19 +20,24 @@ const SudokuTemplate = styled.section`
   background-color: black;
 `;
 
+interface IBoxProps {
+  isValid: boolean;
+}
 interface IInputProps {
   isValid: boolean;
 }
 
-const Box = styled.div`
+const Box = styled.div<IBoxProps>`
   width: 50px;
   height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid transparent;
   background-color: whitesmoke;
   font-size: 22px;
-  border: 1px solid transparent;
+  font-weight: ${(props) => (props.isValid ? "normal" : "600")};
+  color: ${(props) => (props.isValid ? "black" : "red")};
   border-top: ${({ className }) => {
     if (className) {
       if (className.includes("row4") || className.includes("row7")) {
@@ -66,6 +58,12 @@ const Box = styled.div`
   }};
 `;
 
+const InputsContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+`;
+
 const Input = styled.input<IInputProps>`
   all: unset;
   width: 100%;
@@ -73,19 +71,45 @@ const Input = styled.input<IInputProps>`
   text-align: center;
   background-color: white;
   font-weight: 600;
+  z-index: 10;
   color: ${(props) => (props.isValid ? "#3182ce" : "red")};
+  &:focus {
+    background-color: #ebf8ff;
+  }
+`;
+
+const Notes = styled.div`
+  all: unset;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+`;
+
+const Note = styled.div`
+  all: unset;
+  font-size: 12px;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 `;
 
 const Sudoku = () => {
   const [hotTemplate, setHotTemplate] = useState<number[][] | null>(null);
+  const [notesOn, setNotesOn] = useState(false);
+  const [currentBox, setCurrentBox] = useState("");
   const coolTemplate = useRef<number[][] | null>(null);
 
   useEffect(() => {
-    generateSudoku();
-    // generateSudoku().then((initialTemplate) => {
-    //   coolTemplate.current = initialTemplate;
-    //   setHotTemplate(initialTemplate);
-    // });
+    generateSudoku().then((initialTemplate) => {
+      coolTemplate.current = initialTemplate;
+      setHotTemplate(initialTemplate);
+    });
   }, []);
 
   useEffect(() => {
@@ -109,7 +133,6 @@ const Sudoku = () => {
       }
     }
   }, [hotTemplate]);
-
   return (
     <Wrapper>
       <SudokuTemplate>
@@ -117,44 +140,89 @@ const Sudoku = () => {
           hotTemplate.map((row, rowIdx) =>
             row.map((num, numIdx) => {
               const isValid = validator(rowIdx, numIdx, num, hotTemplate);
-              // const isValid = true;
               return (
                 <Box
                   key={(rowIdx + 1) * (numIdx + 1)}
                   className={`row${rowIdx + 1} column${numIdx + 1}`}
+                  isValid={num === 0 ? true : isValid}
                 >
                   {coolTemplate.current &&
                     coolTemplate.current[rowIdx][numIdx] !== 0 &&
                     num}
                   {coolTemplate.current &&
                     coolTemplate.current[rowIdx][numIdx] === 0 && (
-                      <Input
-                        type="text"
-                        isValid={num === 0 ? true : isValid}
-                        maxLength={1}
-                        onChange={(e) => {
-                          const { value } = e.currentTarget;
-                          if (!possibleNums.includes(value)) {
-                            e.currentTarget.value = "";
-                            return;
-                          }
-                          const newTemplate = JSON.parse(
-                            JSON.stringify(hotTemplate)
-                          );
-                          newTemplate[rowIdx].splice(
-                            numIdx,
-                            1,
-                            value === "" ? 0 : parseInt(value)
-                          );
-                          setHotTemplate(newTemplate);
-                        }}
-                      ></Input>
+                      <InputsContainer>
+                        <Input
+                          type="text"
+                          isValid={num === 0 ? true : isValid}
+                          value={num === 0 ? "" : num}
+                          readOnly={true}
+                          maxLength={1}
+                          onFocus={() => setCurrentBox(`${rowIdx}-${numIdx}`)}
+                          onKeyDown={(e) => {
+                            const { key } = e;
+                            if (notesOn) {
+                              const note = document.getElementById(
+                                `note-${currentBox}-${key}`
+                              );
+                              if (note) {
+                                if (note.innerText === "") {
+                                  note.innerText = key;
+                                } else {
+                                  note.innerText = "";
+                                }
+                              }
+                            } else {
+                              const newTemplate = JSON.parse(
+                                JSON.stringify(hotTemplate)
+                              );
+                              if (possibleNums.includes(key)) {
+                                newTemplate[rowIdx].splice(
+                                  numIdx,
+                                  1,
+                                  parseInt(key)
+                                );
+                              } else {
+                                newTemplate[rowIdx].splice(numIdx, 1, 0);
+                              }
+                              setHotTemplate(newTemplate);
+                            }
+                          }}
+                        ></Input>
+                        {
+                          <Notes>
+                            {Array.from(Array(9).keys()).map((n, i) => {
+                              return (
+                                <Note
+                                  key={i}
+                                  id={`note-${rowIdx}-${numIdx}-${n + 1}`}
+                                  onFocus={() => {
+                                    console.log("!");
+                                  }}
+                                  onKeyDown={(e) => {
+                                    console.log(e.currentTarget.innerText);
+                                  }}
+                                >
+                                  {/* {n + 1} */}
+                                </Note>
+                              );
+                            })}
+                          </Notes>
+                        }
+                      </InputsContainer>
                     )}
                 </Box>
               );
             })
           )}
       </SudokuTemplate>
+      <button
+        onClick={() => {
+          setNotesOn(!notesOn);
+        }}
+      >
+        {notesOn ? "Notes on" : "Notes off"}
+      </button>
     </Wrapper>
   );
 };

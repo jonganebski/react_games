@@ -80,22 +80,21 @@ export const validator = (
   }
 };
 
-let limit = 0;
+let limitA = 0;
 
-export const solve = (arr2D: number[][]) => {
-  limit++;
-  // console.log(limit);
-  if (limit === 20000) {
+export const solveA = (arr2D: number[][]) => {
+  limitA++;
+  // console.log(limitA);
+  if (limitA === 20000) {
     return true;
   }
   const { rowIdx, numIdx } = findEmpty(arr2D);
-  console.log(rowIdx, numIdx);
   if (numIdx !== null) {
     for (let n = 1; n < 10; n++) {
       const isValid = validator(rowIdx, numIdx, n, arr2D);
       if (isValid) {
         arr2D[rowIdx].splice(numIdx, 1, n);
-        const isFinished = solve(arr2D);
+        const isFinished = solveA(arr2D);
         if (isFinished) {
           return true;
         }
@@ -103,24 +102,62 @@ export const solve = (arr2D: number[][]) => {
       }
     }
   } else {
-    console.log("Finished");
+    console.log("Solve A Finished");
+    return true;
+  }
+};
+
+let limitB = 0;
+
+export const solveB = (arr2D: number[][]) => {
+  limitB++;
+  // console.log(limitB);
+  if (limitB === 20000) {
+    return true;
+  }
+  const { rowIdx, numIdx } = findEmpty(arr2D);
+  if (numIdx !== null) {
+    for (let n = 9; n > 0; n--) {
+      const isValid = validator(rowIdx, numIdx, n, arr2D);
+      if (isValid) {
+        arr2D[rowIdx].splice(numIdx, 1, n);
+        const isFinished = solveB(arr2D);
+        if (isFinished) {
+          return true;
+        }
+        arr2D[rowIdx].splice(numIdx, 1, 0);
+      }
+    }
+  } else {
+    console.log("Solve B Finished");
     return true;
   }
 };
 
 export const generateSudoku = async () => {
-  const coolTemplate: number[][] = [
-    [7, 8, 5, 4, 3, 9, 1, 2, 6],
-    [6, 1, 2, 8, 7, 5, 3, 4, 9],
-    [4, 9, 3, 6, 2, 1, 5, 7, 8],
-    [8, 5, 7, 9, 4, 3, 2, 6, 1],
-    [2, 6, 1, 7, 5, 8, 9, 3, 4],
-    [9, 3, 4, 1, 6, 2, 7, 8, 5],
-    [5, 7, 8, 3, 9, 4, 6, 1, 2],
-    [1, 2, 6, 5, 8, 7, 4, 9, 3],
-    [3, 4, 9, 2, 1, 6, 8, 5, 7],
-  ];
+  // const coolTemplate: number[][] = [
+  //   [7, 6, 2, 3, 4, 8, 1, 5, 9],
+  //   [3, 8, 5, 9, 1, 6, 7, 2, 4],
+  //   [4, 1, 9, 5, 7, 2, 6, 8, 3],
+  //   [5, 7, 3, 6, 8, 1, 4, 9, 2],
+  //   [1, 4, 8, 2, 5, 9, 3, 6, 7],
+  //   [9, 2, 6, 7, 3, 4, 8, 1, 5],
+  //   [2, 5, 7, 8, 6, 3, 9, 4, 1],
+  //   [8, 3, 4, 1, 9, 5, 2, 7, 6],
+  //   [6, 9, 1, 4, 2, 7, 5, 3, 8],
+  // ];
 
+  const coolTemplate: number[][] = [
+    [1, 4, 5, 3, 2, 7, 6, 9, 8],
+    [8, 3, 9, 6, 5, 4, 1, 2, 7],
+    [6, 7, 2, 9, 1, 8, 5, 4, 3],
+    [4, 9, 6, 1, 8, 5, 3, 7, 2],
+    [2, 1, 8, 4, 7, 3, 9, 5, 6],
+    [7, 5, 3, 2, 9, 6, 4, 8, 1],
+    [3, 6, 7, 5, 4, 2, 8, 1, 9],
+    [9, 8, 4, 7, 6, 1, 2, 3, 5],
+    [5, 2, 1, 8, 3, 9, 7, 6, 4],
+  ];
   const hotTemplate = JSON.parse(JSON.stringify(coolTemplate)) as number[][];
 
   for (let i = 0; i < 10; i++) {
@@ -138,8 +175,39 @@ export const generateSudoku = async () => {
       })
     );
   }
-  const isValid = hotTemplate.every((row, rowIdx) =>
-    row.every((num, numIdx) => validator(rowIdx, numIdx, num, hotTemplate))
-  );
-  console.log(isValid, hotTemplate);
+
+  hotTemplate.splice(0, 3, hotTemplate[2], hotTemplate[0], hotTemplate[1]);
+  hotTemplate.splice(3, 3, hotTemplate[5], hotTemplate[3], hotTemplate[4]);
+  hotTemplate.splice(6, 3, hotTemplate[8], hotTemplate[6], hotTemplate[7]);
+
+  hotTemplate.forEach((row) => {
+    row.splice(0, 3, row[2], row[0], row[1]);
+    row.splice(3, 3, row[5], row[3], row[4]);
+    row.splice(6, 3, row[8], row[6], row[7]);
+  });
+
+  let count = 0;
+  for (let i = 0; i < 500; i++) {
+    const randRowIdx = Math.floor(Math.random() * 9);
+    const randNumIdx = Math.floor(Math.random() * 9);
+    if (hotTemplate[randRowIdx][randNumIdx] !== 0) {
+      hotTemplate[randRowIdx].splice(randNumIdx, 1, 0);
+      count++;
+    }
+    if (count === 40) {
+      break;
+    }
+  }
+
+  const testArrA = JSON.parse(JSON.stringify(hotTemplate));
+  const testArrB = JSON.parse(JSON.stringify(hotTemplate));
+  solveA(testArrA);
+  solveB(testArrB);
+
+  if (JSON.stringify(testArrA) === JSON.stringify(testArrB)) {
+    console.log("regen..");
+    generateSudoku();
+  }
+
+  return hotTemplate;
 };
