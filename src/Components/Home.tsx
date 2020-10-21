@@ -105,7 +105,6 @@ const MyCard = styled.div`
 const Heading = styled.h3`
   margin-bottom: 20px;
   font-size: 20px;
-  font-family: "Press Start 2P", cursive;
   letter-spacing: 3px;
 `;
 
@@ -132,7 +131,9 @@ const Home = () => {
           </FrontContent>
         </Front>
         <Back>
-          <Heading>MINESWEEPER</Heading>
+          <Heading style={{ fontFamily: '"Press Start 2P", cursive' }}>
+            MINESWEEPER
+          </Heading>
           <Link to="/minesweeper">
             <MinesweeperBtn text={"PLAY"} />
           </Link>
