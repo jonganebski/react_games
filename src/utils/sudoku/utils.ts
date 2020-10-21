@@ -211,3 +211,59 @@ export const generateSudoku = async () => {
 
   return hotTemplate;
 };
+
+export const getNextXBox = (
+  rowIdx: number,
+  numIdx: number,
+  keyType: "right" | "left"
+) => {
+  let nextColumn;
+  let box;
+  for (let i = 0; i < 9; i++) {
+    if (keyType === "right") {
+      nextColumn = numIdx + 2 + i;
+      box = document.getElementById(
+        `row${rowIdx + 1} column${
+          nextColumn < 10 ? nextColumn : nextColumn - 9
+        }`
+      );
+    }
+    if (keyType === "left") {
+      nextColumn = numIdx - i;
+      box = document.getElementById(
+        `row${rowIdx + 1} column${nextColumn > 0 ? nextColumn : nextColumn + 9}`
+      );
+    }
+    if (box) {
+      break;
+    }
+  }
+  return box;
+};
+
+export const getNextYBox = (
+  rowIdx: number,
+  numIdx: number,
+  keyType: "up" | "down"
+) => {
+  let nextRow;
+  let box;
+  for (let i = 0; i < 9; i++) {
+    if (keyType === "up") {
+      nextRow = rowIdx - i;
+      box = document.getElementById(
+        `row${nextRow > 0 ? nextRow : nextRow + 9} column${numIdx + 1}`
+      );
+    }
+    if (keyType === "down") {
+      nextRow = rowIdx + 2 + i;
+      box = document.getElementById(
+        `row${nextRow < 10 ? nextRow : nextRow - 9} column${numIdx + 1}`
+      );
+    }
+    if (box) {
+      break;
+    }
+  }
+  return box;
+};

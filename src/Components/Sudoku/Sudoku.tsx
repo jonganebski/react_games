@@ -1,14 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { possibleNums } from "../../constants/sudoku";
-import { generateSudoku, validator } from "../../utils/sudoku/utils";
+import {
+  generateSudoku,
+  getNextXBox,
+  getNextYBox,
+  validator,
+} from "../../utils/sudoku/utils";
 
 const Wrapper = styled.main`
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: dimgray;
+  background-color: white;
 `;
 
 const SudokuTemplate = styled.section`
@@ -18,13 +23,14 @@ const SudokuTemplate = styled.section`
   gap: 1px;
   border: 1px solid black;
   background-color: black;
+  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034),
+    0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06),
+    0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086);
 `;
 
 interface IBoxProps {
-  isValid: boolean;
-}
-interface IInputProps {
-  isValid: boolean;
+  isValid?: boolean;
+  isFixed?: boolean;
 }
 
 const Box = styled.div<IBoxProps>`
@@ -34,10 +40,9 @@ const Box = styled.div<IBoxProps>`
   align-items: center;
   justify-content: center;
   border: 1px solid transparent;
-  background-color: whitesmoke;
+  background-color: ${(props) => (props.isFixed ? "whitesmoke" : "white")};
+  cursor: pointer;
   font-size: 22px;
-  font-weight: ${(props) => (props.isValid ? "normal" : "600")};
-  color: ${(props) => (props.isValid ? "black" : "red")};
   border-top: ${({ className }) => {
     if (className) {
       if (className.includes("row4") || className.includes("row7")) {
@@ -64,15 +69,30 @@ const InputsContainer = styled.div`
   height: 100%;
 `;
 
-const Input = styled.input<IInputProps>`
+const Input = styled.input<IBoxProps>`
   all: unset;
   width: 100%;
   height: 100%;
   text-align: center;
-  background-color: white;
-  font-weight: 600;
   z-index: 10;
-  color: ${(props) => (props.isValid ? "#3182ce" : "red")};
+  font-weight: ${(props) => {
+    const { isValid, isFixed } = props;
+    if (isFixed && isValid) {
+      return "normal";
+    } else {
+      return "600";
+    }
+  }};
+  color: ${(props) => {
+    const { isValid, isFixed } = props;
+    if (isFixed && isValid) {
+      return "black";
+    }
+    if (isValid) {
+      return "#3182ce";
+    }
+    return "red";
+  }};
   &:focus {
     background-color: #ebf8ff;
   }
@@ -99,17 +119,114 @@ const Note = styled.div`
   pointer-events: none;
 `;
 
+interface INotesBtnProps {
+  notesOn: boolean;
+}
+const NotesBtn = styled.div<INotesBtnProps>`
+  width: 200px;
+  height: 50px;
+  box-sizing: content-box;
+  background-color: whitesmoke;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.1s ease-in-out;
+  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034),
+    0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06),
+    0 22.3px 17.9px rgba(0, 0, 0, 0.072);
+  &:hover {
+    box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034),
+      3px 6.7px 5.3px rgba(0, 0, 0, 0.048), 5px 12.5px 10px rgba(0, 0, 0, 0.1),
+      10px 22.3px 17.9px rgba(0, 0, 0, 0.09),
+      20px 30.8px 20.4px rgba(0, 0, 0, 0.03);
+  }
+`;
+
+const NotesBtnTextContainer = styled.div<INotesBtnProps>`
+  width: 100%;
+  height: 300%;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  transition: transform 0.22s ease-in-out;
+  transform: ${(props) =>
+    props.notesOn ? "translateY(-66px)" : "translateY(66px)"};
+`;
+
+const NotesBtnText = styled.span``;
+
+const handleKeyDown = (
+  e: React.KeyboardEvent<HTMLInputElement>,
+  rowIdx: number,
+  numIdx: number,
+  notesOn: boolean,
+  currentBox: string,
+  isFixed: boolean,
+  hotTemplate: number[][],
+  setHotTemplate: React.Dispatch<React.SetStateAction<number[][] | null>>
+) => {
+  const { key } = e;
+  if (key === "ArrowRight") {
+    getNextXBox(rowIdx, numIdx, "right")?.focus();
+    return;
+  }
+  if (key === "ArrowLeft") {
+    getNextXBox(rowIdx, numIdx, "left")?.focus();
+    return;
+  }
+  if (key === "ArrowUp") {
+    getNextYBox(rowIdx, numIdx, "up")?.focus();
+    return;
+  }
+  if (key === "ArrowDown") {
+    getNextYBox(rowIdx, numIdx, "down")?.focus();
+    return;
+  }
+  if (isFixed) {
+    return;
+  }
+  if (notesOn) {
+    const note = document.getElementById(`note-${currentBox}-${key}`);
+    if (note) {
+      if (note.innerText === "") {
+        note.innerText = key;
+      } else {
+        note.innerText = "";
+      }
+    }
+  }
+  if (!notesOn) {
+    const newTemplate = JSON.parse(JSON.stringify(hotTemplate));
+    if (possibleNums.includes(key)) {
+      newTemplate[rowIdx].splice(numIdx, 1, parseInt(key));
+    } else {
+      newTemplate[rowIdx].splice(numIdx, 1, 0);
+    }
+    setHotTemplate(newTemplate);
+  }
+};
+
 const Sudoku = () => {
   const [hotTemplate, setHotTemplate] = useState<number[][] | null>(null);
   const [notesOn, setNotesOn] = useState(false);
   const [currentBox, setCurrentBox] = useState("");
-  const coolTemplate = useRef<number[][] | null>(null);
+  const coolTemplate = useRef<number[][]>([]);
 
   useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        setNotesOn((prev) => !prev);
+      }
+    };
     generateSudoku().then((initialTemplate) => {
       coolTemplate.current = initialTemplate;
       setHotTemplate(initialTemplate);
     });
+    document.addEventListener("keydown", handleGlobalKeyDown);
+    return () => document.removeEventListener("keydown", handleGlobalKeyDown);
   }, []);
 
   useEffect(() => {
@@ -136,93 +253,71 @@ const Sudoku = () => {
   return (
     <Wrapper>
       <SudokuTemplate>
-        {hotTemplate &&
-          hotTemplate.map((row, rowIdx) =>
-            row.map((num, numIdx) => {
-              const isValid = validator(rowIdx, numIdx, num, hotTemplate);
-              return (
-                <Box
-                  key={(rowIdx + 1) * (numIdx + 1)}
-                  className={`row${rowIdx + 1} column${numIdx + 1}`}
-                  isValid={num === 0 ? true : isValid}
-                >
-                  {coolTemplate.current &&
-                    coolTemplate.current[rowIdx][numIdx] !== 0 &&
-                    num}
-                  {coolTemplate.current &&
-                    coolTemplate.current[rowIdx][numIdx] === 0 && (
-                      <InputsContainer>
-                        <Input
-                          type="text"
-                          isValid={num === 0 ? true : isValid}
-                          value={num === 0 ? "" : num}
-                          readOnly={true}
-                          maxLength={1}
-                          onFocus={() => setCurrentBox(`${rowIdx}-${numIdx}`)}
-                          onKeyDown={(e) => {
-                            const { key } = e;
-                            if (notesOn) {
-                              const note = document.getElementById(
-                                `note-${currentBox}-${key}`
-                              );
-                              if (note) {
-                                if (note.innerText === "") {
-                                  note.innerText = key;
-                                } else {
-                                  note.innerText = "";
-                                }
-                              }
-                            } else {
-                              const newTemplate = JSON.parse(
-                                JSON.stringify(hotTemplate)
-                              );
-                              if (possibleNums.includes(key)) {
-                                newTemplate[rowIdx].splice(
-                                  numIdx,
-                                  1,
-                                  parseInt(key)
-                                );
-                              } else {
-                                newTemplate[rowIdx].splice(numIdx, 1, 0);
-                              }
-                              setHotTemplate(newTemplate);
-                            }
-                          }}
-                        ></Input>
-                        {
-                          <Notes>
-                            {Array.from(Array(9).keys()).map((n, i) => {
-                              return (
-                                <Note
-                                  key={i}
-                                  id={`note-${rowIdx}-${numIdx}-${n + 1}`}
-                                  onFocus={() => {
-                                    console.log("!");
-                                  }}
-                                  onKeyDown={(e) => {
-                                    console.log(e.currentTarget.innerText);
-                                  }}
-                                >
-                                  {/* {n + 1} */}
-                                </Note>
-                              );
-                            })}
-                          </Notes>
-                        }
-                      </InputsContainer>
-                    )}
-                </Box>
-              );
-            })
-          )}
+        {hotTemplate?.map((row, rowIdx) =>
+          row.map((num, numIdx) => {
+            const isValid = validator(rowIdx, numIdx, num, hotTemplate);
+            const isFixed = coolTemplate.current[rowIdx][numIdx] !== 0;
+            return (
+              <Box
+                key={(rowIdx + 1) * (numIdx + 1)}
+                className={`row${rowIdx + 1} column${numIdx + 1}`}
+                isFixed={isFixed}
+              >
+                {
+                  <InputsContainer>
+                    <Input
+                      type="text"
+                      id={`row${rowIdx + 1} column${numIdx + 1}`}
+                      isValid={num === 0 ? true : isValid}
+                      isFixed={isFixed}
+                      value={num === 0 ? "" : num}
+                      readOnly={true}
+                      maxLength={1}
+                      onFocus={() => setCurrentBox(`${rowIdx}-${numIdx}`)}
+                      onKeyDown={(e) =>
+                        handleKeyDown(
+                          e,
+                          rowIdx,
+                          numIdx,
+                          notesOn,
+                          currentBox,
+                          isFixed,
+                          hotTemplate,
+                          setHotTemplate
+                        )
+                      }
+                    ></Input>
+                    {
+                      <Notes>
+                        {Array.from(Array(9).keys()).map((n, i) => {
+                          return (
+                            <Note
+                              key={i}
+                              id={`note-${rowIdx}-${numIdx}-${n + 1}`}
+                            ></Note>
+                          );
+                        })}
+                      </Notes>
+                    }
+                  </InputsContainer>
+                }
+              </Box>
+            );
+          })
+        )}
       </SudokuTemplate>
-      <button
-        onClick={() => {
-          setNotesOn(!notesOn);
-        }}
-      >
-        {notesOn ? "Notes on" : "Notes off"}
-      </button>
+
+      <NotesBtn notesOn={notesOn} onClick={() => setNotesOn(!notesOn)}>
+        <NotesBtnTextContainer notesOn={notesOn}>
+          <NotesBtnText>Notes OFF</NotesBtnText>
+          <NotesBtnText style={{ color: "red" }}>
+            <span role="img" aria-label="imoji">
+              📝
+            </span>{" "}
+            Notes ON
+          </NotesBtnText>
+        </NotesBtnTextContainer>
+      </NotesBtn>
     </Wrapper>
   );
 };
