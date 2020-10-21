@@ -3,7 +3,14 @@ import styled from "styled-components";
 
 interface IButtonProps {
   text: string;
+  onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
+
+interface IMyButtonProps {
+  arrLength: number;
+}
+
+const yAxisBoxWidth = 20;
 
 const XAxis = styled.div`
   position: absolute;
@@ -28,7 +35,7 @@ const XAxis = styled.div`
 `;
 
 const YAxisBox = styled.div`
-  width: 100%;
+  width: ${`${yAxisBoxWidth}px`};
   height: 100%;
   display: flex;
   align-items: center;
@@ -58,16 +65,17 @@ const YAxis = styled.div`
   }
 `;
 
-const MyButton = styled.div`
+const MyButton = styled.div<IMyButtonProps>`
   position: relative;
-  width: 120px;
+  width: ${(props) => `${props.arrLength * yAxisBoxWidth}px`};
   height: 50px;
   display: flex;
   background-color: white;
   cursor: pointer;
   box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034),
-    0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06),
-    0 22.3px 17.9px rgba(0, 0, 0, 0.072);
+    3px 6.7px 5.3px rgba(0, 0, 0, 0.048), 5px 12.5px 10px rgba(0, 0, 0, 0.1),
+    10px 22.3px 17.9px rgba(0, 0, 0, 0.09),
+    20px 30.8px 20.4px rgba(0, 0, 0, 0.03);
   &:hover {
     ${XAxis} {
       div {
@@ -80,14 +88,19 @@ const MyButton = styled.div`
       }
     }
   }
+  &:active {
+    box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034),
+      0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06),
+      0 22.3px 17.9px rgba(0, 0, 0, 0.072);
+  }
 `;
 
-const Button: React.FC<IButtonProps> = ({ text }) => {
+const Button: React.FC<IButtonProps> = ({ text, onClick }) => {
   const yAxisArr = text.split("");
   yAxisArr.unshift("");
   yAxisArr.push("");
   return (
-    <MyButton>
+    <MyButton arrLength={yAxisArr.length} onClick={onClick}>
       {yAxisArr.map((char, i) => {
         return <YAxisBox key={i}>{char}</YAxisBox>;
       })}
