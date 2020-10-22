@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import { timeToString } from "../utils/globalUtils";
+import { timeToString } from "../../utils/globalUtils";
 
 interface ITimerProps {
   status: number;

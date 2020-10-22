@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import Axios from "axios";
-import { TLeaderboards, TMode } from "../@types/minesweeper";
-import { processData } from "../utils/globalUtils";
-import { timeToString } from "../utils/globalUtils";
-import MinesweeperBtn from "./Minesweeper/Button";
+import { TLeaderboards, TMode } from "../../@types/minesweeper";
+import { processData } from "../../utils/globalUtils";
+import { timeToString } from "../../utils/globalUtils";
+import MinesweeperBtn from "./Button";
 
 interface IPopupProps {
   time: number;

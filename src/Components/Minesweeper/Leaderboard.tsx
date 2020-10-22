@@ -1,10 +1,14 @@
 import Axios from "axios";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { TLeaderboards, TMode, TModeLeaderboard } from "../@types/minesweeper";
-import { ranks } from "../constants/global";
-import { easy, midd } from "../constants/minesweeper";
-import { processData, timeToString } from "../utils/globalUtils";
+import {
+  TLeaderboards,
+  TMode,
+  TModeLeaderboard,
+} from "../../@types/minesweeper";
+import { ranks } from "../../constants/global";
+import { easy, midd } from "../../constants/minesweeper";
+import { processData, timeToString } from "../../utils/globalUtils";
 
 interface ILeaderboardProps {
   mode: TMode;
