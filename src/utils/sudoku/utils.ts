@@ -201,7 +201,7 @@ export const generateSudoku = async () => {
   solveA(testArrA);
   solveB(testArrB);
 
-  if (JSON.stringify(testArrA) === JSON.stringify(testArrB)) {
+  if (JSON.stringify(testArrA) !== JSON.stringify(testArrB)) {
     console.log("regen..");
     generateSudoku();
   }
@@ -270,10 +270,12 @@ export const getNextYBox = (
 // START GAME
 export const startGame = (
   coolTemplate: React.MutableRefObject<number[][]>,
-  setHotTemplate: React.Dispatch<React.SetStateAction<number[][] | null>>
+  setHotTemplate: React.Dispatch<React.SetStateAction<number[][] | null>>,
+  setTime: React.Dispatch<React.SetStateAction<number>>
 ) => {
   generateSudoku().then((initialTemplate) => {
     coolTemplate.current = initialTemplate;
     setHotTemplate(initialTemplate);
+    setTime(0);
   });
 };

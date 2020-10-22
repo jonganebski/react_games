@@ -16,6 +16,7 @@ export const handleKeyDown = (
     return;
   }
   const { key } = e;
+  e.preventDefault();
   if (key === "ArrowRight") {
     getNextXBox(rowIdx, numIdx, "right")?.focus();
     return;

@@ -42,23 +42,20 @@ const Instructions = () => {
           function ON).
         </ListItem>
         <ListItem>You can move around the boxes with your ARROW KEYS.</ListItem>
+        <ListItem>
+          Timer starts right after the page is loaded to prevent cheating.
+        </ListItem>
         <ListItem>This Sudoku may have more than 1 answer.</ListItem>
       </List>
       <SubHeading>Sudoku rules: </SubHeading>
       <List>
         <ListItem>
-          This 9 X 9 sudoku table. It consists 3 X 3 small tables(sub region).
-          There are 9 of them.
+          This is 9x9 sudoku table. It contains 9 3x3 small tables(sub regions).
         </ListItem>
+        <ListItem>Each column must have every number between 1 ~ 9.</ListItem>
+        <ListItem>Each row must have every number between 1 ~ 9.</ListItem>
         <ListItem>
-          Each column of the sudoku table must have every number between 1 ~ 9.
-        </ListItem>
-        <ListItem>
-          Each row of the sudoku table must have every number between 1 ~ 9.
-        </ListItem>
-        <ListItem>
-          Each sub region of the sudoku table must have every number between 1 ~
-          9.
+          Each sub region must have every number between 1 ~ 9.
         </ListItem>
         <ListItem>
           Which means each column, row and sub region cannot have repeated

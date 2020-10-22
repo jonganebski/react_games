@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { TBox, TLeaderboards, TMode } from "../@types/minesweeper";
 import { easy, hard, midd, mineBoxSize } from "../constants/minesweeper";
@@ -22,10 +22,10 @@ import {
   handleGameover,
   handleVictory,
 } from "../utils/minesweeper/utils";
-import Timer from "./Timer";
 import Leaderboard from "./Leaderboard";
-import Popup from "./Popup";
 import MinesweeperBtn from "./Minesweeper/Button";
+import Popup from "./Popup";
+import Timer from "./Timer";
 
 // ------------- INTERFACE -------------
 
@@ -268,7 +268,7 @@ const Minesweeper = () => {
       setIsNewRecord(isNewRecord);
     }
   }, [leaderboard, mode.level, record]);
-
+  console.log(time);
   return (
     <Wrapper>
       <ContainerL>

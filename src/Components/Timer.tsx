@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { timeToString } from "../utils/globalUtils";
 
@@ -17,7 +17,8 @@ const Box = styled.div`
 `;
 
 const Timer: React.FC<ITimerProps> = ({ time, status, setTime, setRecord }) => {
-  const [id, setId] = useState(0);
+  // const [id, setId] = useState(0);
+  const id = useRef(0);
 
   useEffect(() => {
     if (status === 0) {
@@ -26,15 +27,16 @@ const Timer: React.FC<ITimerProps> = ({ time, status, setTime, setRecord }) => {
     }
     if (status === 1) {
       const startedAt = Date.now();
-      const id = setInterval(() => {
+      id.current = setInterval(() => {
         setTime(Date.now() - startedAt);
       }, 10);
-      setId(id);
+      // setId(id);
+      return () => clearInterval(id.current);
     }
   }, [setRecord, setTime, status]);
 
   if (status !== 1) {
-    clearInterval(id);
+    clearInterval(id.current);
   }
 
   useEffect(() => {
@@ -45,7 +47,7 @@ const Timer: React.FC<ITimerProps> = ({ time, status, setTime, setRecord }) => {
 
   return (
     <>
-      <Box>{timeToString(time)}</Box>
+      <Box>{timeToString(time).substring(0, 5)}</Box>
     </>
   );
 };

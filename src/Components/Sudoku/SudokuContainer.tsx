@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { TLeaderboard, TPopup } from "../../@types/sudoku";
 import { handleGlobalKeyDown } from "../../utils/sudoku/eventHandlers";
 import { startGame, validator } from "../../utils/sudoku/utils";
 import SudokuPresenter from "./SudokuPresenter";
@@ -10,11 +11,15 @@ const Sudoku = () => {
   const [notesOn, setNotesOn] = useState(false);
   const [currentBox, setCurrentBox] = useState("");
   const [solved, setSolved] = useState(false);
+  const [time, setTime] = useState(0);
+  const [leaderboard, setLeaderboard] = useState<TLeaderboard[]>([]);
+  const [popup, setPopup] = useState<TPopup>({ bool: false, submitted: false });
   const coolTemplate = useRef<number[][]>([]);
+  const startedAt = useRef(Date.now());
 
   useEffect(() => {
     // START GAME
-    startGame(coolTemplate, setHotTemplate);
+    startGame(coolTemplate, setHotTemplate, setTime);
     // GLOBAL EVENTLISTENER
     document.addEventListener("keydown", (e) =>
       handleGlobalKeyDown(e, setNotesOn)
@@ -45,11 +50,20 @@ const Sudoku = () => {
         } else {
           console.log("Try again!");
         }
-      } else {
-        setSolved(false);
       }
     }
   }, [hotTemplate]);
+
+  useEffect(() => {
+    if (solved && !popup.submitted) {
+      if (
+        leaderboard.some((row) => time <= parseInt(row.time)) ||
+        leaderboard.length < 10
+      ) {
+        setPopup({ bool: true, submitted: false });
+      }
+    }
+  }, [leaderboard, popup.submitted, solved, time]);
 
   return (
     <SudokuPresenter
@@ -61,6 +75,13 @@ const Sudoku = () => {
       currentBox={currentBox}
       setHotTemplate={setHotTemplate}
       setNotesOn={setNotesOn}
+      time={time}
+      setTime={setTime}
+      startedAt={startedAt}
+      leaderboard={leaderboard}
+      setLeaderboard={setLeaderboard}
+      popup={popup}
+      setPopup={setPopup}
     />
   );
 };

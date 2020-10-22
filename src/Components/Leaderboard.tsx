@@ -1,18 +1,16 @@
 import Axios from "axios";
 import React, { useEffect, useState } from "react";
-import { TLeaderboards, TMode, TModeLeaderboard } from "../@types/minesweeper";
-import { easy, midd } from "../constants/minesweeper";
-import { timeToString } from "../utils/globalUtils";
-import { processData } from "../utils/minesweeper/utils";
 import styled from "styled-components";
+import { TLeaderboards, TMode, TModeLeaderboard } from "../@types/minesweeper";
+import { ranks } from "../constants/global";
+import { easy, midd } from "../constants/minesweeper";
+import { processData, timeToString } from "../utils/globalUtils";
 
 interface ILeaderboardProps {
   mode: TMode;
   leaderboard: TLeaderboards | null;
   setLeaderboard: React.Dispatch<React.SetStateAction<TLeaderboards | null>>;
 }
-
-const ranks = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"];
 
 const List = styled.ul`
   min-width: 200px;
