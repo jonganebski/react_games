@@ -1,4 +1,3 @@
-import { type } from "os";
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
@@ -37,7 +36,13 @@ const Cell = styled.div<ICellProps>`
   width: ${CELL_WIDTH}px;
   height: ${CELL_HEIGHT}px;
   background-color: ${({ num, tetrimino }) => {
-    if (num % ROW_COUNT === 0 || num % ROW_COUNT === 1) {
+    if (
+      num % ROW_COUNT === 0 ||
+      num % ROW_COUNT === 1 ||
+      num % ROW_COUNT === 2 ||
+      num % ROW_COUNT === ROW_COUNT - 1 ||
+      CELLS_COUNT - num < ROW_COUNT
+    ) {
       return "none";
     } else if (tetrimino.includes(num)) {
       return "red";
@@ -48,8 +53,20 @@ const Cell = styled.div<ICellProps>`
 `;
 
 const theaterArr = Array.from(Array(CELLS_COUNT).keys()).map((key) => key + 1);
-const pocketL = theaterArr.filter((num) => num % ROW_COUNT === 1);
-const pocketR = theaterArr.filter((num) => num % ROW_COUNT === 0);
+const pocketL = theaterArr.filter(
+  (num) => num % ROW_COUNT === 1 || num % ROW_COUNT === 2
+);
+const pocketR = theaterArr.filter(
+  (num) => num % ROW_COUNT === 0 || num % ROW_COUNT === ROW_COUNT - 1
+);
+const pocketD = theaterArr.filter((num) => CELLS_COUNT - num < ROW_COUNT);
+
+const borderL = theaterArr.filter((num) => num % ROW_COUNT === 3);
+const borderR = theaterArr.filter((num) => num % ROW_COUNT === ROW_COUNT - 2);
+const borderD = theaterArr.filter(
+  (num) => ROW_COUNT < CELLS_COUNT - num && CELLS_COUNT - num <= ROW_COUNT * 2
+);
+const stack = pocketD;
 
 const getTetrimino = (n: number): { [key: string]: number[][] } => {
   return {
@@ -108,27 +125,75 @@ const Tetris = () => {
   const [tetrimino, setTetrimino] = useState(
     getTetrimino(coord)[type][moveCount]
   );
+  const before = useRef(tetrimino);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "ArrowRight") {
-        setCoord((prev) => prev + 1);
-      }
-      if (e.code === "ArrowLeft") {
-        setCoord((prev) => prev - 1);
-      }
-      if (e.code === "ArrowDown") {
-        setCoord((prev) => prev + ROW_COUNT);
-      }
-      if (e.code === "ArrowUp") {
-        setMoveCount((prev) => (prev === 3 ? 0 : prev + 1));
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    const id = setInterval(() => {
+      setCoord((prev) => prev + ROW_COUNT);
+    }, 1000);
+    return () => clearInterval(id);
   }, []);
 
-  useEffect(() => {}, [tetrimino]);
+  useEffect(() => {
+    const moveRight = (prev: number) => {
+      if (tetrimino.some((n) => borderR.includes(n))) {
+        return prev;
+      } else {
+        return prev + 1;
+      }
+    };
+    const moveLeft = (prev: number) => {
+      if (tetrimino.some((n) => borderL.includes(n))) {
+        return prev;
+      } else {
+        return prev - 1;
+      }
+    };
+    const moveDown = (prev: number) => {
+      if (tetrimino.some((n) => borderD.includes(n))) {
+        return prev;
+      } else {
+        return prev + ROW_COUNT;
+      }
+    };
+    const rotate = (prev: number) => {
+      const count = prev === 3 ? 0 : prev + 1;
+      const future = getTetrimino(coord)[type][count];
+      if (future.some((n) => stack.includes(n))) {
+        return prev;
+      } else {
+        return count;
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === "ArrowRight") {
+        setCoord(moveRight);
+      }
+      if (e.code === "ArrowLeft") {
+        setCoord(moveLeft);
+      }
+      if (e.code === "ArrowDown") {
+        setCoord(moveDown);
+      }
+      if (e.code === "ArrowUp") {
+        setMoveCount(rotate);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [coord, tetrimino, type]);
+
+  useEffect(() => {
+    if (tetrimino.some((n) => pocketL.includes(n))) {
+      setCoord((prev) => prev + 1);
+    }
+    if (tetrimino.some((n) => pocketR.includes(n))) {
+      setCoord((prev) => prev - 1);
+    }
+  }, [tetrimino]);
 
   useEffect(() => {
     setTetrimino(getTetrimino(coord)[type][moveCount]);
@@ -140,7 +205,7 @@ const Tetris = () => {
         {theater.map((num) => {
           return (
             <Cell key={num} num={num} tetrimino={tetrimino}>
-              {num}
+              {tetrimino.includes(num) ? "T" : num}
             </Cell>
           );
         })}
