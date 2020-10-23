@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useMatrix } from "../../hooks/tetris/useMatrix";
 import { useTetriminos } from "../../hooks/tetris/useTetriminos";
 import { checkWillCollide } from "../../utils/Tetris/utils";
+import TetrisButton from "./Button";
 
 const MATRIX_W = 10;
 const MATRIX_H = 20;
@@ -36,7 +37,7 @@ const Right = styled.section`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: peru;
+  background-color: black;
 `;
 
 const Matrix = styled.div`
@@ -116,7 +117,8 @@ const Tetris = () => {
         <div>Next Tetrimino</div>
         <div>Score</div>
         <div>Level</div>
-        <div>START GAME</div>
+        <TetrisButton text="START GAME" />
+        <TetrisButton text="HOME" />
       </Right>
     </Wrapper>
   );
