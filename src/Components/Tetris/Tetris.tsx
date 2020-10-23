@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { TMatrix, TTetriminos } from "../../@types/tetris";
 import { useMatrix } from "../../hooks/tetris/useMatrix";
 import { useTetriminos } from "../../hooks/tetris/useTetriminos";
 
@@ -16,11 +17,26 @@ const Wrapper = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
 `;
 
+const Left = styled.section`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: tomato;
+`;
+
 const Center = styled.section`
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: steelblue;
+`;
+
+const Right = styled.section`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: peru;
 `;
 
 const Matrix = styled.div`
@@ -45,9 +61,67 @@ const Tetris = () => {
   const [tetri, setTetri] = useTetriminos();
   const [matrix, setMatrix] = useMatrix(tetri);
 
+  const checkWillCollide = (
+    matrix: TMatrix,
+    tetri: TTetriminos,
+    dirX: number,
+    dirY: number
+  ) => {
+    for (let y = 0; y < tetri.shape.length; ++y) {
+      for (let x = 0; x < tetri.shape[y].length; ++x) {
+        if (tetri.shape[y][x] !== ".") {
+          const rowBelow = matrix[tetri.pos.y + y + dirY];
+          const nextCell = rowBelow && rowBelow[x + tetri.pos.x + dirX];
+          const isLocked = nextCell && nextCell[1] === "locked" ? true : false;
+          if (!rowBelow || !nextCell || isLocked) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  };
+
+  const drop = () => {
+    const willCollide = checkWillCollide(matrix, tetri, 0, 1);
+    if (!willCollide) {
+      setTetri((prev) => ({
+        ...prev,
+        pos: { ...prev.pos, y: prev.pos.y + 1 },
+      }));
+    }
+  };
+
+  const moveHorizontal = (dir: number) => {
+    const willCollide = checkWillCollide(matrix, tetri, dir, 0);
+    if (!willCollide) {
+      setTetri((prev) => ({
+        ...prev,
+        pos: { ...prev.pos, x: prev.pos.x + dir },
+      }));
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (e.key === "ArrowLeft") {
+      moveHorizontal(-1);
+    }
+    if (e.key === "ArrowRight") {
+      moveHorizontal(1);
+    }
+    if (e.key === "ArrowDown") {
+      drop();
+    }
+    if (e.key === "ArrowUp") {
+    }
+  };
+
   return (
-    <Wrapper>
-      <div>LEFT</div>
+    <Wrapper role="button" tabIndex={0} onKeyDown={handleKeyDown}>
+      <Left>
+        <div>Leaderboard</div>
+      </Left>
       <Center>
         <Matrix>
           {matrix.map((row) =>
@@ -55,7 +129,11 @@ const Tetris = () => {
           )}
         </Matrix>
       </Center>
-      <div>RIGHT</div>
+      <Right>
+        <div>Next Tetrimino</div>
+        <div>Score</div>
+        <div>Level</div>
+      </Right>
     </Wrapper>
   );
 };
