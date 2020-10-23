@@ -64,7 +64,6 @@ const Sudoku = () => {
       }
     }
   }, [leaderboard, popup.submitted, solved, time]);
-
   return (
     <SudokuPresenter
       solved={solved}
