@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import { TMatrix, TTetriminos } from "../../@types/tetris";
 import { useMatrix } from "../../hooks/tetris/useMatrix";
 import { useTetriminos } from "../../hooks/tetris/useTetriminos";
+import { checkWillCollide } from "../../utils/Tetris/utils";
 
 const MATRIX_W = 10;
 const MATRIX_H = 20;
@@ -58,49 +58,31 @@ const Cell = styled.div<ICellProps>`
 `;
 
 const Tetris = () => {
-  const [tetri, setTetri] = useTetriminos();
+  const [tetri, setTetri, updateTetri] = useTetriminos();
   const [matrix, setMatrix] = useMatrix(tetri);
-
-  const checkWillCollide = (
-    matrix: TMatrix,
-    tetri: TTetriminos,
-    dirX: number,
-    dirY: number
-  ) => {
-    for (let y = 0; y < tetri.shape.length; ++y) {
-      for (let x = 0; x < tetri.shape[y].length; ++x) {
-        if (tetri.shape[y][x] !== ".") {
-          const rowBelow = matrix[tetri.pos.y + y + dirY];
-          const nextCell = rowBelow && rowBelow[x + tetri.pos.x + dirX];
-          const isLocked = nextCell && nextCell[1] === "locked" ? true : false;
-          if (!rowBelow || !nextCell || isLocked) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  };
 
   const drop = () => {
     const willCollide = checkWillCollide(matrix, tetri, 0, 1);
     if (!willCollide) {
-      setTetri((prev) => ({
-        ...prev,
-        pos: { ...prev.pos, y: prev.pos.y + 1 },
-      }));
+      updateTetri(0, 1);
     }
   };
 
   const moveHorizontal = (dir: number) => {
     const willCollide = checkWillCollide(matrix, tetri, dir, 0);
     if (!willCollide) {
-      setTetri((prev) => ({
-        ...prev,
-        pos: { ...prev.pos, x: prev.pos.x + dir },
-      }));
+      updateTetri(dir, 0);
     }
   };
+
+  const rotate = () =>
+    setTetri((prev) => {
+      const flippedOver = prev.shape.map((_, i) =>
+        prev.shape.map((col) => col[i])
+      );
+      const rotatedClockwise = flippedOver.map((row) => row.reverse());
+      return { ...prev, shape: rotatedClockwise };
+    });
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -114,6 +96,7 @@ const Tetris = () => {
       drop();
     }
     if (e.key === "ArrowUp") {
+      rotate();
     }
   };
 
@@ -133,6 +116,7 @@ const Tetris = () => {
         <div>Next Tetrimino</div>
         <div>Score</div>
         <div>Level</div>
+        <div>START GAME</div>
       </Right>
     </Wrapper>
   );
