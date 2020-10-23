@@ -42,6 +42,7 @@ const Button = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
   color: #2196f3;
   overflow: hidden;
   &:hover {
@@ -73,10 +74,13 @@ const Button = styled.div`
 
 interface ITetrisButtonProps {
   text: string;
+  onClick?:
+    | ((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void)
+    | undefined;
 }
 
-const TetrisButton: React.FC<ITetrisButtonProps> = ({ text }) => (
-  <Button>
+const TetrisButton: React.FC<ITetrisButtonProps> = ({ text, onClick }) => (
+  <Button onClick={onClick}>
     <BorderTop />
     <BorderRight />
     <BorderBottom />

@@ -1,16 +1,28 @@
 import { useEffect, useState } from "react";
 import { TMatrix, TTetriminos } from "../../@types/tetris";
-import { MATRIX_H, MATRIX_W } from "../../constants/tetris";
+import { createMatrix } from "../../utils/Tetris/utils";
 
 export const useMatrix = (
-  tetri: TTetriminos
+  tetri: TTetriminos,
+  resetTetri: () => void
 ): [TMatrix, React.Dispatch<React.SetStateAction<TMatrix>>] => {
-  const [matrix, setMatrix] = useState(
-    Array(MATRIX_H).fill(Array(MATRIX_W).fill([".", "free"])) as TMatrix
-  );
+  const [matrix, setMatrix] = useState(createMatrix());
 
   useEffect(() => {
-    const updateMatrix = (matrix: TMatrix) => {
+    const clearLines = (matrix: TMatrix): TMatrix => {
+      const newMatrix: TMatrix = [];
+      matrix.forEach((row) => {
+        if (row.some((cell) => cell[1] === "free")) {
+          newMatrix.push(row);
+        } else {
+          const newRow = Array(row.length).fill([".", "free"]);
+          newMatrix.unshift(newRow);
+        }
+      });
+      return newMatrix;
+    };
+
+    const updateMatrix = (matrix: TMatrix): TMatrix => {
       // Clear acting tetrimino
       const newMatrix = matrix.map((row) =>
         row.map((cell) => (cell[1] === "free" ? [".", "free"] : cell))
@@ -26,11 +38,16 @@ export const useMatrix = (
           }
         })
       );
+      if (tetri.collided) {
+        resetTetri();
+        return clearLines(newMatrix);
+      }
       return newMatrix;
     };
 
+    // MAIN JOB
     setMatrix((prev) => updateMatrix(prev));
-  }, [tetri]);
+  }, [resetTetri, tetri]);
 
   return [matrix, setMatrix];
 };

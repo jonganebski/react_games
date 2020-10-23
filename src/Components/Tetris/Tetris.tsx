@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { useMatrix } from "../../hooks/tetris/useMatrix";
 import { useTetriminos } from "../../hooks/tetris/useTetriminos";
-import { checkWillCollide } from "../../utils/Tetris/utils";
+import { checkWillCollide, createMatrix } from "../../utils/Tetris/utils";
 import TetrisButton from "./Button";
 
 const MATRIX_W = 10;
@@ -59,20 +59,30 @@ const Cell = styled.div<ICellProps>`
 `;
 
 const Tetris = () => {
-  const [tetri, setTetri, updateTetri] = useTetriminos();
-  const [matrix, setMatrix] = useMatrix(tetri);
+  const [gameOver, setGameOver] = useState(false);
+
+  const [tetri, setTetri, resetTetri, updateTetri] = useTetriminos();
+  const [matrix, setMatrix] = useMatrix(tetri, resetTetri);
+
+  const startGame = () => {
+    setMatrix(createMatrix());
+    resetTetri();
+    setGameOver(false);
+  };
 
   const drop = () => {
     const willCollide = checkWillCollide(matrix, tetri, 0, 1);
     if (!willCollide) {
-      updateTetri(0, 1);
+      updateTetri(0, 1, false);
+    } else {
+      updateTetri(0, 0, true);
     }
   };
 
   const moveHorizontal = (dir: number) => {
     const willCollide = checkWillCollide(matrix, tetri, dir, 0);
     if (!willCollide) {
-      updateTetri(dir, 0);
+      updateTetri(dir, 0, false);
     }
   };
 
@@ -117,7 +127,7 @@ const Tetris = () => {
         <div>Next Tetrimino</div>
         <div>Score</div>
         <div>Level</div>
-        <TetrisButton text="START GAME" />
+        <TetrisButton text="START GAME" onClick={startGame} />
         <TetrisButton text="HOME" />
       </Right>
     </Wrapper>

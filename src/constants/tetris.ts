@@ -1,6 +1,7 @@
 import { TTetriShape } from "../@types/tetris";
 
 export const TETRIMINO: { [key: string]: TTetriShape } = {
+  void: [["."]],
   I: [
     [".", "I", ".", "."],
     [".", "I", ".", "."],
