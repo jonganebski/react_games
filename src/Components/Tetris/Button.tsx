@@ -11,28 +11,28 @@ const BorderTop = styled(Border)`
   left: -100%;
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #2196f3);
+  background: linear-gradient(90deg, transparent, #099fff);
 `;
 const BorderRight = styled(Border)`
   top: -100%;
   right: 0;
   width: 2px;
   height: 100%;
-  background: linear-gradient(180deg, transparent, #2196f3);
+  background: linear-gradient(180deg, transparent, #099fff);
 `;
 const BorderBottom = styled(Border)`
   bottom: 0;
   right: -100%;
   width: 100%;
   height: 2px;
-  background: linear-gradient(270deg, transparent, #2196f3);
+  background: linear-gradient(270deg, transparent, #099fff);
 `;
 const BorderLeft = styled(Border)`
   bottom: -100%;
   left: 0;
   width: 2px;
   height: 100%;
-  background: linear-gradient(360deg, transparent, #2196f3);
+  background: linear-gradient(360deg, transparent, #099fff);
 `;
 
 const Button = styled.div`
@@ -43,13 +43,13 @@ const Button = styled.div`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #2196f3;
+  color: #099fff;
   overflow: hidden;
   &:hover {
     transition-delay: 1s;
     color: #255784;
-    background-color: #2196f3;
-    box-shadow: 0 0 10px #2196f3, 0 0 40px #2196f3, 0 0 80px #2196f3;
+    background-color: #099fff;
+    box-shadow: 0 0 10px #099fff, 0 0 40px #099fff, 0 0 80px #099fff;
     ${BorderTop} {
       left: 100%;
       transition: 0.8s;

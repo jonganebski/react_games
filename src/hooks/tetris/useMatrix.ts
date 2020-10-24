@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
 import { TMatrix, TTetriminos } from "../../@types/tetris";
+import { MATRIX_H, MATRIX_W } from "../../constants/tetris";
 import { createMatrix } from "../../utils/Tetris/utils";
 
 export const useMatrix = (
   tetri: TTetriminos,
   resetTetri: () => void
 ): [TMatrix, React.Dispatch<React.SetStateAction<TMatrix>>, number] => {
-  const [matrix, setMatrix] = useState(createMatrix());
+  const [matrix, setMatrix] = useState(createMatrix(MATRIX_H, MATRIX_W));
   const [countCleared, setCountCleared] = useState(0);
 
   useEffect(() => {
     setCountCleared(0);
+
     const clearLines = (matrix: TMatrix): TMatrix => {
       const newMatrix: TMatrix = [];
       matrix.forEach((row) => {

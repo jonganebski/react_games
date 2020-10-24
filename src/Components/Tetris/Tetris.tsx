@@ -1,17 +1,21 @@
 import React, { useState } from "react";
-import styled from "styled-components";
+import styled, { StyledProps } from "styled-components";
+import {
+  MATRIX_W,
+  CELL_WIDTH,
+  MATRIX_H,
+  CELL_HEIGHT,
+  CELL_RGB,
+} from "../../constants/tetris";
 import { useGameStatus } from "../../hooks/tetris/useGameStatus";
 import { useInterval } from "../../hooks/tetris/useInterval";
 import { useMatrix } from "../../hooks/tetris/useMatrix";
 import { useTetriminos } from "../../hooks/tetris/useTetriminos";
 import { checkWillCollide, createMatrix } from "../../utils/Tetris/utils";
 import TetrisButton from "./Button";
-
-const MATRIX_W = 10;
-const MATRIX_H = 20;
-
-const CELL_WIDTH = "20px";
-const CELL_HEIGHT = "20px";
+import DisplayNextTetri from "./DisplayNextTetri";
+import DisplayStatus from "./DisplayStatus";
+import Leaderboard from "./Leaderboard";
 
 const Wrapper = styled.div`
   width: 100vw;
@@ -24,14 +28,14 @@ const Left = styled.section`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: tomato;
+  background-color: black;
 `;
 
 const Center = styled.section`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: steelblue;
+  background-color: black;
 `;
 
 const Right = styled.section`
@@ -49,15 +53,22 @@ const Matrix = styled.div`
   grid-gap: 1px;
   box-sizing: content-box;
   border: 2px solid black;
-  background-color: black;
+  background-color: rgb(20, 20, 20);
 `;
 
 interface ICellProps {
   type: string;
+  borderW: string;
 }
 
-const Cell = styled.div<ICellProps>`
-  background-color: ${(props) => (props.type === "." ? "gray" : "red")};
+export const Cell = styled.div<ICellProps>`
+  background-color: rgba(${(props) => CELL_RGB[props.type]}, 0.7);
+  border: ${(props) =>
+    props.type === "." ? "none" : `${props.borderW} solid`};
+  border-top-color: rgba(${(props) => CELL_RGB[props.type]}, 1);
+  border-right-color: rgba(${(props) => CELL_RGB[props.type]}, 0.6);
+  border-bottom-color: rgba(${(props) => CELL_RGB[props.type]}, 0.3);
+  border-left-color: rgba(${(props) => CELL_RGB[props.type]}, 0);
 `;
 
 const Tetris = () => {
@@ -76,7 +87,7 @@ const Tetris = () => {
   ] = useGameStatus(countCleared);
 
   const startGame = () => {
-    setMatrix(createMatrix());
+    setMatrix(createMatrix(MATRIX_H, MATRIX_W));
     resetTetri();
     setDropInterval(1000);
     setLevel(1);
@@ -113,25 +124,30 @@ const Tetris = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (e.key === "ArrowLeft") {
-      moveHorizontal(-1);
-    }
-    if (e.key === "ArrowRight") {
-      moveHorizontal(1);
-    }
-    if (e.key === "ArrowDown") {
-      setDropInterval(null);
-      drop();
-    }
-    if (e.key === "ArrowUp") {
-      rotate(matrix);
+    if (!gameOver) {
+      e.preventDefault();
+      if (e.key === "ArrowLeft") {
+        moveHorizontal(-1);
+      }
+      if (e.key === "ArrowRight") {
+        moveHorizontal(1);
+      }
+      if (e.key === "ArrowDown") {
+        setDropInterval(null);
+        drop();
+      }
+      if (e.key === "ArrowUp") {
+        rotate(matrix);
+      }
     }
   };
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "ArrowDown") {
-      setDropInterval(1000 / level + 200);
+    if (!gameOver) {
+      e.preventDefault();
+      if (e.key === "ArrowDown") {
+        setDropInterval(1000 / level + 200);
+      }
     }
   };
 
@@ -147,19 +163,21 @@ const Tetris = () => {
       onKeyUp={handleKeyUp}
     >
       <Left>
-        <div>Leaderboard</div>
+        <Leaderboard />
       </Left>
       <Center>
         <Matrix>
           {matrix.map((row) =>
-            row.map(([type], i) => <Cell key={i} type={type}></Cell>)
+            row.map(([type], i) => (
+              <Cell key={i} type={type} borderW="15px"></Cell>
+            ))
           )}
         </Matrix>
       </Center>
       <Right>
-        <div style={{ color: "white" }}>Level: {level}</div>
-        <div style={{ color: "white" }}>Score: {score}</div>
-        <div style={{ color: "white" }}>Lines Cleared: {countTotalCleared}</div>
+        <DisplayNextTetri />
+        <DisplayStatus title="Level" number={level} />
+        <DisplayStatus title="Score" number={score} />
         <TetrisButton text="START GAME" onClick={startGame} />
         <TetrisButton text="HOME" />
       </Right>

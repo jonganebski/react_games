@@ -1,8 +1,8 @@
 import { TMatrix, TTetriminos } from "../../@types/tetris";
 import { MATRIX_H, MATRIX_W, TETRIMINO } from "../../constants/tetris";
 
-export const createMatrix = () =>
-  Array(MATRIX_H).fill(Array(MATRIX_W).fill([".", "free"])) as TMatrix;
+export const createMatrix = (row: number, col: number) =>
+  Array(row).fill(Array(col).fill([".", "free"])) as TMatrix;
 
 export const getRandTetri = () => {
   const tetriminos = "IOTJLSZ";
