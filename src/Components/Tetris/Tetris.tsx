@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { useGameStatus } from "../../hooks/tetris/useGameStatus";
+import { useInterval } from "../../hooks/tetris/useInterval";
 import { useMatrix } from "../../hooks/tetris/useMatrix";
 import { useTetriminos } from "../../hooks/tetris/useTetriminos";
 import { checkWillCollide, createMatrix } from "../../utils/Tetris/utils";
@@ -60,19 +62,41 @@ const Cell = styled.div<ICellProps>`
 
 const Tetris = () => {
   const [gameOver, setGameOver] = useState(false);
+  const [dropInterval, setDropInterval] = useState<number | null>(null);
 
   const [tetri, setTetri, resetTetri, updateTetri, rotate] = useTetriminos();
-  const [matrix, setMatrix] = useMatrix(tetri, resetTetri);
+  const [matrix, setMatrix, countCleared] = useMatrix(tetri, resetTetri);
+  const [
+    countTotalCleared,
+    setCountTotalCleared,
+    level,
+    setLevel,
+    score,
+    setScore,
+  ] = useGameStatus(countCleared);
 
   const startGame = () => {
     setMatrix(createMatrix());
     resetTetri();
+    setDropInterval(1000);
+    setLevel(1);
+    setScore(0);
+    setCountTotalCleared(0);
     setGameOver(false);
   };
 
   const drop = () => {
+    if (countTotalCleared > level * 10) {
+      setLevel((prev) => prev + 1);
+      setDropInterval(1000 / level + 200);
+    }
     const willCollide = checkWillCollide(matrix, tetri, 0, 1);
     if (willCollide) {
+      if (tetri.pos.y < 1) {
+        console.log("GAME OVER");
+        setGameOver(true);
+        setDropInterval(null);
+      }
       updateTetri(0, 0, true);
     } else {
       updateTetri(0, 1, false);
@@ -97,6 +121,7 @@ const Tetris = () => {
       moveHorizontal(1);
     }
     if (e.key === "ArrowDown") {
+      setDropInterval(null);
       drop();
     }
     if (e.key === "ArrowUp") {
@@ -104,8 +129,23 @@ const Tetris = () => {
     }
   };
 
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "ArrowDown") {
+      setDropInterval(1000 / level + 200);
+    }
+  };
+
+  useInterval(() => drop(), dropInterval);
+
+  console.log("re-render");
+
   return (
-    <Wrapper role="button" tabIndex={0} onKeyDown={handleKeyDown}>
+    <Wrapper
+      role="button"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      onKeyUp={handleKeyUp}
+    >
       <Left>
         <div>Leaderboard</div>
       </Left>
@@ -117,9 +157,9 @@ const Tetris = () => {
         </Matrix>
       </Center>
       <Right>
-        <div>Next Tetrimino</div>
-        <div>Score</div>
-        <div>Level</div>
+        <div style={{ color: "white" }}>Level: {level}</div>
+        <div style={{ color: "white" }}>Score: {score}</div>
+        <div style={{ color: "white" }}>Lines Cleared: {countTotalCleared}</div>
         <TetrisButton text="START GAME" onClick={startGame} />
         <TetrisButton text="HOME" />
       </Right>

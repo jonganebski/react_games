@@ -5,10 +5,12 @@ import { createMatrix } from "../../utils/Tetris/utils";
 export const useMatrix = (
   tetri: TTetriminos,
   resetTetri: () => void
-): [TMatrix, React.Dispatch<React.SetStateAction<TMatrix>>] => {
+): [TMatrix, React.Dispatch<React.SetStateAction<TMatrix>>, number] => {
   const [matrix, setMatrix] = useState(createMatrix());
+  const [countCleared, setCountCleared] = useState(0);
 
   useEffect(() => {
+    setCountCleared(0);
     const clearLines = (matrix: TMatrix): TMatrix => {
       const newMatrix: TMatrix = [];
       matrix.forEach((row) => {
@@ -17,6 +19,7 @@ export const useMatrix = (
         } else {
           const newRow = Array(row.length).fill([".", "free"]);
           newMatrix.unshift(newRow);
+          setCountCleared((prev) => prev + 1);
         }
       });
       return newMatrix;
@@ -49,5 +52,5 @@ export const useMatrix = (
     setMatrix((prev) => updateMatrix(prev));
   }, [resetTetri, tetri]);
 
-  return [matrix, setMatrix];
+  return [matrix, setMatrix, countCleared];
 };
