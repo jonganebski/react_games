@@ -1,13 +1,14 @@
 import { useCallback, useState } from "react";
-import { TTetriminos } from "../../@types/tetris";
+import { TMatrix, TTetriminos, TTetriShape } from "../../@types/tetris";
 import { TETRIMINO } from "../../constants/tetris";
-import { getRandTetri } from "../../utils/Tetris/utils";
+import { checkWillCollide, getRandTetri } from "../../utils/Tetris/utils";
 
 export const useTetriminos = (): [
   TTetriminos,
   React.Dispatch<React.SetStateAction<TTetriminos>>,
   () => void,
-  (dirX: number, dirY: number, collided: boolean) => void
+  (dirX: number, dirY: number, collided: boolean) => void,
+  (matrix: TMatrix) => void
 ] => {
   const [tetri, setTetri] = useState<TTetriminos>({
     pos: { x: 4, y: 0 },
@@ -32,5 +33,36 @@ export const useTetriminos = (): [
       collided,
     }));
 
-  return [tetri, setTetri, resetTetri, updateTetri];
+  const rotateTetri = (shape: TTetriShape, dir: 1 | -1) => {
+    const flippedOver = shape.map((_, i) => shape.map((col) => col[i]));
+    if (dir === 1) {
+      // clockwise
+      return flippedOver.map((row) => row.reverse());
+    } else {
+      // counter clockwise
+      return flippedOver.reverse();
+    }
+  };
+
+  const rotate = (matrix: TMatrix) => {
+    const copiedTetri = JSON.parse(JSON.stringify(tetri)) as TTetriminos;
+    copiedTetri.shape = rotateTetri(copiedTetri.shape, 1);
+    let offset = 1;
+    const posX = copiedTetri.pos.x;
+    console.log(checkWillCollide(matrix, copiedTetri, 0, 0));
+    while (checkWillCollide(matrix, copiedTetri, 0, 0)) {
+      copiedTetri.pos.x += offset;
+      const cousion = offset > 0 ? 1 : -1;
+      offset = -(offset + cousion); // 1, -2, 3, -4, 5, -6 ...
+      if (offset > copiedTetri.shape[0].length + 1) {
+        rotateTetri(copiedTetri.shape, -1);
+        copiedTetri.pos.x = posX;
+        return;
+      }
+    }
+    setTetri(copiedTetri);
+    return;
+  };
+
+  return [tetri, setTetri, resetTetri, updateTetri, rotate];
 };

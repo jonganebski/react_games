@@ -61,7 +61,7 @@ const Cell = styled.div<ICellProps>`
 const Tetris = () => {
   const [gameOver, setGameOver] = useState(false);
 
-  const [tetri, setTetri, resetTetri, updateTetri] = useTetriminos();
+  const [tetri, setTetri, resetTetri, updateTetri, rotate] = useTetriminos();
   const [matrix, setMatrix] = useMatrix(tetri, resetTetri);
 
   const startGame = () => {
@@ -72,28 +72,21 @@ const Tetris = () => {
 
   const drop = () => {
     const willCollide = checkWillCollide(matrix, tetri, 0, 1);
-    if (!willCollide) {
-      updateTetri(0, 1, false);
-    } else {
+    if (willCollide) {
       updateTetri(0, 0, true);
+    } else {
+      updateTetri(0, 1, false);
     }
   };
 
   const moveHorizontal = (dir: number) => {
     const willCollide = checkWillCollide(matrix, tetri, dir, 0);
-    if (!willCollide) {
+    if (willCollide) {
+      return;
+    } else {
       updateTetri(dir, 0, false);
     }
   };
-
-  const rotate = () =>
-    setTetri((prev) => {
-      const flippedOver = prev.shape.map((_, i) =>
-        prev.shape.map((col) => col[i])
-      );
-      const rotatedClockwise = flippedOver.map((row) => row.reverse());
-      return { ...prev, shape: rotatedClockwise };
-    });
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -107,7 +100,7 @@ const Tetris = () => {
       drop();
     }
     if (e.key === "ArrowUp") {
-      rotate();
+      rotate(matrix);
     }
   };
 
