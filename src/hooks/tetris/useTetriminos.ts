@@ -6,6 +6,7 @@ import { checkWillCollide, getRandTetri } from "../../utils/Tetris/utils";
 export const useTetriminos = (): [
   TTetriminos,
   React.Dispatch<React.SetStateAction<TTetriminos>>,
+  TTetriminos,
   () => void,
   (dirX: number, dirY: number, collided: boolean) => void,
   (matrix: TMatrix) => void
@@ -15,16 +16,25 @@ export const useTetriminos = (): [
     shape: TETRIMINO.void,
     collided: false,
   });
+  const [nextTetri, setNextTetri] = useState<TTetriminos>({
+    pos: { x: 4, y: 0 },
+    shape: TETRIMINO.void,
+    collided: false,
+  });
 
-  const resetTetri = useCallback(
-    () =>
-      setTetri({
-        pos: { x: 4, y: 0 },
-        shape: getRandTetri(),
-        collided: false,
-      }),
-    []
-  );
+  const resetTetri = useCallback(() => {
+    setTetri({
+      pos: { x: 4, y: 0 },
+      shape:
+        nextTetri.shape === TETRIMINO.void ? getRandTetri() : nextTetri.shape,
+      collided: false,
+    });
+    setNextTetri({
+      pos: { x: 4, y: 0 },
+      shape: getRandTetri(),
+      collided: false,
+    });
+  }, [nextTetri.shape]);
 
   const updateTetri = (dirX: number, dirY: number, collided: boolean) =>
     setTetri((prev) => ({
@@ -64,5 +74,5 @@ export const useTetriminos = (): [
     return;
   };
 
-  return [tetri, setTetri, resetTetri, updateTetri, rotate];
+  return [tetri, setTetri, nextTetri, resetTetri, updateTetri, rotate];
 };

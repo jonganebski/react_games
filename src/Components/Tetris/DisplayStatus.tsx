@@ -23,9 +23,7 @@ const Heading = styled.h2`
 const Content = styled.span``;
 
 const DisplayStatus: React.FC<IDisplayStatusProps> = ({ title, number }) => {
-  useEffect(() => {
-    console.log("CHANGED!!!");
-  }, [number]);
+  useEffect(() => {}, [number]);
   return (
     <Wrapper role="button">
       <Heading>{title.toUpperCase()} </Heading>

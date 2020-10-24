@@ -44,12 +44,12 @@ export const useMatrix = (
         })
       );
       if (tetri.collided) {
+        console.log("HERE");
         resetTetri();
         return clearLines(newMatrix);
       }
       return newMatrix;
     };
-
     // MAIN JOB
     setMatrix((prev) => updateMatrix(prev));
   }, [resetTetri, tetri]);

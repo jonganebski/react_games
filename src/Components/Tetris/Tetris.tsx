@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import styled, { StyledProps } from "styled-components";
 import {
   MATRIX_W,
@@ -74,8 +74,14 @@ export const Cell = styled.div<ICellProps>`
 const Tetris = () => {
   const [gameOver, setGameOver] = useState(false);
   const [dropInterval, setDropInterval] = useState<number | null>(null);
-
-  const [tetri, setTetri, resetTetri, updateTetri, rotate] = useTetriminos();
+  const [
+    tetri,
+    setTetri,
+    nextTetri,
+    resetTetri,
+    updateTetri,
+    rotate,
+  ] = useTetriminos();
   const [matrix, setMatrix, countCleared] = useMatrix(tetri, resetTetri);
   const [
     countTotalCleared,
@@ -96,22 +102,24 @@ const Tetris = () => {
     setGameOver(false);
   };
 
-  const drop = () => {
+  const drop = (n: number) => {
     if (countTotalCleared > level * 10) {
       setLevel((prev) => prev + 1);
       setDropInterval(1000 / level + 200);
     }
-    const willCollide = checkWillCollide(matrix, tetri, 0, 1);
-    if (willCollide) {
-      if (tetri.pos.y < 1) {
-        console.log("GAME OVER");
-        setGameOver(true);
-        setDropInterval(null);
+    for (let l = n; l > 0; --l) {
+      const willCollide = checkWillCollide(matrix, tetri, 0, l);
+      if (!willCollide) {
+        updateTetri(0, l, false);
+        return;
       }
-      updateTetri(0, 0, true);
-    } else {
-      updateTetri(0, 1, false);
     }
+    if (tetri.pos.y < 1) {
+      console.log("GAME OVER");
+      setGameOver(true);
+      setDropInterval(null);
+    }
+    updateTetri(0, 0, true);
   };
 
   const moveHorizontal = (dir: number) => {
@@ -134,10 +142,13 @@ const Tetris = () => {
       }
       if (e.key === "ArrowDown") {
         setDropInterval(null);
-        drop();
+        drop(1);
       }
       if (e.key === "ArrowUp") {
         rotate(matrix);
+      }
+      if (e.key === " ") {
+        drop(25);
       }
     }
   };
@@ -151,9 +162,14 @@ const Tetris = () => {
     }
   };
 
-  useInterval(() => drop(), dropInterval);
+  useInterval(() => drop(1), dropInterval);
 
-  console.log("re-render");
+  // console.log("re-render");
+
+  const UseMemoCell = (i: number, type: string) =>
+    useMemo(() => {
+      return <Cell key={i} type={type} borderW="15px"></Cell>;
+    }, [i, type]);
 
   return (
     <Wrapper
@@ -167,15 +183,11 @@ const Tetris = () => {
       </Left>
       <Center>
         <Matrix>
-          {matrix.map((row) =>
-            row.map(([type], i) => (
-              <Cell key={i} type={type} borderW="15px"></Cell>
-            ))
-          )}
+          {matrix.map((row) => row.map(([type], i) => UseMemoCell(i, type)))}
         </Matrix>
       </Center>
       <Right>
-        <DisplayNextTetri />
+        <DisplayNextTetri nextTetri={nextTetri} />
         <DisplayStatus title="Level" number={level} />
         <DisplayStatus title="Score" number={score} />
         <TetrisButton text="START GAME" onClick={startGame} />
