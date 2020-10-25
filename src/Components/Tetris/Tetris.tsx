@@ -17,8 +17,10 @@ import TetrisButton from "./Button";
 import DisplayNextTetri from "./DisplayNextTetri";
 import DisplayStatus from "./DisplayStatus";
 import Leaderboard from "./Leaderboard";
+import Popup from "./Popup";
 
 const Wrapper = styled.div`
+  position: relative;
   width: 100vw;
   height: 100vh;
   display: grid;
@@ -141,21 +143,25 @@ const Tetris = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (!gameOver) {
-      e.preventDefault();
       if (e.key === "ArrowLeft") {
+        e.preventDefault();
         moveHorizontal(-1);
       }
       if (e.key === "ArrowRight") {
+        e.preventDefault();
         moveHorizontal(1);
       }
       if (e.key === "ArrowDown") {
+        e.preventDefault();
         setDropInterval(null);
         drop(1);
       }
       if (e.key === "ArrowUp") {
+        e.preventDefault();
         rotate(matrix);
       }
       if (e.key === " ") {
+        e.preventDefault();
         drop(25);
       }
     }
@@ -186,6 +192,11 @@ const Tetris = () => {
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
     >
+      <Popup
+        isNewRecord={isNewRecord}
+        score={score}
+        setLeaderboard={setLeaderboard}
+      />
       <Left>
         <Leaderboard leaderboard={leaderboard} />
       </Left>
