@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { TLeaderboard } from "../../@types/global";
 
 const Wrapper = styled.div`
   width: 200px;
@@ -7,7 +8,11 @@ const Wrapper = styled.div`
   border: 1px solid gray;
 `;
 
-const Leaderboard = () => {
+interface ILeaderboardProps {
+  leaderboard: TLeaderboard;
+}
+
+const Leaderboard: React.FC<ILeaderboardProps> = ({ leaderboard }) => {
   return <Wrapper></Wrapper>;
 };
 

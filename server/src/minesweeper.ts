@@ -1,8 +1,6 @@
-import Redis from "ioredis";
-import { easy, midd, hard } from "../../src/constants/minesweeper";
 import { Request, Response } from "express";
-
-const redis = new Redis();
+import { easy, hard, midd } from "../../src/constants/minesweeper";
+import { redis } from "./index";
 
 const KEY = {
   EASY: "minesweeper-easy",

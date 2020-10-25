@@ -1,10 +1,13 @@
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
+import Redis from "ioredis";
 import path from "path";
 import { handleMinesweeperGet, handleMinsweeperPost } from "./minesweeper";
 import { handleSudokuGet, handleSudokuPost } from "./sudoku";
+import { handleTetrisGet, handleTetrisPost } from "./tetris";
 
+export const redis = new Redis();
 const app = express();
 
 const buildPath = path.join(__dirname, "..", "..", "build");
@@ -20,8 +23,10 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get("/api/minesweeper/leaderboard", handleMinesweeperGet);
 app.get("/api/sudoku/leaderboard", handleSudokuGet);
+app.get("/api/tetris/leaderboard", handleTetrisGet);
 
 app.post("/api/minesweeper/post", handleMinsweeperPost);
 app.post("/api/sudoku/post", handleSudokuPost);
+app.post("/api/tetris/post", handleTetrisPost);
 
 app.listen(4000, () => console.log("✅ Server listening"));

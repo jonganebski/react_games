@@ -9,6 +9,7 @@ import {
 } from "../../constants/tetris";
 import { useGameStatus } from "../../hooks/tetris/useGameStatus";
 import { useInterval } from "../../hooks/tetris/useInterval";
+import { useLeaderboard } from "../../hooks/tetris/useLeaderboard";
 import { useMatrix } from "../../hooks/tetris/useMatrix";
 import { useTetriminos } from "../../hooks/tetris/useTetriminos";
 import { checkWillCollide, createMatrix } from "../../utils/Tetris/utils";
@@ -91,6 +92,12 @@ const Tetris = () => {
     score,
     setScore,
   ] = useGameStatus(countCleared);
+  const [
+    leaderboard,
+    setLeaderboard,
+    isNewRecord,
+    setIsNewRecord,
+  ] = useLeaderboard(score, gameOver);
 
   const startGame = () => {
     setMatrix(createMatrix(MATRIX_H, MATRIX_W));
@@ -99,6 +106,7 @@ const Tetris = () => {
     setLevel(1);
     setScore(0);
     setCountTotalCleared(0);
+    setIsNewRecord(false);
     setGameOver(false);
   };
 
@@ -164,7 +172,7 @@ const Tetris = () => {
 
   useInterval(() => drop(1), dropInterval);
 
-  // console.log("re-render");
+  console.log("re-render");
 
   const UseMemoCell = (i: number, type: string) =>
     useMemo(() => {
@@ -179,7 +187,7 @@ const Tetris = () => {
       onKeyUp={handleKeyUp}
     >
       <Left>
-        <Leaderboard />
+        <Leaderboard leaderboard={leaderboard} />
       </Left>
       <Center>
         <Matrix>

@@ -1,19 +1,19 @@
 import { Request, Response } from "express";
 import { redis } from "./index";
 
-const KEY = "sudoku";
+const KEY = "tetris";
 
-export const handleSudokuPost = (req: Request, res: Response) => {
+export const handleTetrisPost = (req: Request, res: Response) => {
   try {
-    const { time, username } = req.body;
-    redis.zadd(KEY, time, username);
+    const { score, username } = req.body;
+    redis.zadd(KEY, score, username);
     redis.zrange(KEY, 0, 9, "WITHSCORES").then((data) => res.send(data));
   } catch {
     res.status(400);
   }
 };
 
-export const handleSudokuGet = (_: Request, res: Response) => {
+export const handleTetrisGet = (_: Request, res: Response) => {
   try {
     redis.zrange(KEY, 0, 9, "WITHSCORES").then((data) => res.send(data));
   } catch {

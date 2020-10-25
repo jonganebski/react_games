@@ -172,9 +172,7 @@ export const getIsNewRecord = (
   console.log(level);
   console.log(leaderboard);
   const isEmptySlot = leaderboard[level].length < 10;
-  const isFaster = leaderboard[level].some(
-    (set) => parseInt(set.time) > record
-  );
+  const isFaster = leaderboard[level].some((set) => parseInt(set[1]) > record);
   if (isEmptySlot || isFaster) {
     return true;
   } else {

@@ -19,7 +19,7 @@ export type TMode = {
   level: string;
 };
 
-export type TModeLeaderboard = { name: string; time: string };
+export type TModeLeaderboard = [string, string];
 
 export type TLeaderboards = {
   [key: string]: TModeLeaderboard[];

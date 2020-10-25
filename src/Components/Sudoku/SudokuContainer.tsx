@@ -57,7 +57,7 @@ const Sudoku = () => {
   useEffect(() => {
     if (solved && !popup.submitted) {
       if (
-        leaderboard.some((row) => time <= parseInt(row.time)) ||
+        leaderboard.some((row) => time <= parseInt(row[1])) ||
         leaderboard.length < 10
       ) {
         setPopup({ bool: true, submitted: false });

@@ -67,9 +67,9 @@ const Leaderboard: React.FC<ILeaderboardProps> = ({
       {currentBoard?.map((set, i) => (
         <Li key={i}>
           <div style={{ marginRight: "20px" }}>
-            <span>{ranks[i]}</span> <span>{set.name}</span>{" "}
+            <span>{ranks[i]}</span> <span>{set[0]}</span>{" "}
           </div>
-          <span>{timeToString(parseInt(set.time))}</span>
+          <span>{timeToString(parseInt(set[1]))}</span>
         </Li>
       ))}
     </List>

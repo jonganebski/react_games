@@ -16,14 +16,14 @@ export const timeToString = (milliSeconds: number) => {
 };
 
 export const processData = (arr: string[]) => {
-  const result: { name: string; time: string }[] = [];
-  const set = { name: "", time: "" };
+  const result: [string, string][] = [];
+  const set: [string, string] = ["", ""];
   arr.forEach((el, i) => {
     if (i === 0 || i % 2 === 0) {
-      set.name = el;
+      set[0] = el;
     } else {
-      set.time = el;
-      result.push({ ...set });
+      set[1] = el;
+      result.push([set[0], set[1]]);
     }
   });
   return result;

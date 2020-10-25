@@ -1,3 +1,3 @@
-export type TLeaderboard = { name: string; time: string };
+export type TLeaderboard = [string, string];
 
 export type TPopup = { bool: boolean; submitted: boolean };
