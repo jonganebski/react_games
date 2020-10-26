@@ -57,6 +57,7 @@ const Matrix = styled.div`
   box-sizing: content-box;
   border: 2px solid black;
   background-color: rgb(20, 20, 20);
+  box-shadow: 0 0 10px #099fff, 0 0 40px #099fff, 0 0 80px #099fff;
 `;
 
 interface ICellProps {
@@ -194,6 +195,7 @@ const Tetris = () => {
     >
       <Popup
         isNewRecord={isNewRecord}
+        gameOver={gameOver}
         score={score}
         setLeaderboard={setLeaderboard}
       />

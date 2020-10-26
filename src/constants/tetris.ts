@@ -41,7 +41,6 @@ export const TETRIMINO: { [key: string]: TTetriShape } = {
 
 export const CELL_RGB: { [key: string]: string } = {
   ".": "0, 0, 0",
-  // I: "88, 176, 188",
   I: "120, 239, 255",
   O: "255, 13, 19",
   T: "255, 232, 3",

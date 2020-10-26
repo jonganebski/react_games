@@ -58,7 +58,7 @@ const borderLeftAnimation = keyframes`
 `;
 
 interface IWrapperProps {
-  isNewRecord: boolean;
+  gameOver: boolean;
 }
 
 const Wrapper = styled.div<IWrapperProps>`
@@ -68,8 +68,8 @@ const Wrapper = styled.div<IWrapperProps>`
   transform: translate(-50%, -50%);
   width: 30%;
   height: 30%;
-  /* display: ${(props) => (props.isNewRecord ? "flex" : "none")}; */
-  display: flex;
+  display: ${(props) => (props.gameOver ? "flex" : "none")};
+  /* display: flex; */
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -163,12 +163,14 @@ const SubmitBtn = styled.div`
 
 interface IPopupProps {
   isNewRecord: boolean;
+  gameOver: boolean;
   score: number;
   setLeaderboard: React.Dispatch<React.SetStateAction<TLeaderboard>>;
 }
 
 const Popup: React.FC<IPopupProps> = ({
   isNewRecord,
+  gameOver,
   score,
   setLeaderboard,
 }) => {
@@ -195,18 +197,21 @@ const Popup: React.FC<IPopupProps> = ({
     setUsername(value);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.MouseEvent<HTMLDivElement>) => {
     if (error === "") {
       console.log("Submit", username, score);
-      Axios.post("http://localhost:4000/api/tetris/leaderboard", {
-        username,
-        score,
-      }).then((res) => setLeaderboard(processData(res.data)));
+      try {
+        Axios.post("http://localhost:4000/api/tetris/post", {
+          username,
+          score,
+        }).then((res) => setLeaderboard(processData(res.data)));
+        e.currentTarget.parentElement!.style.display = "none";
+      } catch {}
     }
   };
 
   return (
-    <Wrapper isNewRecord={isNewRecord}>
+    <Wrapper gameOver={gameOver}>
       <Filter />
       <BorderTop />
       <BorderRight />
@@ -217,18 +222,27 @@ const Popup: React.FC<IPopupProps> = ({
       >
         ⨉
       </CloseBtn>
-      <Heading>NEW RECORD</Heading>
-      <Text>{score}</Text>
-      <div>
-        <Input
-          type="text"
-          placeholder="WHO ARE YOU?"
-          value={username}
-          onChange={handleOnChange}
-        />
-        <Warning>{error}</Warning>
-      </div>
-      <SubmitBtn onClick={handleSubmit}>SUBMIT</SubmitBtn>
+      {isNewRecord ? (
+        <>
+          <Heading>NEW RECORD</Heading>
+          <Text>{score}</Text>
+          <div>
+            <Input
+              type="text"
+              placeholder="WHO ARE YOU?"
+              value={username}
+              onChange={handleOnChange}
+            />
+            <Warning>{error}</Warning>
+          </div>
+          <SubmitBtn onClick={handleSubmit}>SUBMIT</SubmitBtn>
+        </>
+      ) : (
+        <>
+          <Heading>GAME OVER</Heading>
+          <Text>{score}</Text>
+        </>
+      )}
     </Wrapper>
   );
 };
