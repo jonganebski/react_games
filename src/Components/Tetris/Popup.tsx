@@ -4,7 +4,27 @@ import styled, { keyframes } from "styled-components";
 import { TLeaderboard } from "../../@types/global";
 import { keysNotAllowed } from "../../constants/global";
 import { processData } from "../../utils/globalUtils";
-import { BorderBottom, BorderLeft, BorderRight, BorderTop } from "./Borders";
+import {
+  BorderBottom,
+  BorderLeft,
+  BorderRight,
+  BorderTop,
+} from "./SharedStyles/Borders";
+
+// ------------- INTERFACES -------------
+
+interface IWrapperProps {
+  popup: boolean;
+}
+
+interface IPopupProps {
+  isNewRecord: boolean;
+  gameOver: boolean;
+  score: number;
+  setLeaderboard: React.Dispatch<React.SetStateAction<TLeaderboard>>;
+}
+
+// ------------- ANIMATIONS -------------
 
 const borderTopAnimation = keyframes`
 0% {
@@ -57,9 +77,7 @@ const borderLeftAnimation = keyframes`
 }
 `;
 
-interface IWrapperProps {
-  popup: boolean;
-}
+// ------------- STYLED COMPONENTS -------------
 
 const Wrapper = styled.div<IWrapperProps>`
   position: absolute;
@@ -161,12 +179,7 @@ const SubmitBtn = styled.div`
   }
 `;
 
-interface IPopupProps {
-  isNewRecord: boolean;
-  gameOver: boolean;
-  score: number;
-  setLeaderboard: React.Dispatch<React.SetStateAction<TLeaderboard>>;
-}
+// ------------- MAIN COMPONENT -------------
 
 const Popup: React.FC<IPopupProps> = ({
   isNewRecord,

@@ -1,9 +1,13 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
+
+// ----------- INTERFACES -----------
 
 interface IPopupProps {
   popup: boolean;
 }
+
+// ----------- STYLED COMPONENTS -----------
 
 const Wrapper = styled.footer`
   position: absolute;
@@ -60,6 +64,8 @@ const Content = styled.div`
   color: whitesmoke;
   z-index: 1;
 `;
+
+// ----------- MAIN COMPONENT -----------
 
 const Footer = () => {
   const [popup, setPopup] = useState(false);

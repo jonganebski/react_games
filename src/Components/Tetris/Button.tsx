@@ -1,11 +1,29 @@
 import React from "react";
 import styled from "styled-components";
-import { BorderTop, BorderRight, BorderBottom, BorderLeft } from "./Borders";
+import {
+  BorderTop,
+  BorderRight,
+  BorderBottom,
+  BorderLeft,
+} from "./SharedStyles/Borders";
+
+// ------------- INTERFACES -------------
 
 interface IButtonProps {
   w?: number;
   h?: number;
 }
+
+interface ITetrisButtonProps {
+  text: string;
+  w?: number;
+  h?: number;
+  onClick?:
+    | ((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void)
+    | undefined;
+}
+
+// ------------- STYLED COMPONENTS -------------
 
 const Button = styled.div<IButtonProps>`
   position: relative;
@@ -46,14 +64,7 @@ const Button = styled.div<IButtonProps>`
   }
 `;
 
-interface ITetrisButtonProps {
-  text: string;
-  w?: number;
-  h?: number;
-  onClick?:
-    | ((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void)
-    | undefined;
-}
+// ------------- MAIN COMPONENT -------------
 
 const TetrisButton: React.FC<ITetrisButtonProps> = ({
   text,

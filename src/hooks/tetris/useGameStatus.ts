@@ -17,6 +17,7 @@ export const useGameStatus = (
   const linePoints = [40, 100, 300, 1200];
 
   useEffect(() => {
+    // Calculates score depend on how many lines user cleared at once.
     if (0 < countCleared) {
       setcountTotalCleared((prev) => prev + countCleared);
       const index =

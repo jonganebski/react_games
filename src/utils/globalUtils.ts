@@ -1,3 +1,5 @@
+import { TLeader } from "../@types/global";
+
 export const timeToString = (milliSeconds: number) => {
   const diffInMin = milliSeconds / 60000;
   const min = Math.floor(diffInMin);
@@ -28,3 +30,5 @@ export const processData = (arr: string[]) => {
   });
   return result;
 };
+
+export const sortLBDescend = (a: TLeader, b: TLeader) => +b[1] - +a[1];

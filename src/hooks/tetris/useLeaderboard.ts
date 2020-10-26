@@ -16,6 +16,7 @@ export const useLeaderboard = (
   const [isNewRecord, setIsNewRecord] = useState(false);
 
   useEffect(() => {
+    // Initial request for leaderboard.
     try {
       Axios.get("http://localhost:4000/api/tetris/leaderboard").then((res) =>
         setLeaderboard(processData(res.data))
@@ -24,6 +25,7 @@ export const useLeaderboard = (
   }, []);
 
   useEffect(() => {
+    // Determines the scores is new record or not.
     if (gameOver && score !== 0) {
       if (
         leaderboard.length < 10 ||

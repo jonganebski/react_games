@@ -1,13 +1,21 @@
 import React from "react";
 import styled from "styled-components";
-import { TLeader, TLeaderboard } from "../../@types/global";
+import { TLeaderboard } from "../../@types/global";
 import { ranks } from "../../constants/global";
+import { sortLBDescend } from "../../utils/globalUtils";
+
+// ------------- INTERFACES -------------
+
+interface ILeaderboardProps {
+  leaderboard: TLeaderboard;
+}
+
+// ------------- STYLED COMPONENTS -------------
 
 const List = styled.ul`
   width: 100%;
   max-width: 300px;
   padding: 10px;
-  /* border: 1px solid gray; */
 `;
 
 const Li = styled.li`
@@ -20,16 +28,12 @@ const Li = styled.li`
   }
 `;
 
-const sortFn = (a: TLeader, b: TLeader) => +b[1] - +a[1];
-
-interface ILeaderboardProps {
-  leaderboard: TLeaderboard;
-}
+// ------------- MAIN COMPONENT -------------
 
 const Leaderboard: React.FC<ILeaderboardProps> = ({ leaderboard }) => {
   return (
     <List>
-      {leaderboard.sort(sortFn).map((leader, i) => (
+      {leaderboard.sort(sortLBDescend).map((leader, i) => (
         <Li key={i}>
           <span>
             {ranks[i]} {leader[0]}

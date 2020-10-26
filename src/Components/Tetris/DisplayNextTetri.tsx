@@ -5,6 +5,14 @@ import { CELL_HEIGHT, CELL_WIDTH } from "../../constants/tetris";
 import { createMatrix } from "../../utils/Tetris/utils";
 import { Cell } from "./Tetris";
 
+// ------------- INTERFACES -------------
+
+interface IDisplayNextTetriProps {
+  nextTetri: TTetriminos;
+}
+
+// ------------- STYLED COMPONENTS -------------
+
 const Wrapper = styled.div`
   position: relative;
   display: grid;
@@ -12,9 +20,7 @@ const Wrapper = styled.div`
   grid-template-rows: repeat(6, ${CELL_HEIGHT}px);
 `;
 
-interface IDisplayNextTetriProps {
-  nextTetri: TTetriminos;
-}
+// ------------- MAIN COMPONENTS -------------
 
 const DisplayNextTetri: React.FC<IDisplayNextTetriProps> = ({ nextTetri }) => {
   const [smallMatrix, setSmallMatrix] = useState(createMatrix(6, 6));

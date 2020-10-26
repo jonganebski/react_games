@@ -11,6 +11,18 @@ import { getRandKey } from "../utils/Tetris/utils";
 import Header from "./Header";
 import Footer from "./Footer";
 
+// ----------- INTERFACES -----------
+
+interface ISudokuBoxProps {
+  text: string;
+}
+
+interface IFrontContentProps {
+  gridMin: string;
+}
+
+// ----------- STYLED COMPONENTS -----------
+
 const Wrapper = styled.div`
   height: 100vh;
   position: relative;
@@ -61,9 +73,6 @@ const MinesweeperBox = styled.div`
   }}
 `;
 
-interface ISudokuBoxProps {
-  text: string;
-}
 const SudokuBox = styled.div<ISudokuBoxProps>`
   width: 80px;
   height: 100px;
@@ -76,9 +85,6 @@ const SudokuBox = styled.div<ISudokuBoxProps>`
   background-color: ${({ text }) => (text !== "" ? "whitesmoke" : "none")};
 `;
 
-interface IFrontContentProps {
-  gridMin: string;
-}
 const FrontContent = styled.div<IFrontContentProps>`
   width: 100%;
   height: 100%;
@@ -125,6 +131,8 @@ const Heading = styled.h3`
   font-size: 20px;
   letter-spacing: 3px;
 `;
+
+// ----------- MAIN COMPONENT -----------
 
 const Home = () => {
   return (

@@ -5,7 +5,6 @@ import { checkWillCollide, getRandTetri } from "../../utils/Tetris/utils";
 
 export const useTetriminos = (): [
   TTetriminos,
-  React.Dispatch<React.SetStateAction<TTetriminos>>,
   TTetriminos,
   () => void,
   (dirX: number, dirY: number, collided: boolean) => void,
@@ -74,5 +73,5 @@ export const useTetriminos = (): [
     return;
   };
 
-  return [tetri, setTetri, nextTetri, resetTetri, updateTetri, rotate];
+  return [tetri, nextTetri, resetTetri, updateTetri, rotate];
 };

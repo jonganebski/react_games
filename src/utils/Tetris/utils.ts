@@ -1,5 +1,5 @@
 import { TMatrix, TTetriminos } from "../../@types/tetris";
-import { MATRIX_H, MATRIX_W, TETRIMINO } from "../../constants/tetris";
+import { TETRIMINO } from "../../constants/tetris";
 
 export const createMatrix = (row: number, col: number) =>
   Array(row).fill(Array(col).fill([".", "free"])) as TMatrix;

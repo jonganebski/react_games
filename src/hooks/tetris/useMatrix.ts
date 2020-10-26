@@ -11,8 +11,6 @@ export const useMatrix = (
   const [countCleared, setCountCleared] = useState(0);
 
   useEffect(() => {
-    setCountCleared(0);
-
     const clearLines = (matrix: TMatrix): TMatrix => {
       const newMatrix: TMatrix = [];
       matrix.forEach((row) => {
@@ -50,6 +48,7 @@ export const useMatrix = (
       return newMatrix;
     };
     // MAIN JOB
+    setCountCleared(0);
     setMatrix((prev) => updateMatrix(prev));
   }, [resetTetri, tetri]);
 

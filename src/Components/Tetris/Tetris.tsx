@@ -1,14 +1,12 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import styled, { StyledProps } from "styled-components";
+import styled from "styled-components";
 import {
-  MATRIX_W,
-  // CELL_WIDTH,
-  MATRIX_H,
-  // CELL_HEIGHT,
+  CELL_HEIGHT,
   CELL_RGB,
   CELL_WIDTH,
-  CELL_HEIGHT,
+  MATRIX_H,
+  MATRIX_W,
 } from "../../constants/tetris";
 import { useGameStatus } from "../../hooks/tetris/useGameStatus";
 import { useInterval } from "../../hooks/tetris/useInterval";
@@ -21,6 +19,15 @@ import DisplayNextTetri from "./DisplayNextTetri";
 import DisplayStatus from "./DisplayStatus";
 import Leaderboard from "./Leaderboard";
 import Popup from "./Popup";
+
+// ------------- INTERFACES -------------
+
+interface ICellProps {
+  type: string;
+  borderW: string;
+}
+
+// ------------- STYLED COMPONENTS -------------
 
 const Wrapper = styled.div`
   position: relative;
@@ -70,11 +77,6 @@ const Matrix = styled.div`
   box-shadow: 0 0 10px #099fff, 0 0 40px #099fff, 0 0 80px #099fff;
 `;
 
-interface ICellProps {
-  type: string;
-  borderW: string;
-}
-
 export const Cell = styled.div<ICellProps>`
   width: ${CELL_WIDTH}px;
   height: ${CELL_HEIGHT}px;
@@ -87,17 +89,13 @@ export const Cell = styled.div<ICellProps>`
   border-left-color: rgba(${(props) => CELL_RGB[props.type]}, 0);
 `;
 
+// ------------- MAIN COMPONENT -------------
+
 const Tetris = () => {
+  // HOOKS
   const [gameOver, setGameOver] = useState(false);
   const [dropInterval, setDropInterval] = useState<number | null>(null);
-  const [
-    tetri,
-    setTetri,
-    nextTetri,
-    resetTetri,
-    updateTetri,
-    rotate,
-  ] = useTetriminos();
+  const [tetri, nextTetri, resetTetri, updateTetri, rotate] = useTetriminos();
   const [matrix, setMatrix, countCleared] = useMatrix(tetri, resetTetri);
   const [
     countTotalCleared,
@@ -114,6 +112,7 @@ const Tetris = () => {
     setIsNewRecord,
   ] = useLeaderboard(score, gameOver);
 
+  // FUNCTIONS
   const startGame = () => {
     setMatrix(createMatrix(MATRIX_H, MATRIX_W));
     resetTetri();

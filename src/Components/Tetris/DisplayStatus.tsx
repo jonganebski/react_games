@@ -1,10 +1,14 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 
+// ------------- INTERFACES -------------
+
 interface IDisplayStatusProps {
   title: string;
   number: number;
 }
+
+// ------------- STYLED COMPONENTS -------------
 
 const Wrapper = styled.div`
   position: relative;
@@ -21,6 +25,8 @@ const Heading = styled.h2`
 `;
 
 const Content = styled.span``;
+
+// ------------- MAIN COMPONENT -------------
 
 const DisplayStatus: React.FC<IDisplayStatusProps> = ({ title, number }) => {
   useEffect(() => {}, [number]);
