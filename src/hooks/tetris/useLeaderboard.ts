@@ -27,7 +27,7 @@ export const useLeaderboard = (
     if (gameOver && score !== 0) {
       if (
         leaderboard.length < 10 ||
-        leaderboard.some((leader) => parseInt(leader[1]) < score)
+        leaderboard.some((leader) => parseInt(leader[1]) <= score)
       ) {
         setIsNewRecord(true);
       }

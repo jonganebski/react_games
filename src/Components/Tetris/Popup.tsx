@@ -1,5 +1,5 @@
 import Axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { TLeaderboard } from "../../@types/global";
 import { keysNotAllowed } from "../../constants/global";
@@ -58,7 +58,7 @@ const borderLeftAnimation = keyframes`
 `;
 
 interface IWrapperProps {
-  gameOver: boolean;
+  popup: boolean;
 }
 
 const Wrapper = styled.div<IWrapperProps>`
@@ -68,7 +68,7 @@ const Wrapper = styled.div<IWrapperProps>`
   transform: translate(-50%, -50%);
   width: 30%;
   height: 30%;
-  display: ${(props) => (props.gameOver ? "flex" : "none")};
+  display: ${(props) => (props.popup ? "flex" : "none")};
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -176,6 +176,13 @@ const Popup: React.FC<IPopupProps> = ({
 }) => {
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
+  const [popup, setPopup] = useState(false);
+
+  useEffect(() => {
+    if (gameOver) {
+      setPopup(true);
+    }
+  }, [gameOver]);
 
   const validator = (value: string) => {
     if (0 < value.length && value.length < 2) {
@@ -205,23 +212,20 @@ const Popup: React.FC<IPopupProps> = ({
           username,
           score,
         }).then((res) => setLeaderboard(processData(res.data)));
-        e.currentTarget.parentElement!.style.display = "none";
+        setPopup(false);
+        setUsername("");
       } catch {}
     }
   };
 
   return (
-    <Wrapper gameOver={gameOver}>
+    <Wrapper popup={popup}>
       <Filter />
       <BorderTop />
       <BorderRight />
       <BorderBottom />
       <BorderLeft />
-      <CloseBtn
-        onClick={(e) => (e.currentTarget.parentElement!.style.display = "none")}
-      >
-        ⨉
-      </CloseBtn>
+      <CloseBtn onClick={(e) => setPopup(false)}>⨉</CloseBtn>
       {isNewRecord ? (
         <>
           <Heading>NEW RECORD</Heading>

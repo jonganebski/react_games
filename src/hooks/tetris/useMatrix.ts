@@ -44,7 +44,6 @@ export const useMatrix = (
         })
       );
       if (tetri.collided) {
-        console.log("HERE");
         resetTetri();
         return clearLines(newMatrix);
       }
