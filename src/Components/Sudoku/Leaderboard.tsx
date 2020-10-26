@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import styled from "styled-components";
 import { TLeaderboard } from "../../@types/sudoku";
 import { ranks } from "../../constants/global";
+import { SUDOKU_GET_URL } from "../../constants/sudoku";
 import { processData, timeToString } from "../../utils/globalUtils";
 
 const List = styled.ul`
@@ -30,7 +31,7 @@ const Leaderboard: React.FC<ILeaderboardProps> = ({
   setLeaderboard,
 }) => {
   useEffect(() => {
-    Axios.get("http://localhost:4000/api/sudoku/leaderboard").then((res) => {
+    Axios.get(SUDOKU_GET_URL).then((res) => {
       const data = processData(res.data);
       setLeaderboard(data);
     });

@@ -1,4 +1,5 @@
 import { TTetriShape } from "../@types/tetris";
+import { DEV_SERVER_URL } from "./global";
 
 export const TETRIMINO: { [key: string]: TTetriShape } = {
   void: [["."]],
@@ -55,3 +56,12 @@ export const MATRIX_H = 24;
 
 export const CELL_WIDTH = 30;
 export const CELL_HEIGHT = 30;
+
+const POST_URL = "/api/tetris/post";
+const GET_URL = "/api/tetris/leaderboard";
+
+export const TETRIS_POST_URL =
+  process.env.NODE_ENV === "development" ? DEV_SERVER_URL + POST_URL : POST_URL;
+
+export const TETRIS_GET_URL =
+  process.env.NODE_ENV === "development" ? DEV_SERVER_URL + GET_URL : GET_URL;

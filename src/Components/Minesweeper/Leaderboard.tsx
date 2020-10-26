@@ -7,7 +7,7 @@ import {
   TModeLeaderboard,
 } from "../../@types/minesweeper";
 import { ranks } from "../../constants/global";
-import { easy, midd } from "../../constants/minesweeper";
+import { easy, midd, MINESWEEPER_GET_URL } from "../../constants/minesweeper";
 import { processData, timeToString } from "../../utils/globalUtils";
 
 interface ILeaderboardProps {
@@ -41,14 +41,12 @@ const Leaderboard: React.FC<ILeaderboardProps> = ({
     null
   );
   useEffect(() => {
-    Axios.get("http://localhost:4000/api/minesweeper/leaderboard").then(
-      (res) => {
-        const easy = processData(res.data.easy);
-        const midd = processData(res.data.midd);
-        const hard = processData(res.data.hard);
-        setLeaderboard({ easy, midd, hard });
-      }
-    );
+    Axios.get(MINESWEEPER_GET_URL).then((res) => {
+      const easy = processData(res.data.easy);
+      const midd = processData(res.data.midd);
+      const hard = processData(res.data.hard);
+      setLeaderboard({ easy, midd, hard });
+    });
   }, [setLeaderboard]);
 
   useEffect(() => {

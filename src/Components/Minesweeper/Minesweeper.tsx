@@ -203,8 +203,7 @@ const Minesweeper = () => {
   const indicatorRef = useRef<HTMLButtonElement | null>(null);
   const [time, setTime] = useState(0);
   const [record, setRecord] = useState<number | null>(null);
-  // const [isNewRecord, setIsNewRecord] = useState(false);
-  const [isNewRecord, setIsNewRecord] = useState(true);
+  const [isNewRecord, setIsNewRecord] = useState(false);
   const [status, setStatus] = useState(0);
   // status 0: initial, 1: start, 2: gameover, 3: victory
   const [leaderboard, setLeaderboard] = useState<TLeaderboards | null>(null);
@@ -214,8 +213,7 @@ const Minesweeper = () => {
   }, [mode]);
 
   useEffect(() => {
-    // setIsNewRecord(false);
-    setIsNewRecord(true);
+    setIsNewRecord(false);
   }, [status]);
 
   useEffect(() => {
@@ -395,7 +393,7 @@ const Minesweeper = () => {
         <Link to="/">
           <MinesweeperBtn text={"HOME"} />
         </Link>
-        {isNewRecord && record !== null && (
+        {isNewRecord && status === 3 && record !== null && (
           <Popup
             time={time}
             record={record}

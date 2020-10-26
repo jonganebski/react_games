@@ -1,6 +1,7 @@
 import Axios from "axios";
 import { useEffect, useState } from "react";
 import { TLeaderboard } from "../../@types/global";
+import { TETRIS_GET_URL } from "../../constants/tetris";
 import { processData } from "../../utils/globalUtils";
 
 export const useLeaderboard = (
@@ -18,7 +19,7 @@ export const useLeaderboard = (
   useEffect(() => {
     // Initial request for leaderboard.
     try {
-      Axios.get("http://localhost:4000/api/tetris/leaderboard").then((res) =>
+      Axios.get(TETRIS_GET_URL).then((res) =>
         setLeaderboard(processData(res.data))
       );
     } catch {}

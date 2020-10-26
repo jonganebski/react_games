@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { TLeaderboard } from "../../@types/global";
 import { keysNotAllowed } from "../../constants/global";
+import { TETRIS_POST_URL } from "../../constants/tetris";
 import { processData } from "../../utils/globalUtils";
 import {
   BorderBottom,
@@ -221,7 +222,7 @@ const Popup: React.FC<IPopupProps> = ({
     if (error === "") {
       console.log("Submit", username, score);
       try {
-        Axios.post("http://localhost:4000/api/tetris/post", {
+        Axios.post(TETRIS_POST_URL, {
           username,
           score,
         }).then((res) => setLeaderboard(processData(res.data)));

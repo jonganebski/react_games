@@ -5,6 +5,7 @@ import { TLeaderboards, TMode } from "../../@types/minesweeper";
 import { processData } from "../../utils/globalUtils";
 import { timeToString } from "../../utils/globalUtils";
 import MinesweeperBtn from "./Button";
+import { MINESWEEPER_POST_URL } from "../../constants/minesweeper";
 
 interface IPopupProps {
   time: number;
@@ -121,9 +122,8 @@ const Popup: React.FC<IPopupProps> = ({
           if (text.length < 2 || 15 < text.length) {
             return;
           }
-          console.log(text);
           setText("");
-          Axios.post("http://localhost:4000/api/minesweeper/post", {
+          Axios.post(MINESWEEPER_POST_URL, {
             username: text,
             time,
             mode,
@@ -132,6 +132,7 @@ const Popup: React.FC<IPopupProps> = ({
             const { level } = mode;
             if (leaderboard) {
               setLeaderboard({ ...leaderboard, [level]: data });
+              setIsNewRecord(false);
             }
           });
         }}
