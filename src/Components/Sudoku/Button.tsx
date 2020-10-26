@@ -41,6 +41,7 @@ const YAxisBox = styled.div`
   align-items: center;
   justify-content: center;
   color: gray;
+  font-family: "Indie Flower", cursive;
 `;
 
 const YAxis = styled.div`

@@ -27,3 +27,6 @@ export const keysNotAllowed = [
   "[",
   "]",
 ];
+
+export const HOMECARD_W = 240;
+export const HOMECARD_H = 300;

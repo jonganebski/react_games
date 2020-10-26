@@ -4,6 +4,7 @@ import styled from "styled-components";
 const Wrapper = styled.div`
   margin-left: 30px;
   width: 90%;
+  font-family: "Indie Flower", cursive;
 `;
 
 const Heading = styled.h2`

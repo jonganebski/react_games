@@ -57,7 +57,7 @@ const MyButtonText = styled.span`
   align-items: center;
   justify-content: center;
   font-family: "Press Start 2P", cursive;
-  letter-spacing: 5px;
+  font-size: 0.8rem;
   color: black;
 `;
 

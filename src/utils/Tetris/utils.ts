@@ -4,10 +4,15 @@ import { MATRIX_H, MATRIX_W, TETRIMINO } from "../../constants/tetris";
 export const createMatrix = (row: number, col: number) =>
   Array(row).fill(Array(col).fill([".", "free"])) as TMatrix;
 
-export const getRandTetri = () => {
+export const getRandKey = () => {
   const tetriminos = "IOTJLSZ";
   const randIdx = Math.floor(Math.random() * tetriminos.length);
   const randKey = tetriminos[randIdx];
+  return randKey;
+};
+
+export const getRandTetri = () => {
+  const randKey = getRandKey();
   return TETRIMINO[randKey];
 };
 

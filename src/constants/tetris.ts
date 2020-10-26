@@ -53,5 +53,5 @@ export const CELL_RGB: { [key: string]: string } = {
 export const MATRIX_W = 10;
 export const MATRIX_H = 24;
 
-export const CELL_WIDTH = "30px";
-export const CELL_HEIGHT = "30px";
+export const CELL_WIDTH = 30;
+export const CELL_HEIGHT = 30;

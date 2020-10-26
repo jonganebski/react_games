@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { TMatrix, TTetriminos } from "../../@types/tetris";
+import { CELL_HEIGHT, CELL_WIDTH } from "../../constants/tetris";
 import { createMatrix } from "../../utils/Tetris/utils";
-import { BorderBottom, BorderLeft, BorderRight, BorderTop } from "./Borders";
 import { Cell } from "./Tetris";
 
 const Wrapper = styled.div`
   position: relative;
   display: grid;
-  grid-template-columns: repeat(6, 20px);
-  grid-template-rows: repeat(6, 20px);
-  overflow: hidden;
+  grid-template-columns: repeat(6, ${CELL_WIDTH}px);
+  grid-template-rows: repeat(6, ${CELL_HEIGHT}px);
 `;
 
 interface IDisplayNextTetriProps {
@@ -49,13 +48,9 @@ const DisplayNextTetri: React.FC<IDisplayNextTetriProps> = ({ nextTetri }) => {
 
   return (
     <Wrapper>
-      <BorderTop />
-      <BorderRight />
-      <BorderBottom />
-      <BorderLeft />
       {smallMatrix.map((row) =>
         row.map((cell, i) => (
-          <Cell key={i} type={cell[0]} borderW="10px"></Cell>
+          <Cell key={i} type={cell[0]} borderW="15px"></Cell>
         ))
       )}
     </Wrapper>

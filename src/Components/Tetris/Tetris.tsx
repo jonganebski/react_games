@@ -1,11 +1,14 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import styled, { StyledProps } from "styled-components";
 import {
   MATRIX_W,
-  CELL_WIDTH,
+  // CELL_WIDTH,
   MATRIX_H,
-  CELL_HEIGHT,
+  // CELL_HEIGHT,
   CELL_RGB,
+  CELL_WIDTH,
+  CELL_HEIGHT,
 } from "../../constants/tetris";
 import { useGameStatus } from "../../hooks/tetris/useGameStatus";
 import { useInterval } from "../../hooks/tetris/useInterval";
@@ -24,7 +27,7 @@ const Wrapper = styled.div`
   width: 100vw;
   height: 100vh;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 `;
 
 const Left = styled.section`
@@ -39,20 +42,27 @@ const Center = styled.section`
   align-items: center;
   justify-content: center;
   background-color: black;
+  z-index: 1;
 `;
 
 const Right = styled.section`
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
   background-color: black;
 `;
 
+const StatusContainer = styled.div`
+  height: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+`;
+
 const Matrix = styled.div`
   display: grid;
-  grid-template-columns: repeat(${MATRIX_W}, ${CELL_WIDTH});
-  grid-template-rows: repeat(${MATRIX_H}, ${CELL_HEIGHT});
+  grid-template-columns: repeat(${MATRIX_W}, ${CELL_WIDTH}px);
+  grid-template-rows: repeat(${MATRIX_H}, ${CELL_HEIGHT}px);
   grid-gap: 1px;
   box-sizing: content-box;
   border: 2px solid black;
@@ -66,6 +76,8 @@ interface ICellProps {
 }
 
 export const Cell = styled.div<ICellProps>`
+  width: ${CELL_WIDTH}px;
+  height: ${CELL_HEIGHT}px;
   background-color: rgba(${(props) => CELL_RGB[props.type]}, 0.7);
   border: ${(props) =>
     props.type === "." ? "none" : `${props.borderW} solid`};
@@ -208,11 +220,15 @@ const Tetris = () => {
         </Matrix>
       </Center>
       <Right>
-        <DisplayNextTetri nextTetri={nextTetri} />
-        <DisplayStatus title="Level" number={level} />
-        <DisplayStatus title="Score" number={score} />
-        <TetrisButton text="START GAME" onClick={startGame} />
-        <TetrisButton text="HOME" />
+        <StatusContainer>
+          <DisplayNextTetri nextTetri={nextTetri} />
+          <DisplayStatus title="Level" number={level} />
+          <DisplayStatus title="Score" number={score} />
+          <TetrisButton text="START GAME" onClick={startGame} />
+          <Link to="/">
+            <TetrisButton text="HOME" />
+          </Link>
+        </StatusContainer>
       </Right>
     </Wrapper>
   );

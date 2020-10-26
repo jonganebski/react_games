@@ -69,12 +69,12 @@ const Wrapper = styled.div<IWrapperProps>`
   width: 30%;
   height: 30%;
   display: ${(props) => (props.gameOver ? "flex" : "none")};
-  /* display: flex; */
   flex-direction: column;
   align-items: center;
   justify-content: center;
   background-color: transparent;
   overflow: hidden;
+  z-index: 6;
   ${BorderTop} {
     background: linear-gradient(90deg, transparent, #ff5709);
     animation: ${borderTopAnimation} 2s linear infinite;
@@ -98,7 +98,7 @@ const Filter = styled.div`
   width: 100%;
   height: 100%;
   background-color: black;
-  opacity: 0.8;
+  opacity: 0.9;
   z-index: -1;
 `;
 

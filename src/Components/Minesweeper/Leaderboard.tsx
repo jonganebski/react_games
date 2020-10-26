@@ -18,6 +18,7 @@ interface ILeaderboardProps {
 
 const List = styled.ul`
   min-width: 200px;
+  margin-bottom: 40px;
   padding: 20px;
   background-color: white;
   box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034),

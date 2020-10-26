@@ -26,6 +26,7 @@ import Leaderboard from "./Leaderboard";
 import MinesweeperBtn from "./Button";
 import Popup from "./Popup";
 import Timer from "./Timer";
+import { Link } from "react-router-dom";
 
 // ------------- INTERFACE -------------
 
@@ -373,24 +374,27 @@ const Minesweeper = () => {
             active={mode.level === "easy"}
             text={"EASY"}
             onClick={() => setMode(easy)}
-          ></MinesweeperBtn>
+          />
           <MinesweeperBtn
             active={mode.level === "midd"}
             text={"MODERATE"}
             margin={"0px 10px 0px 10px"}
             onClick={() => setMode(midd)}
-          ></MinesweeperBtn>
+          />
           <MinesweeperBtn
             active={mode.level === "hard"}
             text={"HARD"}
             onClick={() => setMode(hard)}
-          ></MinesweeperBtn>
+          />
         </div>
         <Leaderboard
           mode={mode}
           leaderboard={leaderboard}
           setLeaderboard={setLeaderboard}
         />
+        <Link to="/">
+          <MinesweeperBtn text={"HOME"} />
+        </Link>
         {isNewRecord && record !== null && (
           <Popup
             time={time}
