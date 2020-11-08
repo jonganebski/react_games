@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Axios from "axios";
 import { TLeaderboards, TMode } from "../../@types/minesweeper";
@@ -9,11 +9,11 @@ import { MINESWEEPER_POST_URL } from "../../constants/minesweeper";
 
 interface IPopupProps {
   time: number;
-  record: number;
+  record: number | null;
   mode: TMode;
   leaderboard: TLeaderboards | null;
+  isNewRecord: boolean;
   setLeaderboard: React.Dispatch<React.SetStateAction<TLeaderboards | null>>;
-  setIsNewRecord: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const Wrapper = styled.article`
@@ -81,13 +81,21 @@ const Popup: React.FC<IPopupProps> = ({
   record,
   mode,
   leaderboard,
+  isNewRecord,
   setLeaderboard,
-  setIsNewRecord,
 }) => {
   const [text, setText] = useState("");
-  return (
+  const [popup, setPopup] = useState(false);
+
+  useEffect(() => {
+    if (isNewRecord) {
+      setPopup(true);
+    }
+  }, [isNewRecord]);
+
+  return popup && record ? (
     <Wrapper>
-      <CloseBtn onClick={() => setIsNewRecord(false)}>
+      <CloseBtn onClick={() => setPopup(false)}>
         <span role="img" aria-label="close">
           ❌
         </span>
@@ -132,13 +140,13 @@ const Popup: React.FC<IPopupProps> = ({
             const { level } = mode;
             if (leaderboard) {
               setLeaderboard({ ...leaderboard, [level]: data });
-              setIsNewRecord(false);
+              setPopup(false);
             }
           });
         }}
       />
     </Wrapper>
-  );
+  ) : null;
 };
 
 export default Popup;

@@ -7,6 +7,8 @@ import { handleMinesweeperGet, handleMinsweeperPost } from "./minesweeper";
 import { handleSudokuGet, handleSudokuPost } from "./sudoku";
 import { handleTetrisGet, handleTetrisPost } from "./tetris";
 
+const PORT = process.env.PORT || 4000;
+
 export const redis = new Redis(process.env.REDIS_URL);
 const app = express();
 
@@ -29,4 +31,4 @@ app.post("/api/minesweeper/post", handleMinsweeperPost);
 app.post("/api/sudoku/post", handleSudokuPost);
 app.post("/api/tetris/post", handleTetrisPost);
 
-app.listen(4000, () => console.log("✅ Server listening"));
+app.listen(PORT, () => console.log(`✅ Server listening on port ${PORT}`));

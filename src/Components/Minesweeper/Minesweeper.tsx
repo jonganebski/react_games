@@ -393,16 +393,14 @@ const Minesweeper = () => {
         <Link to="/">
           <MinesweeperBtn text={"HOME"} />
         </Link>
-        {isNewRecord && status === 3 && record !== null && (
-          <Popup
-            time={time}
-            record={record}
-            mode={mode}
-            leaderboard={leaderboard}
-            setLeaderboard={setLeaderboard}
-            setIsNewRecord={setIsNewRecord}
-          />
-        )}
+        <Popup
+          time={time}
+          record={record}
+          mode={mode}
+          leaderboard={leaderboard}
+          isNewRecord={isNewRecord}
+          setLeaderboard={setLeaderboard}
+        />
       </ContainerR>
     </Wrapper>
   );
