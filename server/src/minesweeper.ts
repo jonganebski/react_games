@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { easy, hard, midd } from "../../src/constants/minesweeper";
 import { redis } from "./index";
+import { getExpireDate } from "./utils";
 
 const KEY = {
   EASY: "minesweeper-easy",
@@ -46,7 +47,9 @@ export const handleMinesweeperGet = async (_: Request, res: Response) => {
       midd: await redis.zrange(KEY.MIDD, 0, 9, "WITHSCORES"),
       hard: await redis.zrange(KEY.HARD, 0, 9, "WITHSCORES"),
     };
-
+    await redis.expireat(KEY.EASY, getExpireDate());
+    await redis.expireat(KEY.MIDD, getExpireDate());
+    await redis.expireat(KEY.HARD, getExpireDate());
     res.send(result);
   } catch {
     res.status(400);

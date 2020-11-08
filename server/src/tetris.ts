@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { redis } from "./index";
+import { getExpireDate } from "./utils";
 
 const KEY = "tetris";
 
@@ -13,9 +14,10 @@ export const handleTetrisPost = (req: Request, res: Response) => {
   }
 };
 
-export const handleTetrisGet = (_: Request, res: Response) => {
+export const handleTetrisGet = async (_: Request, res: Response) => {
   try {
     redis.zrange(KEY, -10, -1, "WITHSCORES").then((data) => res.send(data));
+    await redis.expireat(KEY, getExpireDate());
   } catch {
     res.status(400);
   }

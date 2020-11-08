@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { redis } from "./index";
+import { getExpireDate } from "./utils";
 
 const KEY = "sudoku";
 
@@ -13,9 +14,10 @@ export const handleSudokuPost = (req: Request, res: Response) => {
   }
 };
 
-export const handleSudokuGet = (_: Request, res: Response) => {
+export const handleSudokuGet = async (_: Request, res: Response) => {
   try {
     redis.zrange(KEY, 0, 9, "WITHSCORES").then((data) => res.send(data));
+    await redis.expireat(KEY, getExpireDate());
   } catch {
     res.status(400);
   }

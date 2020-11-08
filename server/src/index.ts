@@ -7,7 +7,7 @@ import { handleMinesweeperGet, handleMinsweeperPost } from "./minesweeper";
 import { handleSudokuGet, handleSudokuPost } from "./sudoku";
 import { handleTetrisGet, handleTetrisPost } from "./tetris";
 
-export const redis = new Redis();
+export const redis = new Redis(process.env.REDIS_URL);
 const app = express();
 
 const buildPath = path.join(__dirname, "..", "..", "build");
