@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { TMatrix, TTetriminos } from "../../@types/tetris";
 import { CELL_HEIGHT, CELL_WIDTH } from "constants/tetris";
 import { createMatrix } from "utils/Tetris/utils";
-import { Cell } from "components/Tetris/Tetris";
+import { Cell } from "routes/Tetris";
 
 // ------------- INTERFACES -------------
 

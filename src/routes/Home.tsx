@@ -3,7 +3,7 @@ import Footer from "components/Footer";
 import Header from "components/Header";
 import SudokuBtn from "components/Sudoku/Button";
 import TetrisBtn from "components/Tetris/Button";
-import { Cell } from "components/Tetris/Tetris";
+import { Cell } from "routes/Tetris";
 import { HOMECARD_H, HOMECARD_W } from "constants/global";
 import { CELL_WIDTH } from "constants/tetris";
 import React from "react";

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
-import { TBox, TLeaderboards, TMode } from "../../@types/minesweeper";
+import { TBox, TLeaderboards, TMode } from "../@types/minesweeper";
 import { easy, hard, midd, mineBoxSize } from "constants/minesweeper";
 import {
   handleAuxClick,
