@@ -29,7 +29,7 @@ const Sudoku = () => {
         handleGlobalKeyDown(e, setNotesOn)
       );
   }, []);
-
+  console.log("rendering");
   useEffect(() => {
     // DETERMINES GAME FINISHED OR NOT
     if (hotTemplate) {

@@ -267,7 +267,7 @@ const Minesweeper = () => {
       setIsNewRecord(isNewRecord);
     }
   }, [leaderboard, mode.level, record]);
-  console.log(time);
+
   return (
     <Wrapper>
       <ContainerL>
@@ -397,6 +397,7 @@ const Minesweeper = () => {
           time={time}
           record={record}
           mode={mode}
+          status={status}
           leaderboard={leaderboard}
           isNewRecord={isNewRecord}
           setLeaderboard={setLeaderboard}

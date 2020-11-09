@@ -11,6 +11,7 @@ interface IPopupProps {
   time: number;
   record: number | null;
   mode: TMode;
+  status: number;
   leaderboard: TLeaderboards | null;
   isNewRecord: boolean;
   setLeaderboard: React.Dispatch<React.SetStateAction<TLeaderboards | null>>;
@@ -80,6 +81,7 @@ const Popup: React.FC<IPopupProps> = ({
   time,
   record,
   mode,
+  status,
   leaderboard,
   isNewRecord,
   setLeaderboard,
@@ -88,7 +90,7 @@ const Popup: React.FC<IPopupProps> = ({
   const [popup, setPopup] = useState(false);
 
   useEffect(() => {
-    if (isNewRecord) {
+    if (isNewRecord && status === 3) {
       setPopup(true);
     }
   }, [isNewRecord]);

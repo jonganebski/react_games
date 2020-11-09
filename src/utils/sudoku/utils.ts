@@ -1,3 +1,5 @@
+import { EMPTY_COUNT } from "../../constants/sudoku";
+
 const getEachRowSubTable = (
   initialRowIdx: number,
   a: number,
@@ -191,7 +193,7 @@ export const generateSudoku = async () => {
       table[randRowIdx].splice(randNumIdx, 1, 0);
       count++;
     }
-    if (count === 40) {
+    if (count === EMPTY_COUNT) {
       break;
     }
   }

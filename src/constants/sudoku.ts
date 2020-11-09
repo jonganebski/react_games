@@ -10,3 +10,5 @@ export const SUDOKU_POST_URL =
 
 export const SUDOKU_GET_URL =
   process.env.NODE_ENV === "development" ? DEV_SERVER_URL + GET_URL : GET_URL;
+
+export const EMPTY_COUNT = process.env.NODE_ENV === "development" ? 1 : 40;
