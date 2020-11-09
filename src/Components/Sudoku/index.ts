@@ -1,3 +1,3 @@
-import SudokuContainer from "./SudokuContainer";
+import Sudoku from "./Sudoku";
 
-export default SudokuContainer;
+export default Sudoku;

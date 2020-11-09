@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import styled from "styled-components";
 import { timeToString } from "../../utils/globalUtils";
 
@@ -20,25 +20,9 @@ const Container = styled.div`
 
 interface ITimerProps {
   time: number;
-  setTime: React.Dispatch<React.SetStateAction<number>>;
-  startedAt: React.MutableRefObject<number>;
-  solved: boolean;
 }
 
-const Timer: React.FC<ITimerProps> = ({ time, setTime, startedAt, solved }) => {
-  const id = useRef(0);
-
-  useEffect(() => {
-    id.current = setInterval(() => {
-      setTime(Date.now() - startedAt.current);
-    }, 10);
-    return () => clearInterval(id.current);
-  }, [setTime, startedAt]);
-
-  if (solved) {
-    clearInterval(id.current);
-  }
-
+const Timer: React.FC<ITimerProps> = ({ time }) => {
   return <Container>{timeToString(time).substring(0, 5)}</Container>;
 };
 

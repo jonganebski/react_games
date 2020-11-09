@@ -268,16 +268,3 @@ export const getNextYBox = (
   }
   return box;
 };
-
-// START GAME
-export const startGame = (
-  coolTemplate: React.MutableRefObject<number[][]>,
-  setHotTemplate: React.Dispatch<React.SetStateAction<number[][] | null>>,
-  setTime: React.Dispatch<React.SetStateAction<number>>
-) => {
-  generateSudoku().then((initialTemplate) => {
-    coolTemplate.current = initialTemplate;
-    setHotTemplate(initialTemplate);
-    setTime(0);
-  });
-};

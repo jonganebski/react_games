@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+import Axios from "axios";
+import React from "react";
 import styled from "styled-components";
-import { TLeaderboard, TPopup } from "../../@types/sudoku";
-import { keysNotAllowed } from "../../constants/global";
+import { TLeaderboard } from "../../@types/global";
+import { TPopup } from "../../@types/sudoku";
+import { SUDOKU_POST_URL } from "../../constants/sudoku";
+import { useUsernameInput } from "../../hooks/useUsernameInput";
 import { processData, timeToString } from "../../utils/globalUtils";
 import Button from "./Button";
-import Axios from "axios";
-import { SUDOKU_POST_URL } from "../../constants/sudoku";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -70,48 +71,24 @@ const Warning = styled.div`
 
 interface IPopupProps {
   time: number;
-  leaderboard: TLeaderboard[];
-  setLeaderboard: React.Dispatch<React.SetStateAction<TLeaderboard[]>>;
-  popup: TPopup;
+  setLeaderboard: React.Dispatch<React.SetStateAction<TLeaderboard>>;
   setPopup: React.Dispatch<React.SetStateAction<TPopup>>;
 }
 
-const validator = (
-  value: string,
-  setValid: React.Dispatch<
-    React.SetStateAction<{
-      bool: boolean;
-      text: string;
-    }>
-  >
-) => {
-  if (value === "") {
-    setValid({ bool: false, text: "" });
-  } else if (value.length < 2) {
-    setValid({ bool: false, text: "username is too short" });
-  } else if (20 < value.length) {
-    setValid({ bool: false, text: "username is too long" });
-  } else if (keysNotAllowed.some((char) => value.includes(char))) {
-    setValid({ bool: false, text: "not allowed keys" });
-  } else if (value[0] === " ") {
-    setValid({ bool: false, text: "username has to begin with a character" });
-  } else {
-    setValid({ bool: true, text: "" });
-  }
-};
+const Popup: React.FC<IPopupProps> = ({ time, setLeaderboard, setPopup }) => {
+  const { value, handleOnChange, valid } = useUsernameInput();
 
-const Popup: React.FC<IPopupProps> = ({
-  time,
-  leaderboard,
-  setLeaderboard,
-  setPopup,
-}) => {
-  const [value, setValue] = useState("");
-  const [valid, setValid] = useState({ bool: false, text: "" });
-
-  useEffect(() => {
-    validator(value, setValid);
-  }, [leaderboard, value]);
+  const handleOnClick = () => {
+    if (valid.bool) {
+      Axios.post(SUDOKU_POST_URL, {
+        username: value,
+        time,
+      }).then((res) => {
+        setLeaderboard(processData(res.data));
+      });
+      setPopup({ bool: false, submitted: true });
+    }
+  };
 
   return (
     <Wrapper>
@@ -126,25 +103,10 @@ const Popup: React.FC<IPopupProps> = ({
           placeholder="what is your name?"
           value={value}
           required
-          onChange={(e) => {
-            setValue(e.currentTarget.value);
-          }}
+          onChange={handleOnChange}
         ></Input>
         <Warning>{valid.text}</Warning>
-        <Button
-          text="SUBMIT"
-          onClick={() => {
-            if (valid.bool) {
-              Axios.post(SUDOKU_POST_URL, {
-                username: value,
-                time,
-              }).then((res) => {
-                setLeaderboard(processData(res.data));
-              });
-              setPopup({ bool: false, submitted: true });
-            }
-          }}
-        ></Button>
+        <Button text="SUBMIT" onClick={handleOnClick}></Button>
       </Container>
     </Wrapper>
   );

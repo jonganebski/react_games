@@ -1,5 +1,5 @@
 import { StyledProps } from "styled-components";
-import { IBoxProps } from "../../Components/Sudoku/SudokuPresenter";
+import { IBoxProps } from "../../Components/Sudoku/Sudoku";
 
 export const handleBoxBorderTop = (className?: string) => {
   if (className) {

@@ -1,10 +1,8 @@
-import Axios from "axios";
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
-import { TLeaderboard } from "../../@types/sudoku";
+import { TLeaderboard } from "../../@types/global";
 import { ranks } from "../../constants/global";
-import { SUDOKU_GET_URL } from "../../constants/sudoku";
-import { processData, timeToString } from "../../utils/globalUtils";
+import { timeToString } from "../../utils/globalUtils";
 
 const List = styled.ul`
   max-width: 300px;
@@ -22,21 +20,10 @@ const Li = styled.li`
 `;
 
 interface ILeaderboardProps {
-  leaderboard: TLeaderboard[];
-  setLeaderboard: React.Dispatch<React.SetStateAction<TLeaderboard[]>>;
+  leaderboard: TLeaderboard;
 }
 
-const Leaderboard: React.FC<ILeaderboardProps> = ({
-  leaderboard,
-  setLeaderboard,
-}) => {
-  useEffect(() => {
-    Axios.get(SUDOKU_GET_URL).then((res) => {
-      const data = processData(res.data);
-      setLeaderboard(data);
-    });
-  }, [setLeaderboard]);
-
+const Leaderboard: React.FC<ILeaderboardProps> = ({ leaderboard }) => {
   return (
     <List>
       {leaderboard?.map((set, i) => (
