@@ -1,19 +1,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { possibleNums } from "../../constants/sudoku";
 import { useLeaderboard } from "../../hooks/sudoku/useLeaderboard";
 import { useNotes } from "../../hooks/sudoku/useNotes";
 import { usePopup } from "../../hooks/sudoku/usePopup";
 import { useTemplate } from "../../hooks/sudoku/useTemplate";
 import { useTimer } from "../../hooks/sudoku/useTimer";
-import {
-  handleBoxBorderRight,
-  handleBoxBorderTop,
-  handleInputColor,
-  handleInputFontWeight,
-} from "../../utils/sudoku/styleHandlers";
-import { getNextXBox, getNextYBox, validator } from "../../utils/sudoku/utils";
+import Box from "./Box";
 import SudokuBtn from "./Button";
 import Instructions from "./Instructions";
 import Leaderboard from "./Leaderboard";
@@ -27,11 +20,6 @@ interface IGridSectionProps {
 
 interface ISudokuTemplateProps {
   solved: boolean;
-}
-
-export interface IBoxProps {
-  isValid?: boolean;
-  isFixed?: boolean;
 }
 
 // --------------- STYLED COMPONENTS ---------------
@@ -79,60 +67,6 @@ const TimerAndNotesBtn = styled.div`
   justify-content: space-between;
 `;
 
-const Box = styled.div<IBoxProps>`
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid transparent;
-  background-color: ${(props) => (props.isFixed ? "whitesmoke" : "white")};
-  cursor: pointer;
-  font-size: 22px;
-  border-top: ${({ className }) => handleBoxBorderTop(className)};
-  border-right: ${({ className }) => handleBoxBorderRight(className)};
-`;
-
-const InputsContainer = styled.div`
-  position: relative;
-  width: 100%;
-  height: 100%;
-`;
-
-const Input = styled.input<IBoxProps>`
-  all: unset;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  z-index: 10;
-  font-weight: ${handleInputFontWeight};
-  color: ${handleInputColor};
-  &:focus {
-    background-color: #ebf8ff;
-  }
-`;
-
-const Notes = styled.div`
-  all: unset;
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-`;
-
-const Note = styled.div`
-  all: unset;
-  font-size: 12px;
-  text-align: center;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-`;
-
 const ButtonGroup = styled.div`
   width: 60%;
   margin-bottom: 50px;
@@ -153,63 +87,6 @@ const Sudoku = () => {
   );
   const { leaderboard, setLeaderboard } = useLeaderboard();
   const { popup, setPopup } = usePopup(solved, leaderboard, time);
-  const [currentBox, setCurrentBox] = useState("");
-
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    rowIdx: number,
-    numIdx: number,
-    notesOn: boolean,
-    currentBox: string,
-    isFixed: boolean,
-    solved: boolean,
-    hotTemplate: number[][],
-    setHotTemplate: React.Dispatch<React.SetStateAction<number[][] | null>>
-  ) => {
-    if (solved) {
-      return;
-    }
-    const { key } = e;
-    e.preventDefault();
-    if (key === "ArrowRight") {
-      getNextXBox(rowIdx, numIdx, "right")?.focus();
-      return;
-    }
-    if (key === "ArrowLeft") {
-      getNextXBox(rowIdx, numIdx, "left")?.focus();
-      return;
-    }
-    if (key === "ArrowUp") {
-      getNextYBox(rowIdx, numIdx, "up")?.focus();
-      return;
-    }
-    if (key === "ArrowDown") {
-      getNextYBox(rowIdx, numIdx, "down")?.focus();
-      return;
-    }
-    if (isFixed) {
-      return;
-    }
-    if (notesOn) {
-      const note = document.getElementById(`note-${currentBox}-${key}`);
-      if (note) {
-        if (note.innerText === "") {
-          note.innerText = key;
-        } else {
-          note.innerText = "";
-        }
-      }
-    }
-    if (!notesOn) {
-      const newTemplate = JSON.parse(JSON.stringify(hotTemplate));
-      if (possibleNums.includes(key)) {
-        newTemplate[rowIdx].splice(numIdx, 1, parseInt(key));
-      } else {
-        newTemplate[rowIdx].splice(numIdx, 1, 0);
-      }
-      setHotTemplate(newTemplate);
-    }
-  };
 
   return (
     <Wrapper>
@@ -226,53 +103,19 @@ const Sudoku = () => {
       <Center popup={popup.bool}>
         <SudokuTemplate solved={solved}>
           {hotTemplate?.map((row, rowIdx) =>
-            row.map((num, numIdx) => {
-              const isValid = validator(rowIdx, numIdx, num, hotTemplate);
-              const isFixed = coolTemplate.current[rowIdx][numIdx] !== 0;
-              return (
-                <Box
-                  key={(rowIdx + 1) * (numIdx + 1)}
-                  className={`row${rowIdx + 1} column${numIdx + 1}`}
-                  isFixed={isFixed}
-                >
-                  <InputsContainer>
-                    <Input
-                      type="text"
-                      id={`row${rowIdx + 1} column${numIdx + 1}`}
-                      isValid={num === 0 ? true : isValid}
-                      isFixed={isFixed}
-                      value={num === 0 ? "" : num}
-                      readOnly={true}
-                      maxLength={1}
-                      onFocus={() => setCurrentBox(`${rowIdx}-${numIdx}`)}
-                      onKeyDown={(e) =>
-                        handleKeyDown(
-                          e,
-                          rowIdx,
-                          numIdx,
-                          notesOn,
-                          currentBox,
-                          isFixed,
-                          solved,
-                          hotTemplate,
-                          setHotTemplate
-                        )
-                      }
-                    ></Input>
-                    <Notes>
-                      {Array.from(Array(9).keys()).map((n, i) => {
-                        return (
-                          <Note
-                            key={i}
-                            id={`note-${rowIdx}-${numIdx}-${n + 1}`}
-                          ></Note>
-                        );
-                      })}
-                    </Notes>
-                  </InputsContainer>
-                </Box>
-              );
-            })
+            row.map((num, numIdx) => (
+              <Box
+                key={(rowIdx + 1) * (numIdx + 1)}
+                rowIdx={rowIdx}
+                numIdx={numIdx}
+                num={num}
+                coolTemplate={coolTemplate}
+                hotTemplate={hotTemplate}
+                setHotTemplate={setHotTemplate}
+                notesOn={notesOn}
+                solved={solved}
+              />
+            ))
           )}
         </SudokuTemplate>
         <TimerAndNotesBtn>
@@ -282,12 +125,7 @@ const Sudoku = () => {
       </Center>
       <Right popup={popup.bool}>
         <ButtonGroup>
-          <SudokuBtn
-            text={"NEW GAME"}
-            onClick={() => {
-              startGame();
-            }}
-          />
+          <SudokuBtn text={"NEW GAME"} onClick={startGame} />
           <Link to={"/"}>
             <SudokuBtn text="HOME" />
           </Link>

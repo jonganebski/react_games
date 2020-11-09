@@ -1,5 +1,5 @@
 import { StyledProps } from "styled-components";
-import { IBoxProps } from "../../Components/Sudoku/Sudoku";
+import { IBoxContainerProps } from "../../Components/Sudoku/Box";
 
 export const handleBoxBorderTop = (className?: string) => {
   if (className) {
@@ -21,7 +21,9 @@ export const handleBoxBorderRight = (className?: string) => {
   }
 };
 
-export const handleInputFontWeight = (props: StyledProps<IBoxProps>) => {
+export const handleInputFontWeight = (
+  props: StyledProps<IBoxContainerProps>
+) => {
   const { isValid, isFixed } = props;
   if (isFixed && isValid) {
     return "normal";
@@ -30,7 +32,7 @@ export const handleInputFontWeight = (props: StyledProps<IBoxProps>) => {
   }
 };
 
-export const handleInputColor = (props: StyledProps<IBoxProps>) => {
+export const handleInputColor = (props: StyledProps<IBoxContainerProps>) => {
   const { isValid, isFixed } = props;
   if (isFixed && isValid) {
     return "black";
