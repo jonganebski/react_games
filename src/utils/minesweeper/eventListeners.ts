@@ -9,7 +9,7 @@ import {
   revealAround,
   revealChain,
   startGame,
-} from "./utils";
+} from "utils/minesweeper/utils";
 
 let leftDown = false;
 let rightDown = false;

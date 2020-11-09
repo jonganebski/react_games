@@ -1,4 +1,4 @@
-import { EMPTY_COUNT } from "../../constants/sudoku";
+import { EMPTY_COUNT } from "constants/sudoku";
 
 const getEachRowSubTable = (
   initialRowIdx: number,

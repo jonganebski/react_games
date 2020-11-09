@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { TMatrix, TTetriminos } from "../../@types/tetris";
-import { MATRIX_H, MATRIX_W } from "../../constants/tetris";
-import { createMatrix } from "../../utils/Tetris/utils";
+import { MATRIX_H, MATRIX_W } from "constants/tetris";
+import { createMatrix } from "utils/Tetris/utils";
 
 export const useMatrix = (
   tetri: TTetriminos,

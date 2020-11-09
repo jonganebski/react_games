@@ -1,12 +1,12 @@
 import React from "react";
 import styled from "styled-components";
-import { useBox } from "../../hooks/sudoku/useBox";
+import { useBox } from "hooks/sudoku/useBox";
 import {
   handleBoxBorderRight,
   handleBoxBorderTop,
   handleInputColor,
   handleInputFontWeight,
-} from "../../utils/sudoku/styleHandlers";
+} from "utils/sudoku/styleHandlers";
 
 export interface IBoxContainerProps {
   isValid?: boolean;

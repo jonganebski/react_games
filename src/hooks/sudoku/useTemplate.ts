@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { generateSudoku, validator } from "../../utils/sudoku/utils";
+import { generateSudoku, validator } from "utils/sudoku/utils";
 
 export const useTemplate = (
   setTime: React.Dispatch<React.SetStateAction<number>>,

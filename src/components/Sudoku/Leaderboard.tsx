@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import { TLeaderboard } from "../../@types/global";
-import { ranks } from "../../constants/global";
-import { timeToString } from "../../utils/globalUtils";
+import { ranks } from "constants/global";
+import { timeToString } from "utils/globalUtils";
 
 const List = styled.ul`
   max-width: 300px;

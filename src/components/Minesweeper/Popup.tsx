@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Axios from "axios";
 import { TLeaderboards, TMode } from "../../@types/minesweeper";
-import { processData } from "../../utils/globalUtils";
-import { timeToString } from "../../utils/globalUtils";
-import MinesweeperBtn from "./Button";
-import { MINESWEEPER_POST_URL } from "../../constants/minesweeper";
+import { processData } from "utils/globalUtils";
+import { timeToString } from "utils/globalUtils";
+import MinesweeperBtn from "components/Minesweeper/Button";
+import { MINESWEEPER_POST_URL } from "constants/minesweeper";
 
 interface IPopupProps {
   time: number;

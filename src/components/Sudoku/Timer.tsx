@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { timeToString } from "../../utils/globalUtils";
+import { timeToString } from "utils/globalUtils";
 
 const Container = styled.div`
   position: relative;

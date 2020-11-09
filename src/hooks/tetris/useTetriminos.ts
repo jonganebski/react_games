@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { TMatrix, TTetriminos, TTetriShape } from "../../@types/tetris";
-import { TETRIMINO } from "../../constants/tetris";
-import { checkWillCollide, getRandTetri } from "../../utils/Tetris/utils";
+import { TETRIMINO } from "constants/tetris";
+import { checkWillCollide, getRandTetri } from "utils/Tetris/utils";
 
 export const useTetriminos = (): [
   TTetriminos,

@@ -4,7 +4,6 @@ import {
   TLeaderboards,
   TMode,
 } from "../../@types/minesweeper";
-import { easy, midd } from "../../constants/minesweeper";
 
 export const getMinesIndex = (mode: TMode, startId: number) => {
   const minesIndex = new Set();

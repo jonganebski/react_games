@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import { TLeaderboard } from "../../@types/global";
-import { ranks } from "../../constants/global";
-import { sortLBDescend } from "../../utils/globalUtils";
+import { ranks } from "constants/global";
+import { sortLBDescend } from "utils/globalUtils";
 
 // ------------- INTERFACES -------------
 

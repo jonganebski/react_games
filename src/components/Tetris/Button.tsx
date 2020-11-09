@@ -5,7 +5,7 @@ import {
   BorderRight,
   BorderBottom,
   BorderLeft,
-} from "./SharedStyles/Borders";
+} from "components/Tetris/SharedStyles/Borders";
 
 // ------------- INTERFACES -------------
 

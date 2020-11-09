@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { possibleNums } from "../../constants/sudoku";
-import { validator, getNextXBox, getNextYBox } from "../../utils/sudoku/utils";
+import { possibleNums } from "constants/sudoku";
+import { validator, getNextXBox, getNextYBox } from "utils/sudoku/utils";
 
 export const useBox = (
   rowIdx: number,

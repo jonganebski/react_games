@@ -6,9 +6,9 @@ import {
   TMode,
   TModeLeaderboard,
 } from "../../@types/minesweeper";
-import { ranks } from "../../constants/global";
-import { easy, midd, MINESWEEPER_GET_URL } from "../../constants/minesweeper";
-import { processData, timeToString } from "../../utils/globalUtils";
+import { ranks } from "constants/global";
+import { easy, midd, MINESWEEPER_GET_URL } from "constants/minesweeper";
+import { processData, timeToString } from "utils/globalUtils";
 
 interface ILeaderboardProps {
   mode: TMode;

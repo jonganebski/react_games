@@ -2,9 +2,9 @@ import Axios from "axios";
 import React, { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { TLeaderboard } from "../../@types/global";
-import { keysNotAllowed } from "../../constants/global";
-import { TETRIS_POST_URL } from "../../constants/tetris";
-import { processData } from "../../utils/globalUtils";
+import { keysNotAllowed } from "constants/global";
+import { TETRIS_POST_URL } from "constants/tetris";
+import { processData } from "utils/globalUtils";
 import {
   BorderBottom,
   BorderLeft,

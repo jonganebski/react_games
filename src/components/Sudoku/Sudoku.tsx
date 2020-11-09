@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { useLeaderboard } from "../../hooks/sudoku/useLeaderboard";
-import { useNotes } from "../../hooks/sudoku/useNotes";
-import { usePopup } from "../../hooks/sudoku/usePopup";
-import { useTemplate } from "../../hooks/sudoku/useTemplate";
-import { useTimer } from "../../hooks/sudoku/useTimer";
-import Box from "./Box";
-import SudokuBtn from "./Button";
-import Instructions from "./Instructions";
-import Leaderboard from "./Leaderboard";
-import NotesButton from "./NotesButton";
-import Popup from "./Popup";
-import Timer from "./Timer";
+import { useLeaderboard } from "hooks/sudoku/useLeaderboard";
+import { useNotes } from "hooks/sudoku/useNotes";
+import { usePopup } from "hooks/sudoku/usePopup";
+import { useTemplate } from "hooks/sudoku/useTemplate";
+import { useTimer } from "hooks/sudoku/useTimer";
+import Box from "components/Sudoku/Box";
+import SudokuBtn from "components/Sudoku/Button";
+import Instructions from "components/Sudoku/Instructions";
+import Leaderboard from "components/Sudoku/Leaderboard";
+import NotesButton from "components/Sudoku/NotesButton";
+import Popup from "components/Sudoku/Popup";
+import Timer from "components/Sudoku/Timer";
 
 interface IGridSectionProps {
   popup: boolean;

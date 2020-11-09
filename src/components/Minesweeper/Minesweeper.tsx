@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { TBox, TLeaderboards, TMode } from "../../@types/minesweeper";
-import { easy, hard, midd, mineBoxSize } from "../../constants/minesweeper";
+import { easy, hard, midd, mineBoxSize } from "constants/minesweeper";
 import {
   handleAuxClick,
   handleClick,
@@ -10,22 +10,22 @@ import {
   handleMouseEnter,
   handleMouseLeave,
   handleMouseUp,
-} from "../../utils/minesweeper/eventListeners";
+} from "utils/minesweeper/eventListeners";
 import {
   getContentColor,
   getShellOpacity,
-} from "../../utils/minesweeper/styleHandlers";
+} from "utils/minesweeper/styleHandlers";
 import {
   didIStepped,
   didIWon,
   getIsNewRecord,
   handleGameover,
   handleVictory,
-} from "../../utils/minesweeper/utils";
-import Leaderboard from "./Leaderboard";
-import MinesweeperBtn from "./Button";
-import Popup from "./Popup";
-import Timer from "./Timer";
+} from "utils/minesweeper/utils";
+import Leaderboard from "components/Minesweeper/Leaderboard";
+import MinesweeperBtn from "components/Minesweeper/Button";
+import Popup from "components/Minesweeper/Popup";
+import Timer from "components/Minesweeper/Timer";
 import { Link } from "react-router-dom";
 
 // ------------- INTERFACE -------------

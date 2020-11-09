@@ -7,18 +7,18 @@ import {
   CELL_WIDTH,
   MATRIX_H,
   MATRIX_W,
-} from "../../constants/tetris";
-import { useGameStatus } from "../../hooks/tetris/useGameStatus";
-import { useInterval } from "../../hooks/tetris/useInterval";
-import { useLeaderboard } from "../../hooks/tetris/useLeaderboard";
-import { useMatrix } from "../../hooks/tetris/useMatrix";
-import { useTetriminos } from "../../hooks/tetris/useTetriminos";
-import { checkWillCollide, createMatrix } from "../../utils/Tetris/utils";
-import TetrisButton from "./Button";
-import DisplayNextTetri from "./DisplayNextTetri";
-import DisplayStatus from "./DisplayStatus";
-import Leaderboard from "./Leaderboard";
-import Popup from "./Popup";
+} from "constants/tetris";
+import { useGameStatus } from "hooks/tetris/useGameStatus";
+import { useInterval } from "hooks/tetris/useInterval";
+import { useLeaderboard } from "hooks/tetris/useLeaderboard";
+import { useMatrix } from "hooks/tetris/useMatrix";
+import { useTetriminos } from "hooks/tetris/useTetriminos";
+import { checkWillCollide, createMatrix } from "utils/Tetris/utils";
+import TetrisButton from "components/Tetris/Button";
+import DisplayNextTetri from "components/Tetris/DisplayNextTetri";
+import DisplayStatus from "components/Tetris/DisplayStatus";
+import Leaderboard from "components/Tetris/Leaderboard";
+import Popup from "components/Tetris/Popup";
 
 // ------------- INTERFACES -------------
 

@@ -1,8 +1,8 @@
 import Axios from "axios";
 import { useEffect, useState } from "react";
 import { TLeaderboard } from "../../@types/global";
-import { TETRIS_GET_URL } from "../../constants/tetris";
-import { processData } from "../../utils/globalUtils";
+import { TETRIS_GET_URL } from "constants/tetris";
+import { processData } from "utils/globalUtils";
 
 export const useLeaderboard = (
   score: number,

@@ -3,10 +3,10 @@ import React from "react";
 import styled from "styled-components";
 import { TLeaderboard } from "../../@types/global";
 import { TPopup } from "../../@types/sudoku";
-import { SUDOKU_POST_URL } from "../../constants/sudoku";
-import { useUsernameInput } from "../../hooks/useUsernameInput";
-import { processData, timeToString } from "../../utils/globalUtils";
-import Button from "./Button";
+import { SUDOKU_POST_URL } from "constants/sudoku";
+import { useUsernameInput } from "hooks/useUsernameInput";
+import { processData, timeToString } from "utils/globalUtils";
+import Button from "components/Sudoku/Button";
 
 const Wrapper = styled.div`
   position: fixed;

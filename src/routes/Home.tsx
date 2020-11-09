@@ -1,15 +1,15 @@
+import MinesweeperBtn from "components//Minesweeper/Button";
+import Footer from "components/Footer";
+import Header from "components/Header";
+import SudokuBtn from "components/Sudoku/Button";
+import TetrisBtn from "components/Tetris/Button";
+import { Cell } from "components/Tetris/Tetris";
+import { HOMECARD_H, HOMECARD_W } from "constants/global";
+import { CELL_WIDTH } from "constants/tetris";
 import React from "react";
-import styled from "styled-components";
-import MinesweeperBtn from "./Minesweeper/Button";
-import SudokuBtn from "./Sudoku/Button";
-import TetrisBtn from "./Tetris/Button";
 import { Link } from "react-router-dom";
-import { Cell } from "./Tetris/Tetris";
-import { CELL_WIDTH } from "../constants/tetris";
-import { HOMECARD_H, HOMECARD_W } from "../constants/global";
-import { getRandKey } from "../utils/Tetris/utils";
-import Header from "./Header";
-import Footer from "./Footer";
+import styled from "styled-components";
+import { getRandKey } from "utils/Tetris/utils";
 
 // ----------- INTERFACES -----------
 

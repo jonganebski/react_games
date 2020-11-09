@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { keysNotAllowed } from "../constants/global";
+import { keysNotAllowed } from "constants/global";
 
 export const useUsernameInput = () => {
   const [value, setValue] = useState("");
