@@ -52,10 +52,18 @@ interface CellProps {
   field: CellService[][];
   setField: React.Dispatch<React.SetStateAction<CellService[][] | null>>;
   cell: CellService;
+  gameStart: (rowIdx: number, colIdx: number) => void;
+  gameOver: () => void;
 }
 
-const Cell: React.FC<CellProps> = ({ field, setField, cell }) => {
-  const useCellResult = useCell(field, setField, cell);
+const Cell: React.FC<CellProps> = ({
+  field,
+  setField,
+  cell,
+  gameStart,
+  gameOver,
+}) => {
+  const useCellResult = useCell(field, setField, cell, gameStart, gameOver);
   return (
     <Input
       id={cell.id}

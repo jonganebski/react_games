@@ -59,6 +59,9 @@ export class CellService {
   private isKaboom = () => this.isMine && this.status === "revealed";
 
   getValue = () => {
+    if (this.mines.length === 0) {
+      return "";
+    }
     if (this.status === "flaged") {
       return this.FLAG;
     } else if (this.status === "question") {
@@ -86,7 +89,6 @@ export class CellService {
       this.status = "revealed";
     }
     if (str === "else") {
-      console.log(this.status);
       if (this.status === "init") {
         this.status = "flaged";
       } else if (this.status === "flaged") {

@@ -1,9 +1,27 @@
 import { CellService, getArroundCells } from "utils/newMinesweeper/utils";
 
+export const autoReveal = (
+  field: CellService[][],
+  rowIdx: number,
+  colIdx: number
+) => {
+  const cells: CellService[] = getArroundCells(field, rowIdx, colIdx);
+  for (let i = 0; i < cells.length; i++) {
+    if (cells[i].status !== "revealed") {
+      const { value } = cells[i].changeStatus("reveal");
+      if (value === "") {
+        autoReveal(field, cells[i].rowIdx, cells[i].colIdx);
+      }
+    }
+  }
+};
+
 export const useCell = (
   field: CellService[][],
   setField: React.Dispatch<React.SetStateAction<CellService[][] | null>>,
-  cell: CellService
+  cell: CellService,
+  gameStart: (rowIdx: number, colIdx: number) => void,
+  gameOver: () => void
 ) => {
   const onContextMenu = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     e.preventDefault();
@@ -33,6 +51,34 @@ export const useCell = (
     setField([...field]);
   };
 
+  const onDoubleClick = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+    e.preventDefault();
+    const arroundCells = getArroundCells(field, cell.rowIdx, cell.colIdx);
+    if (cell.status === "revealed") {
+      if (
+        cell.getValue() !==
+        arroundCells.filter((cell: CellService) => cell.status === "flaged")
+          .length +
+          ""
+      ) {
+        return;
+      }
+      arroundCells.forEach((cell: CellService) => {
+        if (cell.status === "init") {
+          const { isSafe, value } = cell.changeStatus("reveal");
+          if (value === "") {
+            autoReveal(field, cell.rowIdx, cell.colIdx);
+          }
+          if (!isSafe) {
+            gameOver();
+            console.log("GAME OVER");
+          }
+        }
+      });
+      setField([...field]);
+    }
+  };
+
   const onMouseDown = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     e.preventDefault();
     cell.isDown = true;
@@ -47,37 +93,21 @@ export const useCell = (
     setField([...field]);
   };
 
-  const autoReveal = (
-    field: CellService[][],
-    rowIdx: number,
-    colIdx: number
-  ) => {
-    const cells: CellService[] = getArroundCells(field, rowIdx, colIdx);
-    for (let i = 0; i < cells.length; i++) {
-      if (cells[i].status !== "revealed") {
-        const { value } = cells[i].changeStatus("reveal");
-        if (value === "") {
-          autoReveal(field, cells[i].rowIdx, cells[i].colIdx);
-        }
-      }
-    }
-  };
-
-  const gameover = () =>
-    field.forEach((row) =>
-      row.forEach((cell) => {
-        if (cell.isMine && cell.status !== "flaged") {
-          cell.changeStatus("reveal");
-        }
-      })
-    );
-
   const onMouseUp = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     e.preventDefault();
+    gameStart(cell.rowIdx, cell.colIdx);
     cell.isDown = false;
     const arroundCells = getArroundCells(field, cell.rowIdx, cell.colIdx);
     arroundCells.forEach((cell: CellService) => (cell.isDown = false));
     if (e.buttons === 2) {
+      if (
+        cell.getValue() !==
+        arroundCells.filter((cell: CellService) => cell.status === "flaged")
+          .length +
+          ""
+      ) {
+        return;
+      }
       arroundCells.forEach((cell: CellService) => {
         if (cell.status === "init") {
           const { isSafe, value } = cell.changeStatus("reveal");
@@ -85,7 +115,7 @@ export const useCell = (
             autoReveal(field, cell.rowIdx, cell.colIdx);
           }
           if (!isSafe) {
-            gameover();
+            gameOver();
             console.log("GAME OVER");
           }
         }
@@ -98,7 +128,7 @@ export const useCell = (
           autoReveal(field, cell.rowIdx, cell.colIdx);
         }
         if (!isSafe) {
-          gameover();
+          gameOver();
           console.log("GAME OVER");
         }
       }
@@ -106,7 +136,6 @@ export const useCell = (
       const { value } = cell.changeStatus("else");
     }
     setField([...field]);
-    console.log(field);
   };
   return {
     value: cell.getValue(),
@@ -114,6 +143,7 @@ export const useCell = (
     onMouseDown,
     onMouseLeave,
     onMouseEnter,
+    onDoubleClick,
     onContextMenu,
   };
 };
