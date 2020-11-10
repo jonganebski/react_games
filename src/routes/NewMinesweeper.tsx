@@ -1,54 +1,39 @@
+import { CELL_SIZE } from "constants/newMinesweeper";
+import { useField } from "hooks/newMinesweeper/useField";
+import { Difficulty } from "interfaces/newMinesweeper";
 import React from "react";
+import styled from "styled-components";
 
-type Status = "init" | "revealed" | "flaged" | "question";
+interface FieldProps {
+  difficulty: Difficulty;
+}
+
+const Field = styled.section<FieldProps>`
+  display: grid;
+  grid-template-columns: ${({ difficulty }) =>
+    `repeat(${difficulty.size.x}, ${CELL_SIZE}px)`};
+  grid-template-rows: ${({ difficulty }) =>
+    `repeat(${difficulty.size.y}, ${CELL_SIZE}px)`};
+`;
+const Cell = styled.div`
+  border: 1px solid black;
+`;
 
 const NewMinesweeper = () => {
-  class Cell {
-    isMine: boolean;
-    status: Status;
-    rowIdx: number;
-    colIdx: number;
-    constructor(
-      isMine: boolean,
-      status: Status,
-      rowIdx: number,
-      colIdx: number
-    ) {
-      this.isMine = isMine;
-      this.status = status;
-      this.rowIdx = rowIdx;
-      this.colIdx = colIdx;
-    }
-    private isKaboom = () => this.isMine && this.status === "revealed";
-    private getValue = () => {
-      if (!this.isMine) {
-        // 주변 지뢰들의 수를 센다.
-      }
-    };
-    changeStatus = (status: Status) => {
-      this.status = status;
-      if (this.status === "revealed") {
-        if (this.isKaboom()) {
-          return { safe: false, value: "💣" };
-        }
-        return { safe: true, value: this.getValue() };
-      } else if (this.status === "flaged") {
-        return { safe: true, value: "🚩" };
-      } else if (this.status === "question") {
-        return { safe: true, value: "❓" };
-      } else {
-        return { safe: true, value: "" };
-      }
-    };
-  }
+  const { difficulty, setDifficulty, field } = useField();
 
-  const cell = new Cell(true, "init", 1, 1);
-  console.log(cell.changeStatus("flaged"));
-  console.log(cell.changeStatus("question"));
-  console.log(cell.changeStatus("init"));
-  console.log(cell.changeStatus("revealed"));
-
-  return <></>;
+  return (
+    <>
+      <Field difficulty={difficulty}>
+        {field &&
+          field.map((row) =>
+            row.map((cell, colIdx) => (
+              <Cell key={colIdx}>{cell.getValue()}</Cell>
+            ))
+          )}
+      </Field>
+    </>
+  );
 };
 
 export default NewMinesweeper;
