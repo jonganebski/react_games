@@ -34,12 +34,13 @@ export const useField = () => {
 
     const field: CellService[][] = deployMines().map((row, rowIdx, arr) =>
       row.map(
-        (isMine, colIdx) => new CellService(isMine, "init", rowIdx, colIdx, arr)
+        (isMine, colIdx) =>
+          new CellService(isMine, false, "init", rowIdx, colIdx, arr)
       )
     );
     setField(field);
     console.log(field);
   }, [difficulty]);
 
-  return { difficulty, setDifficulty, field };
+  return { difficulty, setDifficulty, field, setField };
 };

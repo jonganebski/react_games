@@ -11,6 +11,8 @@ interface FieldProps {
 
 const Field = styled.section<FieldProps>`
   display: grid;
+  grid-gap: 1px;
+  background-color: black;
   grid-template-columns: ${({ difficulty }) =>
     `repeat(${difficulty.size.x}, ${CELL_SIZE}px)`};
   grid-template-rows: ${({ difficulty }) =>
@@ -18,14 +20,21 @@ const Field = styled.section<FieldProps>`
 `;
 
 const NewMinesweeper = () => {
-  const { difficulty, setDifficulty, field } = useField();
+  const { difficulty, setDifficulty, field, setField } = useField();
 
   return (
     <>
       <Field difficulty={difficulty}>
         {field &&
           field.map((row) =>
-            row.map((cell, colIdx) => <Cell key={colIdx} cell={cell} />)
+            row.map((cell, colIdx) => (
+              <Cell
+                key={colIdx}
+                field={field}
+                setField={setField}
+                cell={cell}
+              />
+            ))
           )}
       </Field>
     </>

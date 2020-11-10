@@ -16,4 +16,20 @@ export const hard: Difficulty = {
   size: { x: 30, y: 16 },
   level: "hard",
 };
+
 export const CELL_SIZE = 30;
+
+export const CELL_BORDER = {
+  STANDARD: {
+    TOP: "2px solid whitesmoke",
+    RIGHT: "2px solid dimgray",
+    BOTTOM: "2px solid dimgray",
+    LEFT: "2px solid whitesmoke",
+  },
+  ON_DOWN: {
+    TOP: "2px solid dimgray",
+    RIGHT: "2px solid whitesmoke",
+    BOTTOM: "2px solid whitesmoke",
+    LEFT: "2px solid dimgray",
+  },
+};
