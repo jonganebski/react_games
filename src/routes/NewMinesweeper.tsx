@@ -1,3 +1,4 @@
+import Cell from "components/NewMinesweeper/Cell";
 import { CELL_SIZE } from "constants/newMinesweeper";
 import { useField } from "hooks/newMinesweeper/useField";
 import { Difficulty } from "interfaces/newMinesweeper";
@@ -15,9 +16,6 @@ const Field = styled.section<FieldProps>`
   grid-template-rows: ${({ difficulty }) =>
     `repeat(${difficulty.size.y}, ${CELL_SIZE}px)`};
 `;
-const Cell = styled.div`
-  border: 1px solid black;
-`;
 
 const NewMinesweeper = () => {
   const { difficulty, setDifficulty, field } = useField();
@@ -27,9 +25,7 @@ const NewMinesweeper = () => {
       <Field difficulty={difficulty}>
         {field &&
           field.map((row) =>
-            row.map((cell, colIdx) => (
-              <Cell key={colIdx}>{cell.getValue()}</Cell>
-            ))
+            row.map((cell, colIdx) => <Cell key={colIdx} cell={cell} />)
           )}
       </Field>
     </>

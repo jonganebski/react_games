@@ -32,9 +32,9 @@ export const useField = () => {
       return deployedArr;
     };
 
-    const field = deployMines().map((row, rowIdx) =>
+    const field: CellService[][] = deployMines().map((row, rowIdx, arr) =>
       row.map(
-        (isMine, colIdx) => new CellService(isMine, "init", rowIdx, colIdx)
+        (isMine, colIdx) => new CellService(isMine, "init", rowIdx, colIdx, arr)
       )
     );
     setField(field);
