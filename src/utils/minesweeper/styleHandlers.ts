@@ -1,8 +1,5 @@
 import { StyledProps } from "styled-components";
-import {
-  IMineBoxShellProps,
-  IBoxContent,
-} from "components/Minesweeper/Minesweeper";
+import { IMineBoxShellProps, IBoxContent } from "routes/Minesweeper";
 
 export const getShellOpacity = (props: StyledProps<IMineBoxShellProps>) => {
   if (props.status === 3 && props.isMine && !props.isFlaged) {
