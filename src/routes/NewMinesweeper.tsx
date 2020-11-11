@@ -5,7 +5,7 @@ import { useField } from "hooks/newMinesweeper/useField";
 import { useGameStatus } from "hooks/newMinesweeper/useGameStatus";
 import { usePlayerEmoji } from "hooks/newMinesweeper/usePlayerImoji";
 import { Difficulty } from "interfaces/newMinesweeper";
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
 interface FieldProps {
@@ -28,15 +28,18 @@ const FieldContainer = styled.main`
 `;
 
 const NewMinesweeper = () => {
-  const [difficulty, setDifficulty] = useState<Difficulty>(hard);
-  const { field, setField, deployMines, setDummyField } = useField(difficulty);
-  const { gameStatus, gameReady, gameStart, gameOver, time } = useGameStatus(
-    field,
-    setDifficulty,
-    deployMines,
-    setDummyField
-  );
+  const { field, setField, generateField } = useField();
+  const {
+    difficulty,
+    time,
+    flagCount,
+    gameStatus,
+    gameReady,
+    gameStart,
+    gameOver,
+  } = useGameStatus(field, generateField);
   const { imoji, mouseEventHandlers } = usePlayerEmoji(gameStatus);
+
   return (
     <>
       <button onClick={() => gameReady(difficulty)}>reset</button>
@@ -49,6 +52,7 @@ const NewMinesweeper = () => {
           imoji={imoji}
           time={time}
           gameReady={gameReady}
+          flagCount={flagCount}
         />
         <Field difficulty={difficulty} {...mouseEventHandlers}>
           {field?.map((row) =>

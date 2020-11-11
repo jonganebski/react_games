@@ -10,7 +10,6 @@ export const autoReveal = (
   for (let i = 0; i < cells.length; i++) {
     if (cells[i].status === "init") {
       const { value } = cells[i].changeStatus("reveal");
-      console.log(value);
       if (value === "") {
         autoReveal(field, cells[i].rowIdx, cells[i].colIdx);
       }
@@ -83,7 +82,7 @@ export const useCell = (
           if (value === "") {
             autoReveal(field, cell.rowIdx, cell.colIdx);
           }
-          if (!isSafe) {
+          if (!isSafe && gameStatus === "playing") {
             gameOver();
             console.log("GAME OVER");
           }
@@ -135,7 +134,8 @@ export const useCell = (
           if (value === "") {
             autoReveal(field, cell.rowIdx, cell.colIdx);
           }
-          if (!isSafe) {
+          if (!isSafe && gameStatus === "playing") {
+            console.log(gameStatus);
             gameOver();
             console.log("GAME OVER");
           }
@@ -149,7 +149,7 @@ export const useCell = (
         if (value === "") {
           autoReveal(field, cell.rowIdx, cell.colIdx);
         }
-        if (!isSafe) {
+        if (!isSafe && gameStatus === "playing") {
           gameOver();
           console.log("GAME OVER");
         }

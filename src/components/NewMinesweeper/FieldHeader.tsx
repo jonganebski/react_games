@@ -9,6 +9,7 @@ interface FieldHeaderProps {
   imoji: string;
   time: number;
   gameReady: (difficulty: Difficulty) => void;
+  flagCount: number;
 }
 
 const Container = styled.header`
@@ -71,10 +72,13 @@ const FieldHeader: React.FC<FieldHeaderProps> = ({
   imoji,
   time,
   gameReady,
+  flagCount,
 }) => {
   return (
     <Container>
-      <Count>{difficulty.totalMines.toString().padStart(3, "0")}</Count>
+      <Count>
+        {(difficulty.totalMines - flagCount).toString().padStart(3, "0")}
+      </Count>
       <PlayerImoji onClick={() => gameReady(difficulty)}>
         <span role="img" aria-label="player imoji">
           {imoji}

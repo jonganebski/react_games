@@ -1,50 +1,59 @@
-import { useTimer } from "hooks/useTimer";
-import { Difficulty } from "interfaces/newMinesweeper";
-import { useEffect, useState } from "react";
-import { CellService } from "utils/newMinesweeper/utils";
 import { GameStatus } from "../../@types/newMinsweeper";
+import { useEffect, useState } from "react";
+import { hard } from "constants/newMinesweeper";
+import { Difficulty } from "interfaces/newMinesweeper";
+import { useTimer } from "hooks/useTimer";
+import { CellService } from "utils/newMinesweeper/utils";
 
 export const useGameStatus = (
   field: CellService[][] | null,
-  setDifficulty: React.Dispatch<React.SetStateAction<Difficulty>>,
-  deployMines: (startingRowIdx: number, startingColIdx: number) => void,
-  setDummyField: () => void
+  generateField: (
+    difficulty: Difficulty,
+    startingRowIdx: number | null,
+    startingColIdx: number | null
+  ) => void
 ) => {
   const [gameStatus, setGameStatus] = useState<GameStatus>("ready");
+  const [difficulty, setDifficulty] = useState<Difficulty>(hard);
+  const [flagCount, setFlagCount] = useState(0);
   const { time, setTime, startedAt } = useTimer(gameStatus !== "playing");
 
   const gameReady = (difficulty: Difficulty) => {
     setGameStatus("ready");
     setDifficulty(difficulty);
     setTime(0);
-    setDummyField();
+    setFlagCount(0);
+    generateField(difficulty, null, null);
   };
+
+  useEffect(() => {
+    gameReady(difficulty);
+  }, []);
 
   const gameStart = (rowIdx: number, colIdx: number) =>
     setGameStatus((prev) => {
       if (prev === "ready") {
-        deployMines(rowIdx, colIdx);
         startedAt.current = Date.now();
+        generateField(difficulty, rowIdx, colIdx);
         return "playing";
       }
       return prev;
     });
 
-  const gameOver = () => {
-    field?.forEach((row) =>
-      row.forEach((cell) => {
-        if (cell.isMine && cell.status !== "flaged") {
-          cell.changeStatus("reveal");
-        }
-      })
-    );
+  const gameOver = () =>
     setGameStatus((prev) => {
       if (prev === "playing") {
+        field?.forEach((row) =>
+          row.forEach((cell) => {
+            if (cell.isMine && cell.status !== "flaged") {
+              cell.changeStatus("reveal");
+            }
+          })
+        );
         return "gameOver";
       }
       return prev;
     });
-  };
 
   const victory = () =>
     setGameStatus((prev) => {
@@ -55,26 +64,31 @@ export const useGameStatus = (
     });
 
   useEffect(() => {
-    const isVictory = field?.every((row) =>
-      row.every((cell) => {
-        if (cell.isMine) {
-          return cell.status === "flaged";
-        } else {
-          return cell.status !== "init";
-        }
-      })
-    );
-    if (isVictory) {
-      victory();
-      console.log("You made it!");
+    if (gameStatus === "playing" && field) {
+      const flagCount = field.flat().filter((cell) => cell.status === "flaged")
+        .length;
+      setFlagCount(flagCount);
+      const isVictory = field.every((row) =>
+        row.every((cell) => {
+          if (cell.isMine) {
+            return cell.status === "flaged";
+          } else {
+            return cell.status === "revealed";
+          }
+        })
+      );
+      if (isVictory) {
+        victory();
+      }
     }
-  }, [field]);
-
+  }, [field, gameStatus]);
   return {
+    difficulty,
+    time,
+    flagCount,
     gameStatus,
     gameReady,
     gameStart,
     gameOver,
-    time,
   };
 };

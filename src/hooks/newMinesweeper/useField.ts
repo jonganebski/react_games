@@ -1,20 +1,25 @@
+import { GameStatus, Status } from "../../@types/newMinsweeper";
 import { Difficulty } from "interfaces/newMinesweeper";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { CellService } from "utils/newMinesweeper/utils";
 import { autoReveal } from "./useCell";
 
-export const useField = (difficulty: Difficulty) => {
+export const useField = () => {
   const [field, setField] = useState<CellService[][] | null>(null);
-  const {
-    size: { x, y },
-    totalMines,
-  } = difficulty;
 
-  const deployMines = (startingRowIdx: number, startingColIdx: number) => {
-    const baseArr: boolean[] = Array(x * y)
-      .fill(false)
-      .flat();
-    const mineExceptionIdx = startingRowIdx * x + startingColIdx;
+  const getMinesIdx = (
+    startingRowIdx: number | null,
+    startingColIdx: number | null,
+    difficulty: Difficulty
+  ) => {
+    const {
+      size: { x, y },
+      totalMines,
+    } = difficulty;
+    let mineExceptionIdx = 0;
+    if (startingRowIdx && startingColIdx) {
+      mineExceptionIdx = startingRowIdx * x + startingColIdx;
+    }
     const mineIndexes = new Set<number>();
     for (let i = 0; i < 1000; i++) {
       const randIdx = Math.floor(Math.random() * x * y);
@@ -26,54 +31,65 @@ export const useField = (difficulty: Difficulty) => {
         break;
       }
     }
-    mineIndexes.forEach((idx) => (baseArr[idx] = true));
+    return mineIndexes;
+  };
+
+  const handleInitialClick = (
+    field: CellService[][],
+    startingRowIdx: number,
+    startingColIdx: number
+  ) => {
+    const { value } = field[startingRowIdx][startingColIdx].changeStatus(
+      "reveal"
+    );
+    if (value === "") {
+      autoReveal(field, startingRowIdx, startingColIdx);
+    }
+  };
+
+  const generateField = (
+    difficulty: Difficulty,
+    startingRowIdx: number | null,
+    startingColIdx: number | null
+  ) => {
+    const {
+      size: { x, y },
+    } = difficulty;
+    const baseArray = Array(y).fill(Array(x).fill(false));
+    const flatBaseArray = baseArray.flat();
+    const mineIndexes = getMinesIdx(startingRowIdx, startingColIdx, difficulty);
+    mineIndexes.forEach((idx) => {
+      flatBaseArray[idx] = true;
+    });
     let deployedArr: boolean[][] = [];
     for (let j = 0; j < y; j++) {
-      const row = baseArr.slice(j * x, (j + 1) * x);
+      const row = flatBaseArray.slice(j * x, (j + 1) * x);
       deployedArr.push(row);
     }
-    console.log(field);
 
-    const newField: CellService[][] = deployedArr.map((row, rowIdx, arr) =>
+    const newField = deployedArr.map((row, rowIdx) =>
       row.map((isMine, colIdx) => {
-        const status = field![rowIdx][colIdx].status;
+        let status: Status = "init";
         return new CellService(
           isMine,
           false,
-          status === "flaged" || status === "question" ? status : "init",
+          status,
           rowIdx,
           colIdx,
-          arr
+          deployedArr
         );
       })
     );
-    const initialCell = newField[startingRowIdx][startingColIdx];
-    const { value } = initialCell.changeStatus("reveal");
-    if (value === "") {
-      autoReveal(newField, initialCell.rowIdx, initialCell.colIdx);
+    if (startingRowIdx && startingColIdx) {
+      handleInitialClick(newField, startingRowIdx, startingColIdx);
     }
+
     setField(newField);
   };
-
-  const setDummyField = useCallback(() => {
-    const undeployedArr: boolean[][] = Array(y).fill(Array(x).fill(false));
-    const field: CellService[][] = undeployedArr.map((row, rowIdx, arr) =>
-      row.map(
-        (isMine, colIdx) =>
-          new CellService(isMine, false, "init", rowIdx, colIdx, arr)
-      )
-    );
-    setField(field);
-  }, [x, y]);
-
-  useEffect(() => {
-    setDummyField();
-  }, [setDummyField, x, y]);
 
   return {
     field,
     setField,
-    deployMines,
-    setDummyField,
+    generateField,
   };
 };
