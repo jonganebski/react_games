@@ -1,10 +1,12 @@
 import Cell from "components/NewMinesweeper/Cell";
-import { CELL_SIZE } from "constants/newMinesweeper";
+import { CELL_SIZE, easy, hard, midd } from "constants/newMinesweeper";
 import { useField } from "hooks/newMinesweeper/useField";
 import { useGameStatus } from "hooks/newMinesweeper/useGameStatus";
+import { useTimer } from "hooks/useTimer";
 import { Difficulty } from "interfaces/newMinesweeper";
 import React from "react";
 import styled from "styled-components";
+import { timeToString } from "utils/globalUtils";
 
 interface FieldProps {
   difficulty: Difficulty;
@@ -27,14 +29,22 @@ const NewMinesweeper = () => {
     field,
     setField,
     deployMines,
+    setDummyField,
   } = useField();
-  const { gameStatus, gameStart, gameOver, victory } = useGameStatus(
+  const { gameStatus, gameReady, gameStart, gameOver, time } = useGameStatus(
     field,
-    deployMines
+    deployMines,
+    setDummyField
   );
 
   return (
     <>
+      <span>{difficulty.totalMines}</span>
+      <button onClick={gameReady}>reset</button>
+      <span>{timeToString(time).substring(0, 5)}</span>
+      <button onClick={() => setDifficulty(easy)}>easy</button>
+      <button onClick={() => setDifficulty(midd)}>midd</button>
+      <button onClick={() => setDifficulty(hard)}>hard</button>
       <Field difficulty={difficulty}>
         {field?.map((row) =>
           row.map((cell, colIdx) => (
@@ -43,6 +53,7 @@ const NewMinesweeper = () => {
               field={field}
               setField={setField}
               cell={cell}
+              gameStatus={gameStatus}
               gameStart={gameStart}
               gameOver={gameOver}
             />

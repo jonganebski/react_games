@@ -1,4 +1,4 @@
-import { Status } from "../../@types/newMinsweeper";
+import { GameStatus, Status } from "../../@types/newMinsweeper";
 import { useCell } from "hooks/newMinesweeper/useCell";
 import React from "react";
 import styled from "styled-components";
@@ -52,6 +52,7 @@ interface CellProps {
   field: CellService[][];
   setField: React.Dispatch<React.SetStateAction<CellService[][] | null>>;
   cell: CellService;
+  gameStatus: GameStatus;
   gameStart: (rowIdx: number, colIdx: number) => void;
   gameOver: () => void;
 }
@@ -60,10 +61,18 @@ const Cell: React.FC<CellProps> = ({
   field,
   setField,
   cell,
+  gameStatus,
   gameStart,
   gameOver,
 }) => {
-  const useCellResult = useCell(field, setField, cell, gameStart, gameOver);
+  const useCellResult = useCell(
+    field,
+    setField,
+    cell,
+    gameStatus,
+    gameStart,
+    gameOver
+  );
   return (
     <Input
       id={cell.id}

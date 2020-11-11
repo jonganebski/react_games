@@ -5,7 +5,7 @@ import { useLeaderboard } from "hooks/sudoku/useLeaderboard";
 import { useNotes } from "hooks/sudoku/useNotes";
 import { usePopup } from "hooks/sudoku/usePopup";
 import { useTemplate } from "hooks/sudoku/useTemplate";
-import { useTimer } from "hooks/sudoku/useTimer";
+import { useTimer } from "hooks/useTimer";
 import Box from "components/Sudoku/Box";
 import SudokuBtn from "components/Sudoku/Button";
 import Instructions from "components/Sudoku/Instructions";

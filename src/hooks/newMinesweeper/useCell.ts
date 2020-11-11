@@ -1,3 +1,4 @@
+import { GameStatus } from "../../@types/newMinsweeper";
 import { CellService, getArroundCells } from "utils/newMinesweeper/utils";
 
 export const autoReveal = (
@@ -20,15 +21,21 @@ export const useCell = (
   field: CellService[][],
   setField: React.Dispatch<React.SetStateAction<CellService[][] | null>>,
   cell: CellService,
+  gameStatus: GameStatus,
   gameStart: (rowIdx: number, colIdx: number) => void,
   gameOver: () => void
 ) => {
+  const stopMouseEvents = gameStatus === "gameOver" || gameStatus === "victory";
+
   const onContextMenu = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     e.preventDefault();
   };
 
   const onMouseLeave = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     e.preventDefault();
+    if (stopMouseEvents) {
+      return;
+    }
     const arroundCells = getArroundCells(field, cell.rowIdx, cell.colIdx);
     if (e.buttons === 1) {
       cell.isDown = false;
@@ -41,6 +48,9 @@ export const useCell = (
 
   const onMouseEnter = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     e.preventDefault();
+    if (stopMouseEvents) {
+      return;
+    }
     const arroundCells = getArroundCells(field, cell.rowIdx, cell.colIdx);
     if (e.buttons === 1) {
       cell.isDown = true;
@@ -53,6 +63,9 @@ export const useCell = (
 
   const onDoubleClick = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     e.preventDefault();
+    if (stopMouseEvents) {
+      return;
+    }
     const arroundCells = getArroundCells(field, cell.rowIdx, cell.colIdx);
     if (cell.status === "revealed") {
       if (
@@ -81,6 +94,9 @@ export const useCell = (
 
   const onMouseDown = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     e.preventDefault();
+    if (stopMouseEvents) {
+      return;
+    }
     cell.isDown = true;
     const arroundCells = getArroundCells(field, cell.rowIdx, cell.colIdx);
     if (e.buttons === 3) {
@@ -95,6 +111,9 @@ export const useCell = (
 
   const onMouseUp = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     e.preventDefault();
+    if (stopMouseEvents) {
+      return;
+    }
     gameStart(cell.rowIdx, cell.colIdx);
     cell.isDown = false;
     const arroundCells = getArroundCells(field, cell.rowIdx, cell.colIdx);

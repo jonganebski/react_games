@@ -1,17 +1,18 @@
 import { easy, hard } from "constants/newMinesweeper";
 import { Difficulty } from "interfaces/newMinesweeper";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CellService } from "utils/newMinesweeper/utils";
 import { autoReveal } from "./useCell";
 
 export const useField = () => {
   const [difficulty, setDifficulty] = useState<Difficulty>(hard);
   const [field, setField] = useState<CellService[][] | null>(null);
+  const {
+    size: { x, y },
+    totalMines,
+  } = difficulty;
 
   const deployMines = (startingRowIdx: number, startingColIdx: number) => {
-    const {
-      size: { x, y },
-    } = difficulty;
     const baseArr: boolean[] = Array(x * y)
       .fill(false)
       .flat();
@@ -23,7 +24,7 @@ export const useField = () => {
         continue;
       }
       mineIndexes.add(randIdx);
-      if (mineIndexes.size === difficulty.totalMines) {
+      if (mineIndexes.size === totalMines) {
         break;
       }
     }
@@ -46,10 +47,7 @@ export const useField = () => {
     setField(field);
   };
 
-  useEffect(() => {
-    const {
-      size: { x, y },
-    } = difficulty;
+  const setDummyField = useCallback(() => {
     const undeployedArr: boolean[][] = Array(y).fill(Array(x).fill(false));
     const field: CellService[][] = undeployedArr.map((row, rowIdx, arr) =>
       row.map(
@@ -58,7 +56,18 @@ export const useField = () => {
       )
     );
     setField(field);
-  }, [difficulty]);
+  }, [x, y]);
 
-  return { difficulty, setDifficulty, field, setField, deployMines };
+  useEffect(() => {
+    setDummyField();
+  }, [setDummyField, x, y]);
+
+  return {
+    difficulty,
+    setDifficulty,
+    field,
+    setField,
+    deployMines,
+    setDummyField,
+  };
 };
