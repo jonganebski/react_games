@@ -1,18 +1,21 @@
-import { GameStatus } from "../../@types/newMinsweeper";
+import { useTimer } from "hooks/useTimer";
+import { Difficulty } from "interfaces/newMinesweeper";
 import { useEffect, useState } from "react";
 import { CellService } from "utils/newMinesweeper/utils";
-import { useTimer } from "hooks/useTimer";
+import { GameStatus } from "../../@types/newMinsweeper";
 
 export const useGameStatus = (
   field: CellService[][] | null,
+  setDifficulty: React.Dispatch<React.SetStateAction<Difficulty>>,
   deployMines: (startingRowIdx: number, startingColIdx: number) => void,
   setDummyField: () => void
 ) => {
   const [gameStatus, setGameStatus] = useState<GameStatus>("ready");
   const { time, setTime, startedAt } = useTimer(gameStatus !== "playing");
 
-  const gameReady = () => {
+  const gameReady = (difficulty: Difficulty) => {
     setGameStatus("ready");
+    setDifficulty(difficulty);
     setTime(0);
     setDummyField();
   };
@@ -67,5 +70,11 @@ export const useGameStatus = (
     }
   }, [field]);
 
-  return { gameStatus, gameReady, gameStart, gameOver, time };
+  return {
+    gameStatus,
+    gameReady,
+    gameStart,
+    gameOver,
+    time,
+  };
 };

@@ -33,3 +33,10 @@ export const CELL_BORDER = {
     LEFT: "2px solid dimgray",
   },
 };
+
+export const IMOJI = {
+  CHILL: "🙂",
+  NERVOUS: "😮",
+  DEAD: "💀",
+  PARTY: "😎",
+};

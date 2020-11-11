@@ -1,11 +1,9 @@
-import { easy, hard } from "constants/newMinesweeper";
 import { Difficulty } from "interfaces/newMinesweeper";
 import { useCallback, useEffect, useState } from "react";
 import { CellService } from "utils/newMinesweeper/utils";
 import { autoReveal } from "./useCell";
 
-export const useField = () => {
-  const [difficulty, setDifficulty] = useState<Difficulty>(hard);
+export const useField = (difficulty: Difficulty) => {
   const [field, setField] = useState<CellService[][] | null>(null);
   const {
     size: { x, y },
@@ -34,17 +32,27 @@ export const useField = () => {
       const row = baseArr.slice(j * x, (j + 1) * x);
       deployedArr.push(row);
     }
-    const field: CellService[][] = deployedArr.map((row, rowIdx, arr) =>
+    console.log(field);
+
+    const newField: CellService[][] = deployedArr.map((row, rowIdx, arr) =>
       row.map((isMine, colIdx) => {
-        return new CellService(isMine, false, "init", rowIdx, colIdx, arr);
+        const status = field![rowIdx][colIdx].status;
+        return new CellService(
+          isMine,
+          false,
+          status === "flaged" || status === "question" ? status : "init",
+          rowIdx,
+          colIdx,
+          arr
+        );
       })
     );
-    const initialCell = field[startingRowIdx][startingColIdx];
+    const initialCell = newField[startingRowIdx][startingColIdx];
     const { value } = initialCell.changeStatus("reveal");
     if (value === "") {
-      autoReveal(field, initialCell.rowIdx, initialCell.colIdx);
+      autoReveal(newField, initialCell.rowIdx, initialCell.colIdx);
     }
-    setField(field);
+    setField(newField);
   };
 
   const setDummyField = useCallback(() => {
@@ -63,8 +71,6 @@ export const useField = () => {
   }, [setDummyField, x, y]);
 
   return {
-    difficulty,
-    setDifficulty,
     field,
     setField,
     deployMines,

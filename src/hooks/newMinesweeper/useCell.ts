@@ -8,8 +8,9 @@ export const autoReveal = (
 ) => {
   const cells: CellService[] = getArroundCells(field, rowIdx, colIdx);
   for (let i = 0; i < cells.length; i++) {
-    if (cells[i].status !== "revealed") {
+    if (cells[i].status === "init") {
       const { value } = cells[i].changeStatus("reveal");
+      console.log(value);
       if (value === "") {
         autoReveal(field, cells[i].rowIdx, cells[i].colIdx);
       }
@@ -114,7 +115,7 @@ export const useCell = (
     if (stopMouseEvents) {
       return;
     }
-    gameStart(cell.rowIdx, cell.colIdx);
+
     cell.isDown = false;
     const arroundCells = getArroundCells(field, cell.rowIdx, cell.colIdx);
     arroundCells.forEach((cell: CellService) => (cell.isDown = false));
@@ -125,6 +126,7 @@ export const useCell = (
           .length +
           ""
       ) {
+        setField([...field]);
         return;
       }
       arroundCells.forEach((cell: CellService) => {
@@ -141,6 +143,7 @@ export const useCell = (
       });
     }
     if (e.button === 0) {
+      gameStart(cell.rowIdx, cell.colIdx);
       if (!e.currentTarget.value) {
         const { isSafe, value } = cell.changeStatus("reveal");
         if (value === "") {
