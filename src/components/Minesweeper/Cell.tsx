@@ -1,8 +1,8 @@
-import { GameStatus, Status } from "../../@types/newMinsweeper";
-import { useCell } from "hooks/newMinesweeper/useCell";
+import { GameStatus, Status } from "types/minsweeper.types";
+import { useCell } from "hooks/minesweeper/useCell";
 import React from "react";
 import styled from "styled-components";
-import { CellService } from "utils/newMinesweeper/utils";
+import { CellService } from "utils/minesweeper/utils";
 
 interface InputProps {
   status: Status;

@@ -1,5 +1,5 @@
-import { CELL_BORDER } from "constants/newMinesweeper";
-import { Difficulty } from "interfaces/newMinesweeper";
+import { CELL_BORDER } from "constants/minesweeper";
+import { Difficulty } from "interfaces/minesweeper.interface";
 import React from "react";
 import styled, { keyframes } from "styled-components";
 import { timeToString } from "utils/globalUtils";

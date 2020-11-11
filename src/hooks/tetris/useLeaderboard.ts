@@ -1,6 +1,6 @@
 import Axios from "axios";
 import { useEffect, useState } from "react";
-import { TLeaderboard } from "../../@types/global";
+import { Record } from "types/global.types";
 import { TETRIS_GET_URL } from "constants/tetris";
 import { processData } from "utils/globalUtils";
 
@@ -8,12 +8,12 @@ export const useLeaderboard = (
   score: number,
   gameOver: boolean
 ): [
-  TLeaderboard,
-  React.Dispatch<React.SetStateAction<TLeaderboard>>,
+  Record[],
+  React.Dispatch<React.SetStateAction<Record[]>>,
   boolean,
   React.Dispatch<React.SetStateAction<boolean>>
 ] => {
-  const [leaderboard, setLeaderboard] = useState<TLeaderboard>([]);
+  const [leaderboard, setLeaderboard] = useState<Record[]>([]);
   const [isNewRecord, setIsNewRecord] = useState(false);
 
   useEffect(() => {

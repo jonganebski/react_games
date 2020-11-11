@@ -1,5 +1,5 @@
-import { GameStatus } from "../../@types/newMinsweeper";
-import { CellService, getArroundCells } from "utils/newMinesweeper/utils";
+import { GameStatus } from "types/minsweeper.types";
+import { CellService, getArroundCells } from "utils/minesweeper/utils";
 
 export const autoReveal = (
   field: CellService[][],

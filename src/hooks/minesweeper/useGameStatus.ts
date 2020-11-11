@@ -1,9 +1,9 @@
-import { GameStatus } from "../../@types/newMinsweeper";
+import { GameStatus } from "types/minsweeper.types";
 import { useEffect, useState } from "react";
-import { hard } from "constants/newMinesweeper";
-import { Difficulty } from "interfaces/newMinesweeper";
+import { midd } from "constants/minesweeper";
+import { Difficulty } from "interfaces/minesweeper.interface";
 import { useTimer } from "hooks/useTimer";
-import { CellService } from "utils/newMinesweeper/utils";
+import { CellService } from "utils/minesweeper/utils";
 
 export const useGameStatus = (
   field: CellService[][] | null,
@@ -14,7 +14,7 @@ export const useGameStatus = (
   ) => void
 ) => {
   const [gameStatus, setGameStatus] = useState<GameStatus>("ready");
-  const [difficulty, setDifficulty] = useState<Difficulty>(hard);
+  const [difficulty, setDifficulty] = useState<Difficulty>(midd);
   const [flagCount, setFlagCount] = useState(0);
   const { time, setTime, startedAt } = useTimer(gameStatus !== "playing");
 

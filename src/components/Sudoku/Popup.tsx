@@ -1,12 +1,10 @@
-import Axios from "axios";
-import React from "react";
-import styled from "styled-components";
-import { TLeaderboard } from "../../@types/global";
-import { TPopup } from "../../@types/sudoku";
+import Button from "components/Sudoku/Button";
 import { SUDOKU_POST_URL } from "constants/sudoku";
 import { useUsernameInput } from "hooks/useUsernameInput";
-import { processData, timeToString } from "utils/globalUtils";
-import Button from "components/Sudoku/Button";
+import React from "react";
+import styled from "styled-components";
+import { timeToString } from "utils/globalUtils";
+import { TPopup } from "types/global.types";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -71,24 +69,12 @@ const Warning = styled.div`
 
 interface IPopupProps {
   time: number;
-  setLeaderboard: React.Dispatch<React.SetStateAction<TLeaderboard>>;
   setPopup: React.Dispatch<React.SetStateAction<TPopup>>;
+  handleSubmit: (valid: boolean, url: string, value: string) => void;
 }
 
-const Popup: React.FC<IPopupProps> = ({ time, setLeaderboard, setPopup }) => {
+const Popup: React.FC<IPopupProps> = ({ time, setPopup, handleSubmit }) => {
   const { value, handleOnChange, valid } = useUsernameInput();
-
-  const handleOnClick = () => {
-    if (valid.bool) {
-      Axios.post(SUDOKU_POST_URL, {
-        username: value,
-        time,
-      }).then((res) => {
-        setLeaderboard(processData(res.data));
-      });
-      setPopup({ bool: false, submitted: true });
-    }
-  };
 
   return (
     <Wrapper>
@@ -106,7 +92,10 @@ const Popup: React.FC<IPopupProps> = ({ time, setLeaderboard, setPopup }) => {
           onChange={handleOnChange}
         ></Input>
         <Warning>{valid.text}</Warning>
-        <Button text="SUBMIT" onClick={handleOnClick}></Button>
+        <Button
+          text="SUBMIT"
+          onClick={() => handleSubmit(valid.bool, SUDOKU_POST_URL, value)}
+        ></Button>
       </Container>
     </Wrapper>
   );

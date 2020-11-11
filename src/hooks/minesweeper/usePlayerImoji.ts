@@ -1,6 +1,6 @@
-import { GameStatus } from "../../@types/newMinsweeper";
+import { GameStatus } from "../../types/minsweeper.types";
 import { useEffect, useState } from "react";
-import { IMOJI } from "constants/newMinesweeper";
+import { IMOJI } from "constants/minesweeper";
 
 export const usePlayerEmoji = (gameStatus: GameStatus) => {
   const [imoji, setImoji] = useState(IMOJI.CHILL);

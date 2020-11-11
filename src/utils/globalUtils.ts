@@ -1,4 +1,4 @@
-import { TLeader } from "../@types/global";
+import { Record } from "types/global.types";
 
 export const timeToString = (milliSeconds: number) => {
   const diffInMin = milliSeconds / 60000;
@@ -31,4 +31,4 @@ export const processData = (arr: string[]) => {
   return result;
 };
 
-export const sortLBDescend = (a: TLeader, b: TLeader) => +b[1] - +a[1];
+export const sortLBDescend = (a: Record, b: Record) => +b[1] - +a[1];

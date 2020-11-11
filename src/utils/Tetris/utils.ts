@@ -1,4 +1,4 @@
-import { TMatrix, TTetriminos } from "../../@types/tetris";
+import { TMatrix, TTetriminos } from "types/tetris.types";
 import { TETRIMINO } from "constants/tetris";
 
 export const createMatrix = (row: number, col: number) =>

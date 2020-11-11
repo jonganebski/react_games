@@ -1,8 +1,8 @@
-import { GameStatus, Status } from "../../@types/newMinsweeper";
-import { Difficulty } from "interfaces/newMinesweeper";
-import { useEffect, useState } from "react";
-import { CellService } from "utils/newMinesweeper/utils";
-import { autoReveal } from "./useCell";
+import { Difficulty } from "interfaces/minesweeper.interface";
+import { useState } from "react";
+import { CellService } from "utils/minesweeper/utils";
+import { Status } from "types/minsweeper.types";
+import { autoReveal } from "hooks/minesweeper/useCell";
 
 export const useField = () => {
   const [field, setField] = useState<CellService[][] | null>(null);
@@ -17,7 +17,7 @@ export const useField = () => {
       totalMines,
     } = difficulty;
     let mineExceptionIdx = 0;
-    if (startingRowIdx && startingColIdx) {
+    if (startingRowIdx !== null && startingColIdx !== null) {
       mineExceptionIdx = startingRowIdx * x + startingColIdx;
     }
     const mineIndexes = new Set<number>();
@@ -80,7 +80,7 @@ export const useField = () => {
         );
       })
     );
-    if (startingRowIdx && startingColIdx) {
+    if (startingRowIdx !== null && startingColIdx !== null) {
       handleInitialClick(newField, startingRowIdx, startingColIdx);
     }
 

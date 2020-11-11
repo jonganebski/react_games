@@ -1,239 +1,123 @@
-import {
-  TBox,
-  TBoxValues,
-  TLeaderboards,
-  TMode,
-} from "../../@types/minesweeper";
+import { Status } from "../../types/minsweeper.types";
 
-export const getMinesIndex = (mode: TMode, startId: number) => {
-  const minesIndex = new Set();
-  for (let i = 0; i < 1000; i++) {
-    const index = Math.ceil(Math.random() * mode.size.x * mode.size.y);
-    if (index !== startId) {
-      minesIndex.add(index);
-    }
-    if (minesIndex.size === mode.totalMines) {
-      break;
-    }
-  }
-  return minesIndex;
-};
-
-export const getBoxesAround = (mode: TMode, id: number) => {
-  let boxesAround = [];
-  const lastId = mode.size.x * mode.size.y;
-  const xLength = mode.size.x;
-  const N = id - xLength;
-  const NE = N + 1;
-  const E = NE + xLength;
-  const SE = E + xLength;
-  const S = SE - 1;
-  const SW = S - 1;
-  const W = SW - xLength;
-  const NW = W - xLength;
-  if (id === 1) {
-    //    _________
-    //   | 1   E
-    //   | S   SE
-    boxesAround = [E, SE, S];
-  } else if (id === xLength) {
-    //  _________
-    //    W   9 |
-    //    SW  S |
-    boxesAround = [S, SW, W];
-  } else if (id === lastId) {
-    //    NW  N   |
-    //    W   81  |
-    //  ¯¯¯¯¯¯¯¯¯¯
-    boxesAround = [W, NW, N];
-  } else if (id === lastId - xLength + 1) {
-    //    | N     NE
-    //    | 73    E
-    //    ¯¯¯¯¯¯¯¯¯¯¯¯
-    boxesAround = [N, NE, E];
-  } else if (id < xLength) {
-    //  ______________
-    //    W   5   E
-    //    SW  S   SE
-    boxesAround = [E, SE, S, SW, W];
-  } else if (id % xLength === 0) {
-    //    NW  N  |
-    //    W   18 |
-    //    SW  S  |
-    boxesAround = [S, SW, W, NW, N];
-  } else if (lastId - xLength + 1 < id && id < lastId) {
-    //    NW  N   NE
-    //    W   78  E
-    //  ¯¯¯¯¯¯¯¯¯¯¯¯¯
-    boxesAround = [W, NW, N, NE, E];
-  } else if (id % xLength === 1) {
-    //    | N     NE
-    //    | 17    E
-    //    | S     SE
-    boxesAround = [N, NE, E, SE, S];
-  } else {
-    //   NW   N   NE
-    //    W   15  E
-    //   SW   S   SE
-    boxesAround = [N, NE, E, SE, S, SW, W, NW];
-  }
-  return boxesAround;
-};
-
-export const countMinesAround = (
-  mode: TMode,
-  minedIndex: Set<unknown>,
-  id: number
+export const getArroundCells = (
+  arr: any[][],
+  rowIdx: number,
+  colIdx: number
 ) => {
-  let count = 0;
-  if (minedIndex) {
-    const boxesAround = getBoxesAround(mode, id);
-    boxesAround.forEach((id) => {
-      if (minedIndex.has(id)) {
-        ++count;
-      }
-    });
+  let arroundValues = [];
+  if (arr[rowIdx - 1]) {
+    const a = arr[rowIdx - 1][colIdx];
+    const b = arr[rowIdx - 1][colIdx + 1];
+    const c = arr[rowIdx - 1][colIdx - 1];
+    if (a) arroundValues.push(a);
+    if (b) arroundValues.push(b);
+    if (c) arroundValues.push(c);
   }
-  return count;
+  if (arr[rowIdx + 1]) {
+    const d = arr[rowIdx + 1][colIdx + 1];
+    const e = arr[rowIdx + 1][colIdx];
+    const f = arr[rowIdx + 1][colIdx - 1];
+    if (d) arroundValues.push(d);
+    if (e) arroundValues.push(e);
+    if (f) arroundValues.push(f);
+  }
+  const g = arr[rowIdx][colIdx + 1];
+  const h = arr[rowIdx][colIdx - 1];
+  if (g) arroundValues.push(g);
+  if (h) arroundValues.push(h);
+  return arroundValues;
 };
 
-export const revealChain = (mode: TMode, initialId: number, boxes: TBox) => {
-  let unhandledEmptyBoxes = [initialId];
-  let foundEmptyBoxes: number[] = [];
-  for (let i = 0; i < 1000; i++) {
-    for (const ID of unhandledEmptyBoxes) {
-      const boxesAround = getBoxesAround(mode, ID);
-      for (const id of boxesAround) {
-        if (boxes[id].value === 0 && !boxes[id].isRevealed) {
-          foundEmptyBoxes.push(id);
-        }
-        if (!boxes[id].isFlaged && !boxes[id].isQuestion) {
-          boxes[id].isRevealed = true;
-        }
+export class CellService {
+  isMine: boolean;
+  isDown: boolean;
+  status: Status;
+  rowIdx: number;
+  colIdx: number;
+  mines: boolean[][];
+  id: string;
+  constructor(
+    isMine: boolean,
+    isDown: boolean,
+    status: Status,
+    rowIdx: number,
+    colIdx: number,
+    mines: boolean[][]
+  ) {
+    this.isMine = isMine;
+    this.isDown = isDown;
+    this.status = status;
+    this.rowIdx = rowIdx;
+    this.colIdx = colIdx;
+    this.mines = mines;
+    this.id = `${this.rowIdx}-${this.colIdx}`;
+  }
+  private FLAG = "🚩";
+  private QUESTION = "❓";
+  private MINE = "💣";
+  private isKaboom = () => this.isMine && this.status === "revealed";
+
+  getValue = () => {
+    if (this.mines.length === 0) {
+      return "";
+    }
+    if (this.status === "flaged") {
+      return this.FLAG;
+    } else if (this.status === "question") {
+      return this.QUESTION;
+    } else if (this.status === "init") {
+      return "";
+    } else {
+      if (this.isKaboom()) {
+        return this.MINE;
+      }
+      const minesArround = getArroundCells(
+        this.mines,
+        this.rowIdx,
+        this.colIdx
+      );
+      if (minesArround.length === 0) {
+        return "";
+      }
+      return minesArround.length + "";
+    }
+  };
+
+  changeStatus = (str: "reveal" | "else") => {
+    if (str === "reveal") {
+      this.status = "revealed";
+    }
+    if (str === "else") {
+      if (this.status === "init") {
+        this.status = "flaged";
+      } else if (this.status === "flaged") {
+        this.status = "question";
+      } else if (this.status === "question") {
+        this.status = "init";
       }
     }
-    unhandledEmptyBoxes = foundEmptyBoxes;
-    foundEmptyBoxes = [];
-    if (unhandledEmptyBoxes.length === 0) {
-      break;
-    }
-  }
-};
+    return { isSafe: !this.isKaboom(), value: this.getValue() };
+  };
+}
 
-export const revealAround = (mode: TMode, id: number, boxes: TBox) => {
-  const box = boxes[id];
-  let flagsCountAround = 0;
-  const minesCountAround = box.value;
-  const boxesAround = getBoxesAround(mode, id);
-  boxesAround.forEach((id) => {
-    const box = boxes[id];
-    if (box.isFlaged) {
-      ++flagsCountAround;
-    }
-  });
-  if (flagsCountAround === minesCountAround) {
-    boxesAround.forEach((id) => {
-      const box = boxes[id];
-      if (!box.isFlaged && !box.isQuestion) {
-        box.isRevealed = true;
-      }
-      if (box.value === 0) {
-        revealChain(mode, id, boxes);
-      }
-    });
-  }
-};
-
-export const didIStepped = (boxes: TBox) => {
-  const iStepped = Object.values(boxes).some(
-    ({ isMine, isRevealed }) => isMine && isRevealed
-  );
-  return iStepped;
-};
-
-export const handleGameover = (
-  boxes: TBox,
-  indicatorRef: React.MutableRefObject<HTMLButtonElement | null>
-) => {
-  Object.values(boxes).forEach(
-    (box) => box.isMine && !box.isFlaged && (box.isRevealed = true)
-  );
-  if (indicatorRef?.current) {
-    indicatorRef.current.innerHTML = `<span role="img" aria-label="imoji">💀</span>`;
-  }
-};
-
-export const getIsNewRecord = (
-  level: string,
-  record: number,
-  leaderboard: TLeaderboards
-) => {
-  console.log(level);
-  console.log(leaderboard);
-  const isEmptySlot = leaderboard[level].length < 10;
-  const isFaster = leaderboard[level].some((set) => parseInt(set[1]) > record);
-  if (isEmptySlot || isFaster) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
-export const didIWon = (boxes: TBox) => {
-  const isJobDone = Object.values(boxes).every((box) =>
-    box.isMine ? box.isFlaged : box.isRevealed
-  );
-  return isJobDone;
-};
-
-export const handleVictory = (
-  indicatorRef: React.MutableRefObject<HTMLButtonElement | null>
-) => {
-  if (indicatorRef?.current) {
-    indicatorRef.current.innerHTML = `<span role="img" aria-label="imoji">😎</span>`;
-  }
-};
-
-export const paintPressed = (target: EventTarget & HTMLDivElement) => {
-  target.style.borderTop = "2px solid dimgray";
-  target.style.borderRight = "2px solid whitesmoke";
-  target.style.borderBottom = "2px solid whitesmoke";
-  target.style.borderLeft = "2px solid dimgray";
-};
-
-export const paintUnpressed = (target: EventTarget & HTMLDivElement) => {
-  target.style.borderTop = "2px solid whitesmoke";
-  target.style.borderRight = "2px solid dimgray";
-  target.style.borderBottom = "2px solid dimgray";
-  target.style.borderLeft = "2px solid whitesmoke";
-};
-
-export const paintPressedAround = (mode: TMode, id: number, boxes: TBox) => {
-  const boxesAround = getBoxesAround(mode, id);
-  boxesAround.forEach((id) => {
-    const boxElement = document.getElementById(id.toString())?.firstChild;
-    const box = boxes[id];
-    if (boxElement && !box.isFlaged && !box.isQuestion) {
-      paintPressed(boxElement as HTMLDivElement);
-    }
-  });
-};
-
-export const paintUnpressedAround = (mode: TMode, id: number, boxes: TBox) => {
-  const boxesAround = getBoxesAround(mode, id);
-  boxesAround.forEach((id) => {
-    const boxElement = document.getElementById(id.toString())?.firstChild;
-    const box = boxes[id];
-    if (boxElement && !box.isFlaged && !box.isQuestion) {
-      paintUnpressed(boxElement as HTMLDivElement);
-    }
-  });
-};
-
-export const startGame = (
-  box: TBoxValues,
-  setStatus: React.Dispatch<React.SetStateAction<number>>
-) => {
-  setStatus(1);
-  box.isRevealed = true;
-};
+// const getContentColor = (props: StyledProps<IBoxContent>) => {
+//   switch (props.value) {
+//     case 1:
+//       return "#00B5D8"; // cyan.500
+//     case 2:
+//       return "#38A169"; // green.500
+//     case 3:
+//       return "#E53E3E"; // red.500
+//     case 4:
+//       return "#3182CE"; // blue.500
+//     case 5:
+//       return "#DD6B20"; // orange.500
+//     case 6:
+//       return "#319795"; // teal.500
+//     case 7:
+//       return "#805AD5"; // pruple.500
+//     case 8:
+//       return "black";
+//   }
+// };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { TMatrix, TTetriminos } from "../../@types/tetris";
+import { TMatrix, TTetriminos } from "types/tetris.types";
 import { CELL_HEIGHT, CELL_WIDTH } from "constants/tetris";
 import { createMatrix } from "utils/Tetris/utils";
 import { Cell } from "routes/Tetris";

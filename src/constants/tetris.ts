@@ -1,5 +1,5 @@
-import { TTetriShape } from "../@types/tetris";
-import { DEV_SERVER_URL } from "./global";
+import { TTetriShape } from "types/tetris.types";
+import { DEV_SERVER_URL } from "constants/global";
 
 export const TETRIMINO: { [key: string]: TTetriShape } = {
   void: [["."]],

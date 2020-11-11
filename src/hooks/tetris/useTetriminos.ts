@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { TMatrix, TTetriminos, TTetriShape } from "../../@types/tetris";
+import { TMatrix, TTetriminos, TTetriShape } from "types/tetris.types";
 import { TETRIMINO } from "constants/tetris";
 import { checkWillCollide, getRandTetri } from "utils/Tetris/utils";
 

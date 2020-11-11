@@ -1,7 +1,7 @@
 import Axios from "axios";
 import React, { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
-import { TLeaderboard } from "../../@types/global";
+import { Record } from "types/global.types";
 import { keysNotAllowed } from "constants/global";
 import { TETRIS_POST_URL } from "constants/tetris";
 import { processData } from "utils/globalUtils";
@@ -22,7 +22,7 @@ interface IPopupProps {
   isNewRecord: boolean;
   gameOver: boolean;
   score: number;
-  setLeaderboard: React.Dispatch<React.SetStateAction<TLeaderboard>>;
+  setLeaderboard: React.Dispatch<React.SetStateAction<Record[]>>;
 }
 
 // ------------- ANIMATIONS -------------

@@ -1,13 +1,13 @@
 import React from "react";
 import styled from "styled-components";
-import { TLeaderboard } from "../../@types/global";
+import { Record } from "types/global.types";
 import { ranks } from "constants/global";
 import { sortLBDescend } from "utils/globalUtils";
 
 // ------------- INTERFACES -------------
 
 interface ILeaderboardProps {
-  leaderboard: TLeaderboard;
+  leaderboard: Record[];
 }
 
 // ------------- STYLED COMPONENTS -------------
