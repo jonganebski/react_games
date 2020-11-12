@@ -19,6 +19,7 @@
     "styled-reset": "^4.2.3",
     "typescript": "^3.7.5"
   },
+  "homepage": "https://react-games-misute.netlify.app",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
