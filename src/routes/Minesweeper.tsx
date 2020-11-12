@@ -1,40 +1,54 @@
+import Leaderboard from "components/LeaderBoard";
 import Button from "components/Minesweeper/Button";
 import Cell from "components/Minesweeper/Cell";
 import FieldHeader from "components/Minesweeper/FieldHeader";
 import Popup from "components/Minesweeper/Popup";
-import Leaderboard from "components/LeaderBoard";
 import { CELL_SIZE, easy, hard, midd } from "constants/minesweeper";
 import { useField } from "hooks/minesweeper/useField";
 import { useGameStatus } from "hooks/minesweeper/useGameStatus";
 import { usePlayerEmoji } from "hooks/minesweeper/usePlayerImoji";
+import { useWallpaper } from "hooks/minesweeper/useWallpaper";
 import { useLeaderboard } from "hooks/useLeaderboard";
 import { usePopup } from "hooks/usePopup";
 import { Difficulty } from "interfaces/minesweeper.interface";
 import React from "react";
-import styled from "styled-components";
 import { Link } from "react-router-dom";
+import styled from "styled-components";
 
 interface FieldProps {
   difficulty: Difficulty;
 }
 
-const Wrapper = styled.div`
+interface WrapperProps {
+  wallpaperUrl: string;
+}
+
+interface GridChildrenProps {
+  isPopup: boolean;
+}
+
+const Wrapper = styled.div<WrapperProps>`
   position: relative;
-  height: 90vh;
+  height: 100vh;
   display: grid;
   grid-template-columns: 2fr 1fr;
+  background: ${({ wallpaperUrl }) =>
+    wallpaperUrl ? `url(${wallpaperUrl})` : "black"};
+  background-size: cover;
 `;
 
-const Left = styled.div`
+const Left = styled.div<GridChildrenProps>`
   display: flex;
   align-items: center;
   justify-content: center;
+  filter: ${({ isPopup }) => (isPopup ? "blur(2px)" : "blur(0px)")};
 `;
 
-const Right = styled.div`
+const Right = styled.div<GridChildrenProps>`
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: flex-start;
+  filter: ${({ isPopup }) => (isPopup ? "blur(2px)" : "blur(0px)")};
 `;
 
 const Field = styled.section<FieldProps>`
@@ -74,9 +88,10 @@ const NewMinesweeper = () => {
     setLeaderboard,
     time
   );
+  const { wallpaperUrl } = useWallpaper();
 
   return (
-    <Wrapper>
+    <Wrapper wallpaperUrl={wallpaperUrl}>
       {popup.bool && !popup.submitted && (
         <Popup
           time={time}
@@ -85,7 +100,7 @@ const NewMinesweeper = () => {
           handleSubmit={handleSubmit}
         />
       )}
-      <Left>
+      <Left isPopup={popup.bool}>
         <FieldContainer>
           <FieldHeader
             difficulty={difficulty}
@@ -111,25 +126,25 @@ const NewMinesweeper = () => {
           </Field>
         </FieldContainer>
       </Left>
-      <Right>
+      <Right isPopup={popup.bool}>
         <ButtonGroup>
           <Button
             onClick={() => gameReady(easy)}
             text="easy"
             active={difficulty.level === "easy"}
-            margin="10px 0px 10px 0px"
+            margin="10px 30px 10px 0px"
           />
           <Button
             onClick={() => gameReady(midd)}
             text="moderate"
             active={difficulty.level === "midd"}
-            margin="10px 0px 10px 0px"
+            margin="10px 30px 10px 0px"
           />
           <Button
             onClick={() => gameReady(hard)}
             text="hard"
             active={difficulty.level === "hard"}
-            margin="10px 0px 10px 0px 0px 10px 0px"
+            margin="10px 30px 10px 0px"
           />
           <Link to="/">
             <Button text="HOME" margin="50px 0px 0px 0px" />

@@ -18,9 +18,15 @@ export const usePlayerEmoji = (gameStatus: GameStatus) => {
   const onContextMenu = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) =>
     e.preventDefault();
 
-  const onMouseDown = () => gameStatus === "playing" && setImoji(IMOJI.NERVOUS);
+  const onMouseDown = () => {
+    if (gameStatus === "ready" || gameStatus === "playing")
+      setImoji(IMOJI.NERVOUS);
+  };
 
-  const onMouseUp = () => gameStatus === "playing" && setImoji(IMOJI.CHILL);
+  const onMouseUp = () => {
+    if (gameStatus === "ready" || gameStatus === "playing")
+      setImoji(IMOJI.CHILL);
+  };
 
   return {
     imoji,

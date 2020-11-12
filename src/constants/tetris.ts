@@ -1,5 +1,5 @@
 import { TTetriShape } from "types/tetris.types";
-import { DEV_SERVER_URL } from "constants/global";
+import { DEV_SERVER_URL, HEROKU_SERVER_URL } from "constants/global";
 
 export const TETRIMINO: { [key: string]: TTetriShape } = {
   void: [["."]],
@@ -61,7 +61,11 @@ const POST_URL = "/api/tetris/post";
 const GET_URL = "/api/tetris/leaderboard";
 
 export const TETRIS_POST_URL =
-  process.env.NODE_ENV === "development" ? DEV_SERVER_URL + POST_URL : POST_URL;
+  process.env.NODE_ENV === "development"
+    ? DEV_SERVER_URL + POST_URL
+    : HEROKU_SERVER_URL + POST_URL;
 
 export const TETRIS_GET_URL =
-  process.env.NODE_ENV === "development" ? DEV_SERVER_URL + GET_URL : GET_URL;
+  process.env.NODE_ENV === "development"
+    ? DEV_SERVER_URL + GET_URL
+    : HEROKU_SERVER_URL + GET_URL;

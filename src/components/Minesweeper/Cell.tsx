@@ -2,7 +2,7 @@ import { GameStatus, Status } from "types/minsweeper.types";
 import { useCell } from "hooks/minesweeper/useCell";
 import React from "react";
 import styled from "styled-components";
-import { CellService } from "utils/minesweeper/utils";
+import { CellService, getContentColor } from "utils/minesweeper/utils";
 
 interface InputProps {
   status: Status;
@@ -12,6 +12,7 @@ interface InputProps {
 
 const Input = styled.input<InputProps>`
   all: unset;
+  color: ${({ value }) => getContentColor(value)};
   background-color: ${({ status, isMine }) => {
     if (status === "revealed") {
       if (isMine) {
@@ -46,6 +47,7 @@ const Input = styled.input<InputProps>`
       ? "2px solid dimgray"
       : "2px solid whitesmoke"};
   text-align: center;
+  font-weight: 600;
 `;
 
 interface CellProps {

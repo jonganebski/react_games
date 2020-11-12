@@ -32,3 +32,4 @@ export const HOMECARD_W = 240;
 export const HOMECARD_H = 300;
 
 export const DEV_SERVER_URL = "http://localhost:4000";
+export const HEROKU_SERVER_URL = process.env.REACT_APP_HEROKU_SERVER_URL;
