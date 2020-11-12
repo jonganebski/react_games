@@ -27,8 +27,8 @@ export const useGameStatus = (
   };
 
   useEffect(() => {
-    gameReady(difficulty);
-  }, []);
+    generateField(difficulty, null, null);
+  }, [difficulty, generateField]);
 
   const gameStart = (rowIdx: number, colIdx: number) =>
     setGameStatus((prev) => {
@@ -82,6 +82,7 @@ export const useGameStatus = (
       }
     }
   }, [field, gameStatus]);
+
   return {
     difficulty,
     time,

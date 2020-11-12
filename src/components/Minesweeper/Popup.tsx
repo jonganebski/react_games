@@ -1,5 +1,4 @@
 import Button from "components/Minesweeper/Button";
-import { SUDOKU_POST_URL } from "constants/sudoku";
 import { useUsernameInput } from "hooks/useUsernameInput";
 import { Difficulty } from "interfaces/minesweeper.interface";
 import React from "react";

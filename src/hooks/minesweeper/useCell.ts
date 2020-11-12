@@ -155,7 +155,7 @@ export const useCell = (
         }
       }
     } else if (e.button === 2) {
-      const { value } = cell.changeStatus("else");
+      cell.changeStatus("else");
     }
     setField([...field]);
   };

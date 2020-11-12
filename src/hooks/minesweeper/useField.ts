@@ -1,8 +1,8 @@
-import { Difficulty } from "interfaces/minesweeper.interface";
-import { useState } from "react";
-import { CellService } from "utils/minesweeper/utils";
-import { Status } from "types/minsweeper.types";
 import { autoReveal } from "hooks/minesweeper/useCell";
+import { Difficulty } from "interfaces/minesweeper.interface";
+import { useCallback, useState } from "react";
+import { Status } from "types/minsweeper.types";
+import { CellService } from "utils/minesweeper/utils";
 
 export const useField = () => {
   const [field, setField] = useState<CellService[][] | null>(null);
@@ -47,45 +47,52 @@ export const useField = () => {
     }
   };
 
-  const generateField = (
-    difficulty: Difficulty,
-    startingRowIdx: number | null,
-    startingColIdx: number | null
-  ) => {
-    const {
-      size: { x, y },
-    } = difficulty;
-    const baseArray = Array(y).fill(Array(x).fill(false));
-    const flatBaseArray = baseArray.flat();
-    const mineIndexes = getMinesIdx(startingRowIdx, startingColIdx, difficulty);
-    mineIndexes.forEach((idx) => {
-      flatBaseArray[idx] = true;
-    });
-    let deployedArr: boolean[][] = [];
-    for (let j = 0; j < y; j++) {
-      const row = flatBaseArray.slice(j * x, (j + 1) * x);
-      deployedArr.push(row);
-    }
+  const generateField = useCallback(
+    (
+      difficulty: Difficulty,
+      startingRowIdx: number | null,
+      startingColIdx: number | null
+    ) => {
+      const {
+        size: { x, y },
+      } = difficulty;
+      const baseArray = Array(y).fill(Array(x).fill(false));
+      const flatBaseArray = baseArray.flat();
+      const mineIndexes = getMinesIdx(
+        startingRowIdx,
+        startingColIdx,
+        difficulty
+      );
+      mineIndexes.forEach((idx) => {
+        flatBaseArray[idx] = true;
+      });
+      let deployedArr: boolean[][] = [];
+      for (let j = 0; j < y; j++) {
+        const row = flatBaseArray.slice(j * x, (j + 1) * x);
+        deployedArr.push(row);
+      }
 
-    const newField = deployedArr.map((row, rowIdx) =>
-      row.map((isMine, colIdx) => {
-        let status: Status = "init";
-        return new CellService(
-          isMine,
-          false,
-          status,
-          rowIdx,
-          colIdx,
-          deployedArr
-        );
-      })
-    );
-    if (startingRowIdx !== null && startingColIdx !== null) {
-      handleInitialClick(newField, startingRowIdx, startingColIdx);
-    }
+      const newField = deployedArr.map((row, rowIdx) =>
+        row.map((isMine, colIdx) => {
+          let status: Status = "init";
+          return new CellService(
+            isMine,
+            false,
+            status,
+            rowIdx,
+            colIdx,
+            deployedArr
+          );
+        })
+      );
+      if (startingRowIdx !== null && startingColIdx !== null) {
+        handleInitialClick(newField, startingRowIdx, startingColIdx);
+      }
 
-    setField(newField);
-  };
+      setField(newField);
+    },
+    []
+  );
 
   return {
     field,
