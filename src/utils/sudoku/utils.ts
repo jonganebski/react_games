@@ -107,7 +107,6 @@ export const solveA = (arr2D: number[][]) => {
       }
     }
   } else {
-    console.log("Solve A Finished");
     return true;
   }
 };
@@ -133,7 +132,6 @@ export const solveB = (arr2D: number[][]) => {
       }
     }
   } else {
-    console.log("Solve B Finished");
     return true;
   }
 };
@@ -204,7 +202,6 @@ export const generateSudoku = async () => {
   solveB(testArrB);
 
   if (JSON.stringify(testArrA) !== JSON.stringify(testArrB)) {
-    console.log("regen..");
     generateSudoku();
   }
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { useLeaderboard } from "hooks/useLeaderboard";
@@ -14,6 +14,7 @@ import NotesButton from "components/Sudoku/NotesButton";
 import Popup from "components/Sudoku/Popup";
 import Timer from "components/Sudoku/Timer";
 import { SUDOKU_GET_URL } from "constants/sudoku";
+import { generateSudoku } from "utils/sudoku/utils";
 
 interface IGridSectionProps {
   popup: boolean;
@@ -81,11 +82,7 @@ const Sudoku = () => {
   const [solved, setSolved] = useState(false);
   const { time, setTime, startedAt } = useTimer(solved);
   const { notesOn, setNotesOn } = useNotes();
-  const { hotTemplate, setHotTemplate, coolTemplate, startGame } = useTemplate(
-    setTime,
-    setSolved,
-    startedAt
-  );
+  const { hotTemplate, setHotTemplate, coolTemplate } = useTemplate(setSolved);
   const { leaderboard, setLeaderboard } = useLeaderboard(SUDOKU_GET_URL);
   const { popup, setPopup, handleSubmit } = usePopup(
     solved,
@@ -94,12 +91,27 @@ const Sudoku = () => {
     time
   );
 
+  const startGame = useCallback(() => {
+    generateSudoku().then((initialTemplate) => {
+      coolTemplate.current = initialTemplate;
+      setHotTemplate(initialTemplate);
+      setTime(0);
+      setSolved(false);
+      setPopup({ bool: false, submitted: false });
+      startedAt.current = Date.now();
+    });
+  }, [coolTemplate, setHotTemplate, setPopup, setTime, startedAt]);
+
+  useEffect(() => {
+    // START GAME
+    startGame();
+  }, [startGame]);
+
   return (
     <Wrapper>
       {popup.bool && !popup.submitted && (
         <Popup time={time} setPopup={setPopup} handleSubmit={handleSubmit} />
       )}
-
       <Left popup={popup.bool}>
         <Instructions />
       </Left>
