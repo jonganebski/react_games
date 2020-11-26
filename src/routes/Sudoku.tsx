@@ -89,7 +89,7 @@ const Sudoku = () => {
   const { leaderboard, setLeaderboard } = useLeaderboard(SUDOKU_GET_URL);
   const { popup, setPopup, handleSubmit } = usePopup(
     solved,
-    leaderboard,
+    leaderboard.result,
     setLeaderboard,
     time
   );

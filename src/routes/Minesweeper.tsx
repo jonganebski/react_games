@@ -84,7 +84,7 @@ const NewMinesweeper = () => {
   const { leaderboard, setLeaderboard } = useLeaderboard(difficulty.GET_URL);
   const { popup, setPopup, handleSubmit } = usePopup(
     gameStatus === "victory",
-    leaderboard,
+    leaderboard.result,
     setLeaderboard,
     time
   );
