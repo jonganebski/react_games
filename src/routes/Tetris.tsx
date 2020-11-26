@@ -190,8 +190,6 @@ const Tetris = () => {
 
   useInterval(() => drop(1), dropInterval);
 
-  console.log("re-render");
-
   const UseMemoCell = (i: number, type: string) =>
     useMemo(() => {
       return <Cell key={i} type={type} borderW="15px"></Cell>;

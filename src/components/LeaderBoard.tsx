@@ -31,18 +31,20 @@ interface ILeaderboardProps {
     isLoading: boolean;
     error: string;
     result: Record[];
-}
+  };
 }
 
 const Leaderboard: React.FC<ILeaderboardProps> = ({ leaderboard }) => {
-  const {isLoading, error, result} = leaderboard
+  const { isLoading, error, result } = leaderboard;
   return (
     <Wrapper>
-      <Heading>Best Players of the Month</Heading>
+      <Heading>Best Players of {new Date().getFullYear()}</Heading>
       <ul>
-        {isLoading ? (<Li>Loading leaderboard...</Li>) :
-        error ? (<Li>{error}</Li>) : 
-        result.length === 0 ? (
+        {isLoading ? (
+          <Li>Loading leaderboard...</Li>
+        ) : error ? (
+          <Li>{error}</Li>
+        ) : result.length === 0 ? (
           <Li>
             <span role="img" aria-label="nobody on leaderboard">
               😴 nobody's on the leaderboard

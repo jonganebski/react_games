@@ -58,7 +58,6 @@ export const useTetriminos = (): [
     copiedTetri.shape = rotateTetri(copiedTetri.shape, 1);
     let offset = 1;
     const posX = copiedTetri.pos.x;
-    console.log(checkWillCollide(matrix, copiedTetri, 0, 0));
     while (checkWillCollide(matrix, copiedTetri, 0, 0)) {
       copiedTetri.pos.x += offset;
       const cousion = offset > 0 ? 1 : -1;
